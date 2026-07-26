@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forge | GATE 2027 Operating System</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bgDark: '#09090b',
+            cardDark: '#121215',
+            borderDark: '#27272a',
+            accent: '#3b82f6',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React & Babel CDNs -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- KaTeX for Mathematics -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    body {
+      background-color: #09090b;
+      color: #f4f4f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .glass-card {
+      background: rgba(18, 18, 21, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card:hover {
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27272a;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="h-screen overflow-hidden">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Default GATE ME Roadmap Data
+    const INITIAL_ROADMAP = [
+      { id: 'math', name: 'Engineering Mathematics', weight: 13, progress: 20 },
+      { id: 'apti', name: 'General Aptitude', weight: 15, progress: 30 },
+      { id: 'som', name: 'Strength of Materials', weight: 8, progress: 10 },
+      { id: 'fme', name: 'Fluid Mechanics', weight: 7, progress: 0 },
+      { id: 'tom', name: 'Theory of Machines', weight: 9, progress: 0 },
+      { id: 'mfg', name: 'Manufacturing Engineering', weight: 16, progress: 5 },
+      { id: 'ht', name: 'Heat Transfer', weight: 6, progress: 0 },
+      { id: 'thermo', name: 'Basic & Applied Thermodynamics', weight: 10, progress: 0 },
+      { id: 'ie', name: 'Industrial Engineering', weight: 6, progress: 0 },
+      { id: 'em', name: 'Engineering Mechanics', weight: 5, progress: 0 },
+      { id: 'md', name: 'Machine Design', weight: 5, progress: 0 }
+    ];
+
+    const INITIAL_FORMULAS = [
+      { id: 1, subject: "Heat Transfer", title: "1D Heat Conduction", latex: "\\frac{\\partial^2 T}{\\partial x^2} + \\frac{\\dot{q}}{k} = \\frac{1}{\\alpha} \\frac{\\partial T}{\\partial t}" },
+      { id: 2, subject: "Fluid Mechanics", title: "Bernoulli's Equation", latex: "\\frac{P}{\\rho g} + \\frac{v^2}{2g} + z = \\text{Constant}" },
+      { id: 3, subject: "Strength of Materials", title: "Bending Stress Formula", latex: "\\frac{M}{I} = \\frac{\\sigma}{y} = \\frac{E}{R}" }
+    ];
+
+    function App() {
+      const [activeTab, setActiveTab] = useState('dashboard');
+      const [roadmap, setRoadmap] = useState(() => JSON.parse(localStorage.getItem('forge_roadmap')) || INITIAL_ROADMAP);
+      const [formulas, setFormulas] = useState(() => JSON.parse(localStorage.getItem('forge_formulas')) || INITIAL_FORMULAS);
+      const [mistakes, setMistakes] = useState(() => JSON.parse(localStorage.getItem('forge_mistakes')) || []);
+      const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('forge_logs')) || []);
+
+      // Persistence
+      useEffect(() => localStorage.setItem('forge_roadmap', JSON.stringify(roadmap)), [roadmap]);
+      useEffect(() => localStorage.setItem('forge_formulas', JSON.stringify(formulas)), [formulas]);
+      useEffect(() => localStorage.setItem('forge_mistakes', JSON.stringify(mistakes)), [mistakes]);
+      useEffect(() => localStorage.setItem('forge_logs', JSON.stringify(logs)), [logs]);
+
+      useEffect(() => {
+        if (window.lucide) window.lucide.createIcons();
+      });
+
+      // Days to GATE 2027 Calculation
+      const targetDate = new Date('2027-02-06');
+      const today = new Date();
+      const daysLeft = Math.max(0, Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24)));
+
+      // Calculate Total Progress
+      const overallProgress = Math.round(
+        roadmap.reduce((acc, curr) => acc + (curr.progress * (curr.weight / 100)), 0)
+      );
+
+      return (
+        <div className="flex h-screen w-screen overflow-hidden bg-[#09090b]">
+          {/* SIDEBAR */}
+          <aside className="w-64 border-r border-borderDark bg-[#0d0d10] flex flex-col justify-between p-5">
+            <div>
+              <div className="flex items-center gap-3 mb-8">
+                <div className="w-4 h-4 bg-white rounded-sm"></div>
+                <h1 className="text-xl font-bold tracking-tight text-white">Forge OS</h1>
+              </div>
+
+              <nav className="space-y-1.5">
+                {[
+                  { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
+                  { id: 'roadmap', label: 'Roadmap', icon: 'map' },
+                  { id: 'formulas', label: 'Formula Register', icon: 'calculator' },
+                  { id: 'mistakes', label: 'Mistake Vault', icon: 'alert-triangle' },
+                  { id: 'tracker', label: 'Study Logger', icon: 'clock' }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === item.id 
+                        ? 'bg-zinc-800 text-white shadow-sm' 
+                        : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
+                    }`}
+                  >
+                    <i data-lucide={item.icon} className="w-4 h-4"></i>
+                    {item.label}
+                  </button>
+                ))}
+              </nav>
+            </div>
+
+            <div className="p-3 glass-card rounded-xl">
+              <p className="text-xs text-zinc-500 uppercase tracking-widest font-semibold">GATE 2027 Target</p>
+              <p className="text-2xl font-black text-white mt-1">{daysLeft} <span className="text-xs font-normal text-zinc-400">Days Left</span></p>
+            </div>
+          </aside>
+
+          {/* MAIN CONTENT AREA */}
+          <main className="flex-1 overflow-y-auto p-8 bg-[#09090b]">
+            {activeTab === 'dashboard' && (
+              <DashboardView daysLeft={daysLeft} overallProgress={overallProgress} roadmap={roadmap} logs={logs} />
+            )}
+            {activeTab === 'roadmap' && (
+              <RoadmapView roadmap={roadmap} setRoadmap={setRoadmap} />
+            )}
+            {activeTab === 'formulas' && (
+              <FormulasView formulas={formulas} setFormulas={setFormulas} />
+            )}
+            {activeTab === 'mistakes' && (
+              <MistakesView mistakes={mistakes} setMistakes={setMistakes} />
+            )}
+            {activeTab === 'tracker' && (
+              <TrackerView logs={logs} setLogs={setLogs} roadmap={roadmap} />
+            )}
+          </main>
+        </div>
+      );
+    }
+
+    // DASHBOARD COMPONENT
+    function DashboardView({ daysLeft, overallProgress, roadmap, logs }) {
+      const totalHours = logs.reduce((sum, log) => sum + Number(log.hours), 0);
+
+      return (
+        <div className="max-w-5xl mx-auto space-y-8">
+          <header className="flex justify-between items-end border-b border-borderDark pb-6">
+            <div>
+              <h2 className="text-3xl font-bold tracking-tight text-white">System Command</h2>
+              <p className="text-zinc-400 mt-1">GATE 2027 Mechanical Engineering Preparation OS</p>
+            </div>
+            <div className="text-right">
+              <span className="text-xs uppercase tracking-widest text-zinc-500 font-semibold">Exam Date</span>
+              <p className="text-sm font-medium text-white">February 6, 2027</p>
+            </div>
+          </header>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="glass-card p-6 rounded-2xl">
+              <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Weighted Readiness</span>
+              <p className="text-4xl font-extrabold text-white mt-2">{overallProgress}%</p>
+              <div className="w-full bg-zinc-800 h-1.5 rounded-full mt-4 overflow-hidden">
+                <div className="bg-blue-500 h-full transition-all duration-500" style={{ width: `${overallProgress}%` }}></div>
+              </div>
+            </div>
+
+            <div className="glass-card p-6 rounded-2xl">
+              <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Logged Study Time</span>
+              <p className="text-4xl font-extrabold text-white mt-2">{totalHours} <span className="text-lg font-normal text-zinc-400">Hrs</span></p>
+              <p className="text-xs text-zinc-500 mt-2">Logged across {logs.length} sessions</p>
+            </div>
+
+            <div className="glass-card p-6 rounded-2xl border-l-4 border-l-blue-500">
+              <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">AI Coach Focus</span>
+              <p className="text-lg font-semibold text-white mt-2">High ROI Priority</p>
+              <p className="text-xs text-zinc-400 mt-1">Manufacturing & Maths hold 29% of overall syllabus weightage.</p>
+            </div>
+          </div>
+
+          <div className="glass-card p-6 rounded-2xl">
+            <h3 className="text-lg font-bold text-white mb-4">Subject Syllabus Status</h3>
+            <div className="space-y-4">
+              {roadmap.map((item) => (
+                <div key={item.id} className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-zinc-300 font-medium">{item.name} <span className="text-xs text-zinc-500">({item.weight}% weight)</span></span>
+                    <span className="text-zinc-400">{item.progress}%</span>
+                  </div>
+                  <div className="w-full bg-zinc-800/60 h-2 rounded-full overflow-hidden">
+                    <div className="bg-zinc-200 h-full transition-all" style={{ width: `${item.progress}%` }}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // ROADMAP COMPONENT
+    function RoadmapView({ roadmap, setRoadmap }) {
+      const updateProgress = (id, newProgress) => {
+        setRoadmap(roadmap.map(item => item.id === id ? { ...item, progress: Math.min(100, Math.max(0, newProgress)) } : item));
+      };
+
+      return (
+        <div className="max-w-4xl mx-auto space-y-6">
+          <header className="border-b border-borderDark pb-6">
+            <h2 className="text-3xl font-bold text-white">GATE ME Syllabus Roadmap</h2>
+            <p className="text-zinc-400 text-sm mt-1">Adjust completion percentages as you complete subjects and PYQs.</p>
+          </header>
+
+          <div className="grid gap-4">
+            {roadmap.map((item) => (
+              <div key={item.id} className="glass-card p-5 rounded-xl flex items-center justify-between">
+                <div className="flex-1 pr-6">
+                  <h3 className="text-base font-semibold text-white">{item.name}</h3>
+                  <p className="text-xs text-zinc-500 mt-0.5">GATE Weightage: {item.weight}%</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={item.progress}
+                    onChange={(e) => updateProgress(item.id, Number(e.target.value))}
+                    className="w-16 bg-zinc-900 border border-zinc-700 text-white rounded-lg px-2 py-1 text-center text-sm focus:outline-none focus:border-blue-500"
+                  />
+                  <span className="text-sm text-zinc-400">%</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // FORMULA REGISTER COMPONENT
+    function FormulasView({ formulas, setFormulas }) {
+      const [title, setTitle] = useState('');
+      const [subject, setSubject] = useState('');
+      const [latex, setLatex] = useState('');
+
+      const addFormula = (e) => {
+        e.preventDefault();
+        if (!title || !latex) return;
+        setFormulas([...formulas, { id: Date.now(), subject: subject || 'General', title, latex }]);
+        setTitle(''); setSubject(''); setLatex('');
+      };
+
+      return (
+        <div className="max-w-4xl mx-auto space-y-8">
+          <header className="border-b border-borderDark pb-6">
+            <h2 className="text-3xl font-bold text-white">Formula Register</h2>
+            <p className="text-zinc-400 text-sm mt-1">Rendered with KaTeX mathematics engine.</p>
+          </header>
+
+          <form onSubmit={addFormula} className="glass-card p-5 rounded-xl space-y-4">
+            <h3 className="text-sm font-semibold text-white uppercase tracking-wider">Add New Formula</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <input
+                type="text"
+                placeholder="Title (e.g. Bending Stress)"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="Subject (e.g. SOM)"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <textarea
+              placeholder="LaTeX Expression (e.g. \sigma = \frac{M y}{I})"
+              value={latex}
+              onChange={(e) => setLatex(e.target.value)}
+              className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500 h-20"
+            />
+            <button type="submit" className="bg-white text-black font-semibold px-4 py-2 rounded-lg text-sm hover:bg-zinc-200 transition">Save Formula</button>
+          </form>
+
+          <div className="grid gap-4">
+            {formulas.map((item) => (
+              <FormulaCard key={item.id} formula={item} />
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function FormulaCard({ formula }) {
+      const containerRef = React.useRef(null);
+
+      useEffect(() => {
+        if (containerRef.current && window.katex) {
+          try {
+            window.katex.render(formula.latex, containerRef.current, { displayMode: true, throwOnError: false });
+          } catch (e) {
+            containerRef.current.innerText = formula.latex;
+          }
+        }
+      }, [formula.latex]);
+
+      return (
+        <div className="glass-card p-5 rounded-xl space-y-2">
+          <div className="flex justify-between items-center">
+            <h4 className="font-semibold text-white">{formula.title}</h4>
+            <span className="text-xs bg-zinc-800 text-zinc-300 px-2.5 py-1 rounded-md">{formula.subject}</span>
+          </div>
+          <div ref={containerRef} className="py-3 text-lg text-blue-400 overflow-x-auto"></div>
+        </div>
+      );
+    }
+
+    // MISTAKE VAULT COMPONENT
+    function MistakesView({ mistakes, setMistakes }) {
+      const [topic, setTopic] = useState('');
+      const [error, setError] = useState('');
+      const [lesson, setLesson] = useState('');
+
+      const addMistake = (e) => {
+        e.preventDefault();
+        if (!topic || !error) return;
+        setMistakes([{ id: Date.now(), topic, error, lesson, date: new Date().toLocaleDateString() }, ...mistakes]);
+        setTopic(''); setError(''); setLesson('');
+      };
+
+      return (
+        <div className="max-w-4xl mx-auto space-y-8">
+          <header className="border-b border-borderDark pb-6">
+            <h2 className="text-3xl font-bold text-white">Mistake Vault</h2>
+            <p className="text-zinc-400 text-sm mt-1">Log mistakes made during test series and PYQ practice to prevent repeats.</p>
+          </header>
+
+          <form onSubmit={addMistake} className="glass-card p-5 rounded-xl space-y-4">
+            <input
+              type="text"
+              placeholder="Topic / Question Ref (e.g. Fluid Statics - Buoyancy Q4)"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
+            />
+            <textarea
+              placeholder="What mistake did you make? (Calculation, Conceptual, Misread question)"
+              value={error}
+              onChange={(e) => setError(e.target.value)}
+              className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500 h-20"
+            />
+            <input
+              type="text"
+              placeholder="Key lesson / Correct approach"
+              value={lesson}
+              onChange={(e) => setLesson(e.target.value)}
+              className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
+            />
+            <button type="submit" className="bg-white text-black font-semibold px-4 py-2 rounded-lg text-sm hover:bg-zinc-200 transition">Log Mistake</button>
+          </form>
+
+          <div className="space-y-4">
+            {mistakes.map((m) => (
+              <div key={m.id} className="glass-card p-5 rounded-xl space-y-2 border-l-4 border-l-red-500">
+                <div className="flex justify-between items-center">
+                  <h4 className="font-semibold text-white">{m.topic}</h4>
+                  <span className="text-xs text-zinc-500">{m.date}</span>
+                </div>
+                <p className="text-sm text-zinc-300"><strong className="text-red-400">Error:</strong> {m.error}</p>
+                {m.lesson && <p className="text-sm text-zinc-400"><strong className="text-emerald-400">Lesson:</strong> {m.lesson}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // STUDY LOGGER COMPONENT
+    function TrackerView({ logs, setLogs, roadmap }) {
+      const [subject, setSubject] = useState(roadmap[0]?.name || '');
+      const [hours, setHours] = useState('');
+      const [notes, setNotes] = useState('');
+
+      const addLog = (e) => {
+        e.preventDefault();
+        if (!hours) return;
+        setLogs([{ id: Date.now(), subject, hours, notes, date: new Date().toLocaleDateString() }, ...logs]);
+        setHours(''); setNotes('');
+      };
+
+      return (
+        <div className="max-w-4xl mx-auto space-y-8">
+          <header className="border-b border-borderDark pb-6">
+            <h2 className="text-3xl font-bold text-white">Daily Study Tracker</h2>
+            <p className="text-zinc-400 text-sm mt-1">Log hours spent studying or solving PYQs.</p>
+          </header>
+
+          <form onSubmit={addLog} className="glass-card p-5 rounded-xl space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <select
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
+              >
+                {roadmap.map((s) => <option key={s.id} value={s.name}>{s.name}</option>)}
+              </select>
+              <input
+                type="number"
+                step="0.5"
+                placeholder="Hours Spent (e.g. 3.5)"
+                value={hours}
+                onChange={(e) => setHours(e.target.value)}
+                className="bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
+              />
+            </div>
+            <input
+              type="text"
+              placeholder="Session Notes (e.g. Completed Fluid Kinematics PYQs 2015-2024)"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
+            />
+            <button type="submit" className="bg-white text-black font-semibold px-4 py-2 rounded-lg text-sm hover:bg-zinc-200 transition">Record Session</button>
+          </form>
+
+          <div className="space-y-3">
+            {logs.map((log) => (
+              <div key={log.id} className="glass-card p-4 rounded-xl flex justify-between items-center">
+                <div>
+                  <h4 className="font-semibold text-white text-sm">{log.subject}</h4>
+                  <p className="text-xs text-zinc-400">{log.notes || 'No extra notes'}</p>
+                </div>
+                <div className="text-right">
+                  <span className="text-base font-bold text-blue-400">{log.hours} hrs</span>
+                  <p className="text-[10px] text-zinc-500">{log.date}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
