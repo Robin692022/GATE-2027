@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Forge | GATE 2027 Operating System</title>
+  <title>Forge — Complete GATE 2027 Preparation Operating System</title>
   
-  <!-- Tailwind CSS -->
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind Configuration -->
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -14,469 +16,1593 @@
         extend: {
           colors: {
             bgDark: '#09090b',
-            cardDark: '#121215',
+            cardDark: '#121217',
             borderDark: '#27272a',
-            accent: '#3b82f6',
+            brandCyan: '#06b6d4',
+            brandIndigo: '#6366f1',
+            brandEmerald: '#10b981',
+            brandAmber: '#f59e0b',
+            brandRose: '#f43f5e',
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Menlo', 'Monaco', 'Consolas', 'monospace']
           }
         }
       }
     }
   </script>
 
-  <!-- React & Babel CDNs -->
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- React & ReactDOM Standalone -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel Standalone for JSX -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- KaTeX for Mathematics -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      background-color: #09090b;
-      color: #f4f4f5;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
-    .glass-card {
-      background: rgba(18, 18, 21, 0.7);
-      backdrop-filter: blur(12px);
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #09090b; }
+    ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3f3f46; }
+
+    /* Glassmorphism & Visual Polish */
+    .glass-panel {
+      background: rgba(18, 18, 23, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
+    
+    .glass-card {
+      background: rgba(24, 24, 27, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
     .glass-card:hover {
-      border-color: rgba(255, 255, 255, 0.16);
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
     }
-    ::-webkit-scrollbar {
-      width: 6px;
+
+    .glow-cyan {
+      box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.35);
     }
-    ::-webkit-scrollbar-thumb {
-      background: #27272a;
-      border-radius: 3px;
+
+    .glow-indigo {
+      box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.35);
+    }
+
+    .glow-pulse {
+      animation: pulseGlow 3s infinite ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.2); }
+      50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.6); }
+    }
+
+    /* SVG Heatmap Transitions */
+    .heatmap-cell {
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+    .heatmap-cell:hover {
+      transform: scale(1.25);
+      z-index: 10;
     }
   </style>
 </head>
-<body class="h-screen overflow-hidden">
+<body class="bg-[#09090b] text-zinc-100 font-sans antialiased selection:bg-indigo-500/30 selection:text-indigo-200 min-h-screen overflow-x-hidden">
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useMemo, useRef } = React;
 
-    // Default GATE ME Roadmap Data
-    const INITIAL_ROADMAP = [
-      { id: 'math', name: 'Engineering Mathematics', weight: 13, progress: 20 },
-      { id: 'apti', name: 'General Aptitude', weight: 15, progress: 30 },
-      { id: 'som', name: 'Strength of Materials', weight: 8, progress: 10 },
-      { id: 'fme', name: 'Fluid Mechanics', weight: 7, progress: 0 },
-      { id: 'tom', name: 'Theory of Machines', weight: 9, progress: 0 },
-      { id: 'mfg', name: 'Manufacturing Engineering', weight: 16, progress: 5 },
-      { id: 'ht', name: 'Heat Transfer', weight: 6, progress: 0 },
-      { id: 'thermo', name: 'Basic & Applied Thermodynamics', weight: 10, progress: 0 },
-      { id: 'ie', name: 'Industrial Engineering', weight: 6, progress: 0 },
-      { id: 'em', name: 'Engineering Mechanics', weight: 5, progress: 0 },
-      { id: 'md', name: 'Machine Design', weight: 5, progress: 0 }
+    // --- HELPER SVG ICONS (Zero External Dependency) ---
+    const Icon = ({ name, className = "w-5 h-5" }) => {
+      const icons = {
+        Flame: <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3.5z"/>,
+        Zap: <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>,
+        Clock: <g><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></g>,
+        Calendar: <g><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></g>,
+        BookOpen: <g><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></g>,
+        Target: <g><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></g>,
+        BarChart: <g><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></g>,
+        RotateCcw: <g><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></g>,
+        Brain: <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/>,
+        CheckCircle: <g><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></g>,
+        AlertCircle: <g><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></g>,
+        Notebook: <g><path d="M2 6h4M2 10h4M2 14h4M2 18h4"/><rect x="6" y="2" width="16" height="20" rx="2"/></g>,
+        Award: <g><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></g>,
+        Plus: <g><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></g>,
+        Trash: <g><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></g>,
+        Play: <polygon points="5 3 19 12 5 21 5 3"/>,
+        Pause: <g><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></g>,
+        Search: <g><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></g>,
+        Shield: <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>,
+        ChevronDown: <polyline points="6 9 12 15 18 9"/>,
+        ChevronRight: <polyline points="9 18 15 12 9 6"/>,
+        Maximize: <g><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></g>,
+        Bell: <g><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></g>,
+        Wand: <g><path d="m19 2 2 2-2 2-2-2 2-2z"/><path d="m5 8 2 2-2 2-2-2 2-2z"/><path d="m19 18 2 2-2 2-2-2 2-2z"/><path d="M18 6 6 18"/></g>
+      };
+
+      return (
+        <svg 
+          className={className} 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        >
+          {icons[name] || <circle cx="12" cy="12" r="10" />}
+        </svg>
+      );
+    };
+
+    // --- GATE 2027 INITIAL DEFAULT DATA (MECHANICAL ENGINEERING ROADMAP) ---
+    const INITIAL_SUBJECTS = [
+      {
+        id: 'som',
+        name: 'Strength of Materials',
+        weightage: 10,
+        priority: 'High',
+        resource: 'PW Full Course',
+        pyqsTotal: 180,
+        pyqsAttempted: 110,
+        confidence: 4,
+        chapters: [
+          { name: 'Stress & Strain, Elastic Constants', status: 'Completed' },
+          { name: 'Axial Load, Thermal Stresses', status: 'Completed' },
+          { name: 'Shear Force & Bending Moment', status: 'Completed' },
+          { name: 'Bending & Shear Stresses in Beams', status: 'Completed' },
+          { name: 'Torsion in Circular Shafts', status: 'In Progress' },
+          { name: 'Deflection of Beams', status: 'In Progress' },
+          { name: 'Principal Stresses & Mohr Circle', status: 'Pending' },
+          { name: 'Thin & Thick Pressure Vessels', status: 'Pending' },
+          { name: 'Columns & Struts', status: 'Pending' },
+          { name: 'Strain Energy & Springs', status: 'Pending' }
+        ]
+      },
+      {
+        id: 'math',
+        name: 'Engineering Mathematics',
+        weightage: 13,
+        priority: 'High',
+        resource: 'Concise YouTube + Weekly Rotation',
+        pyqsTotal: 220,
+        pyqsAttempted: 195,
+        confidence: 4,
+        chapters: [
+          { name: 'Linear Algebra (Matrices, Eigenvalues)', status: 'Completed' },
+          { name: 'Calculus (Limits, Derivatives, Integrals)', status: 'Completed' },
+          { name: 'Vector Calculus (Gradient, Divergence, Curl)', status: 'Completed' },
+          { name: 'Differential Equations', status: 'Completed' },
+          { name: 'Complex Variables', status: 'In Progress' },
+          { name: 'Probability & Statistics', status: 'Pending' },
+          { name: 'Numerical Methods', status: 'Pending' }
+        ]
+      },
+      {
+        id: 'em',
+        name: 'Engineering Mechanics',
+        weightage: 5,
+        priority: 'Medium',
+        resource: 'YouTube Kinetics + PYQs',
+        pyqsTotal: 90,
+        pyqsAttempted: 70,
+        confidence: 3,
+        chapters: [
+          { name: 'Free Body Diagrams & Equilibrium', status: 'Completed' },
+          { name: 'Trusses & Friction', status: 'Completed' },
+          { name: 'Kinetics & Kinematics of Particles', status: 'Completed' },
+          { name: 'Centroid & Moment of Inertia', status: 'In Progress' },
+          { name: 'Kinetics of Rigid Bodies', status: 'Pending' }
+        ]
+      },
+      {
+        id: 'tom',
+        name: 'Theory of Machines & Vibrations',
+        weightage: 10,
+        priority: 'High',
+        resource: 'PW Full Course',
+        pyqsTotal: 160,
+        pyqsAttempted: 35,
+        confidence: 2,
+        chapters: [
+          { name: 'Displacement, Velocity & Acceleration Analysis', status: 'In Progress' },
+          { name: 'Dynamic Analysis of Linkages & Flywheel', status: 'Pending' },
+          { name: 'Gears & Gear Trains', status: 'Pending' },
+          { name: 'Governors & Gyroscope', status: 'Pending' },
+          { name: 'Cams & Balancing', status: 'Pending' },
+          { name: 'Free & Forced Single DOF Vibrations', status: 'Pending' },
+          { name: 'Damped Vibrations & Resonance', status: 'Pending' }
+        ]
+      },
+      {
+        id: 'fm',
+        name: 'Fluid Mechanics & Turbo Machinery',
+        weightage: 9,
+        priority: 'High',
+        resource: 'PW Full Course',
+        pyqsTotal: 150,
+        pyqsAttempted: 20,
+        confidence: 2,
+        chapters: [
+          { name: 'Fluid Properties & Statics', status: 'Completed' },
+          { name: 'Fluid Kinematics & Bernoulli Equation', status: 'In Progress' },
+          { name: 'Flow Measurement & Viscous Flow', status: 'Pending' },
+          { name: 'Boundary Layer Theory', status: 'Pending' },
+          { name: 'Turbomachinery (Pelton, Francis, Pumps)', status: 'Pending' }
+        ]
+      },
+      {
+        id: 'mfg',
+        name: 'Manufacturing Processes',
+        weightage: 14,
+        priority: 'High',
+        resource: 'PW Full Course + Tables',
+        pyqsTotal: 210,
+        pyqsAttempted: 40,
+        confidence: 2,
+        chapters: [
+          { name: 'Casting Processes & Solidification', status: 'Completed' },
+          { name: 'Forming & Rolling Processes', status: 'Pending' },
+          { name: 'Welding & Joining Methods', status: 'Pending' },
+          { name: 'Machining & Tool Life (Merchant Circle)', status: 'Pending' },
+          { name: 'Metrology & Inspection', status: 'Pending' },
+          { name: 'Non-Traditional Machining (EDM, ECM)', status: 'Pending' }
+        ]
+      },
+      {
+        id: 'btd',
+        name: 'Basic Thermodynamics',
+        weightage: 7,
+        priority: 'High',
+        resource: 'Existing Notes + Weekly PYQs',
+        pyqsTotal: 120,
+        pyqsAttempted: 110,
+        confidence: 5,
+        chapters: [
+          { name: 'Zeroth & First Law Analysis', status: 'Completed' },
+          { name: 'Second Law, Carnot & Entropy', status: 'Completed' },
+          { name: 'Availability & Exergy', status: 'Completed' },
+          { name: 'Properties of Pure Substances & Gas Mixtures', status: 'Completed' }
+        ]
+      },
+      {
+        id: 'atd',
+        name: 'Applied Thermodynamics (RAC & IC)',
+        weightage: 7,
+        priority: 'High',
+        resource: 'Existing Notes + Sunday Recall',
+        pyqsTotal: 110,
+        pyqsAttempted: 95,
+        confidence: 4,
+        chapters: [
+          { name: 'Power Cycles (Rankine, Brayton, Otto, Diesel)', status: 'Completed' },
+          { name: 'I.C. Engines & Performance Testing', status: 'Completed' },
+          { name: 'Refrigeration & Psychrometry (RAC)', status: 'Completed' },
+          { name: 'Compressors & Nozzles', status: 'Completed' }
+        ]
+      },
+      {
+        id: 'md',
+        name: 'Machine Design',
+        weightage: 5,
+        priority: 'Medium',
+        resource: 'PW Full Course',
+        pyqsTotal: 95,
+        pyqsAttempted: 10,
+        confidence: 1,
+        chapters: [
+          { name: 'Design against Static & Fatigue Loading', status: 'Pending' },
+          { name: 'Shafts, Keys & Couplings', status: 'Pending' },
+          { name: 'Threaded, Welded & Riveted Joints', status: 'Pending' },
+          { name: 'Bolts, Springs & Bearings', status: 'Pending' }
+        ]
+      },
+      {
+        id: 'ie',
+        name: 'Industrial Engineering & OR',
+        weightage: 6,
+        priority: 'High',
+        resource: 'PW Full Course',
+        pyqsTotal: 130,
+        pyqsAttempted: 15,
+        confidence: 1,
+        chapters: [
+          { name: 'Inventory Control Models (EOQ)', status: 'In Progress' },
+          { name: 'Forecasting & Production Planning', status: 'Pending' },
+          { name: 'CPM / PERT Network Analysis', status: 'Pending' },
+          { name: 'Linear Programming & Transportation', status: 'Pending' },
+          { name: 'Queuing Theory & Work Study', status: 'Pending' }
+        ]
+      },
+      {
+        id: 'matsci',
+        name: 'Material Science',
+        weightage: 3,
+        priority: 'Low',
+        resource: 'Compressed YouTube (10-15 hrs)',
+        pyqsTotal: 60,
+        pyqsAttempted: 10,
+        confidence: 2,
+        chapters: [
+          { name: 'Crystal Structures & Imperfections', status: 'In Progress' },
+          { name: 'Phase Diagrams & Iron-Carbon Diagram', status: 'Pending' },
+          { name: 'Heat Treatment processes', status: 'Pending' }
+        ]
+      },
+      {
+        id: 'ht',
+        name: 'Heat Transfer',
+        weightage: 6,
+        priority: 'Medium',
+        resource: 'Selective YouTube + Core PYQs',
+        pyqsTotal: 100,
+        pyqsAttempted: 25,
+        confidence: 2,
+        chapters: [
+          { name: 'Conduction & Extended Surfaces (Fins)', status: 'Completed' },
+          { name: 'Thermal Radiation Basics', status: 'In Progress' },
+          { name: 'Heat Exchangers (LMTD, NTU)', status: 'Pending' },
+          { name: 'Convection & Phase Change', status: 'Pending' }
+        ]
+      },
+      {
+        id: 'ga',
+        name: 'General Aptitude',
+        weightage: 10,
+        priority: 'High',
+        resource: 'Timed Sets + PYQs',
+        pyqsTotal: 150,
+        pyqsAttempted: 105,
+        confidence: 4,
+        chapters: [
+          { name: 'Numerical Computation & Estimation', status: 'Completed' },
+          { name: 'Data Interpretation & Geometry', status: 'Completed' },
+          { name: 'Analytical & Spatial Reasoning', status: 'In Progress' }
+        ]
+      },
+      {
+        id: 'va',
+        name: 'Verbal Aptitude',
+        weightage: 5,
+        priority: 'Medium',
+        resource: 'PYQ Practice',
+        pyqsTotal: 80,
+        pyqsAttempted: 50,
+        confidence: 4,
+        chapters: [
+          { name: 'English Grammar & Sentence Completion', status: 'Completed' },
+          { name: 'Reading Comprehension & Critical Reasoning', status: 'Completed' }
+        ]
+      }
+    ];
+
+    const INITIAL_PHASES = [
+      {
+        id: 1,
+        title: 'Phase 1: Momentum & SOM Completion',
+        dates: '25 July – 15 August',
+        status: 'Active',
+        description: 'Establish consistent 3-4h daily study rhythm. Complete Strength of Materials through PW.',
+        objectives: [
+          'Finish SOM from Torsion to Strain Energy',
+          'Build Formula Register for SOM',
+          'Solve all chapter-wise GATE PYQs for SOM',
+          'Maintain Math & Thermo on Sunday Rotation'
+        ]
+      },
+      {
+        id: 2,
+        title: 'Phase 2: Core Mechanics Base',
+        dates: '16 August – 30 September',
+        status: 'Upcoming',
+        description: 'Complete Engineering Mechanics kinetics via YouTube, then master TOM & Vibrations via PW.',
+        objectives: [
+          'Finish EM Centroid, MOI & Rigid Body Kinetics',
+          'Master TOM mechanisms, velocity analysis & vibrations',
+          'Attempt 150+ PYQs across EM & TOM'
+        ]
+      },
+      {
+        id: 3,
+        title: 'Phase 3: Fluids & Manufacturing',
+        dates: '1 October – 10 November',
+        status: 'Upcoming',
+        description: 'Conquer high-weightage Fluid Mechanics and Manufacturing Processes.',
+        objectives: [
+          'Complete Fluid Statics, Kinematics & Turbomachines',
+          'Create high-density comparison tables for Manufacturing',
+          'Begin bi-weekly Sectional Subject Tests'
+        ]
+      },
+      {
+        id: 4,
+        title: 'Phase 4: Design, Management & Compressed High-ROI',
+        dates: '11 November – 10 December',
+        status: 'Upcoming',
+        description: 'Cover Industrial Engg, Machine Design, Material Science, and selective Heat Transfer.',
+        objectives: [
+          'Master Industrial Engineering (High ROI)',
+          'Complete Machine Design with SOM cross-linking',
+          'Finish 10-15 hr Material Science YouTube crash mode'
+        ]
+      },
+      {
+        id: 5,
+        title: 'Phase 5: Consolidation & Sectionals',
+        dates: '11 December – 31 December',
+        status: 'Upcoming',
+        description: 'No new major topics. Complete subject-wise revision and full-length weekly test entry.',
+        objectives: [
+          'Weekly Full Length Mock Tests',
+          'Complete Mistake Register review',
+          'Intense Math & Thermo formula drills'
+        ]
+      },
+      {
+        id: 6,
+        title: 'Phase 6: Final Attack',
+        dates: '1 January – Feb 1, 2027',
+        status: 'Upcoming',
+        description: 'Peak exam temperament. 2 Mocks per week (10-12 total). Pure recall & analysis.',
+        objectives: [
+          'Execute 10-12 full-length simulated GATE Mocks',
+          'Review Mistake Register every 3 days',
+          'Zero new material; total confidence in studied syllabus'
+        ]
+      }
+    ];
+
+    const INITIAL_REVISIONS = [
+      { id: 1, topic: 'SOM: Torsion in Circular Shafts', subject: 'SOM', interval: '24 Hours', dueDate: 'Today', status: 'Pending' },
+      { id: 2, topic: 'Thermo: Entropy & Second Law Equations', subject: 'Basic Thermo', interval: '7 Days', dueDate: 'Today', status: 'Pending' },
+      { id: 3, topic: 'Math: Eigenvalues & Cayley-Hamilton', subject: 'Engg Math', interval: '30 Days', dueDate: 'Tomorrow', status: 'Scheduled' },
+      { id: 4, topic: 'FM: Fluid Statics & Buoyancy', subject: 'Fluid Mechanics', interval: '24 Hours', dueDate: 'In 2 Days', status: 'Scheduled' },
+      { id: 5, topic: 'ATD: Psychrometry & RAC Cycles', subject: 'Applied Thermo', interval: '90 Days', dueDate: 'In 4 Days', status: 'Scheduled' }
+    ];
+
+    const INITIAL_MOCKS = [
+      { id: 1, name: 'SOM Subject Test 01', date: '2026-07-20', score: 38, total: 50, accuracy: 82, negative: 2.66, time: '45 mins', weak: 'Deflection of Beams' },
+      { id: 2, name: 'Thermo + Math Combined Test', date: '2026-07-12', score: 42, total: 50, accuracy: 88, negative: 1.33, time: '50 mins', weak: 'Complex Variables' }
     ];
 
     const INITIAL_FORMULAS = [
-      { id: 1, subject: "Heat Transfer", title: "1D Heat Conduction", latex: "\\frac{\\partial^2 T}{\\partial x^2} + \\frac{\\dot{q}}{k} = \\frac{1}{\\alpha} \\frac{\\partial T}{\\partial t}" },
-      { id: 2, subject: "Fluid Mechanics", title: "Bernoulli's Equation", latex: "\\frac{P}{\\rho g} + \\frac{v^2}{2g} + z = \\text{Constant}" },
-      { id: 3, subject: "Strength of Materials", title: "Bending Stress Formula", latex: "\\frac{M}{I} = \\frac{\\sigma}{y} = \\frac{E}{R}" }
+      { id: 1, subject: 'SOM', title: 'Torsion Equation', formula: 'T / J = τ / r = Gθ / L', assumptions: 'Circular shaft, homogeneous, isotropic, elastic limit.', trap: 'Watch diameter vs radius conversion in polar moment J = πd⁴/32.' },
+      { id: 2, subject: 'Basic Thermo', title: 'First Law for Open System (SFEE)', formula: 'h₁ + V₁²/2000 + gz₁/1000 + q = h₂ + V₂²/2000 + gz₂/1000 + w', assumptions: 'Steady flow, 1D flow.', trap: 'Remember enthalpy in kJ/kg, velocity in m/s (divide by 1000 for kJ).' },
+      { id: 3, subject: 'Engg Math', title: 'Eigenvalue Properties', formula: 'Σ λᵢ = Trace(A)  |  ∏ λᵢ = Det(A)', assumptions: 'Square matrix of order n.', trap: 'Eigenvalues of upper triangular matrix are its diagonal elements.' }
     ];
 
+    const INITIAL_MISTAKES = [
+      { id: 1, subject: 'SOM', category: 'Calculation Error', question: 'GATE 2021 Torsion Question', error: 'Used radius instead of diameter in polar section modulus equation.', action: 'Write Zp = πd³/16 explicitly in step 1.', resolved: false },
+      { id: 2, subject: 'Applied Thermo', category: 'Formula Error', question: 'RAC COP calculation', error: 'Forgot that T must be in Kelvin, used Celsius directly.', action: 'Convert all temperatures to Kelvin before ratio calculations.', resolved: true }
+    ];
+
+    const INITIAL_JOURNAL = [
+      { id: 1, date: '2026-07-26', mood: '🔥 High Energy', confidence: 4, wins: 'Completed 35 PYQs on Torsion and revised SFEE equations.', challenges: 'Got stuck on 2 beam deflection questions, need to review Macaulay method.' }
+    ];
+
+    const INITIAL_ACHIEVEMENTS = [
+      { id: 'first_lecture', title: 'First Step', desc: 'Completed first study session', unlocked: true, icon: 'Flame' },
+      { id: 'streak_7', title: 'Consistency Core', desc: '7-Day unbroken study streak', unlocked: true, icon: 'Zap' },
+      { id: 'som_master', title: 'SOM Vanguard', desc: 'Complete Strength of Materials', unlocked: false, icon: 'Shield' },
+      { id: 'hours_100', title: 'Century Scholar', desc: 'Log 100 total study hours', unlocked: true, icon: 'Clock' },
+      { id: 'pyq_500', title: 'PYQ Slayer', desc: 'Solve 500+ GATE PYQs', unlocked: false, icon: 'Target' },
+      { id: 'mock_60', title: 'High Flier', desc: 'Score above 70% in a Mock', unlocked: true, icon: 'Award' }
+    ];
+
+    // Main React Application Engine
     function App() {
-      const [activeTab, setActiveTab] = useState('dashboard');
-      const [roadmap, setRoadmap] = useState(() => JSON.parse(localStorage.getItem('forge_roadmap')) || INITIAL_ROADMAP);
-      const [formulas, setFormulas] = useState(() => JSON.parse(localStorage.getItem('forge_formulas')) || INITIAL_FORMULAS);
-      const [mistakes, setMistakes] = useState(() => JSON.parse(localStorage.getItem('forge_mistakes')) || []);
-      const [logs, setLogs] = useState(() => JSON.parse(localStorage.getItem('forge_logs')) || []);
-
-      // Persistence
-      useEffect(() => localStorage.setItem('forge_roadmap', JSON.stringify(roadmap)), [roadmap]);
-      useEffect(() => localStorage.setItem('forge_formulas', JSON.stringify(formulas)), [formulas]);
-      useEffect(() => localStorage.setItem('forge_mistakes', JSON.stringify(mistakes)), [mistakes]);
-      useEffect(() => localStorage.setItem('forge_logs', JSON.stringify(logs)), [logs]);
-
-      useEffect(() => {
-        if (window.lucide) window.lucide.createIcons();
+      // --- PERSISTENT STATE MANAGEMENT ---
+      const [subjects, setSubjects] = useState(() => {
+        const saved = localStorage.getItem('forge_subjects');
+        return saved ? JSON.parse(saved) : INITIAL_SUBJECTS;
       });
 
-      // Days to GATE 2027 Calculation
-      const targetDate = new Date('2027-02-06');
-      const today = new Date();
-      const daysLeft = Math.max(0, Math.ceil((targetDate - today) / (1000 * 60 * 60 * 24)));
+      const [phases, setPhases] = useState(() => {
+        const saved = localStorage.getItem('forge_phases');
+        return saved ? JSON.parse(saved) : INITIAL_PHASES;
+      });
 
-      // Calculate Total Progress
-      const overallProgress = Math.round(
-        roadmap.reduce((acc, curr) => acc + (curr.progress * (curr.weight / 100)), 0)
-      );
+      const [revisions, setRevisions] = useState(() => {
+        const saved = localStorage.getItem('forge_revisions');
+        return saved ? JSON.parse(saved) : INITIAL_REVISIONS;
+      });
+
+      const [mocks, setMocks] = useState(() => {
+        const saved = localStorage.getItem('forge_mocks');
+        return saved ? JSON.parse(saved) : INITIAL_MOCKS;
+      });
+
+      const [formulas, setFormulas] = useState(() => {
+        const saved = localStorage.getItem('forge_formulas');
+        return saved ? JSON.parse(saved) : INITIAL_FORMULAS;
+      });
+
+      const [mistakes, setMistakes] = useState(() => {
+        const saved = localStorage.getItem('forge_mistakes');
+        return saved ? JSON.parse(saved) : INITIAL_MISTAKES;
+      });
+
+      const [journal, setJournal] = useState(() => {
+        const saved = localStorage.getItem('forge_journal');
+        return saved ? JSON.parse(saved) : INITIAL_JOURNAL;
+      });
+
+      const [achievements, setAchievements] = useState(() => {
+        const saved = localStorage.getItem('forge_achievements');
+        return saved ? JSON.parse(saved) : INITIAL_ACHIEVEMENTS;
+      });
+
+      const [studyHours, setStudyHours] = useState(142.5);
+      const [streak, setStreak] = useState(12);
+      const [activeTab, setActiveTab] = useState('dashboard');
+      
+      // Modals State
+      const [isFocusMode, setIsFocusMode] = useState(false);
+      const [isAICoachOpen, setIsAICoachOpen] = useState(false);
+      const [isRecoveryOpen, setIsRecoveryOpen] = useState(false);
+      const [isAddMockOpen, setIsAddMockOpen] = useState(false);
+      const [isLogSessionOpen, setIsLogSessionOpen] = useState(false);
+      
+      // Quick Note State
+      const [quickNote, setQuickNote] = useState(() => localStorage.getItem('forge_quick_note') || '');
+
+      // LocalStorage Auto-Sync
+      useEffect(() => { localStorage.setItem('forge_subjects', JSON.stringify(subjects)); }, [subjects]);
+      useEffect(() => { localStorage.setItem('forge_phases', JSON.stringify(phases)); }, [phases]);
+      useEffect(() => { localStorage.setItem('forge_revisions', JSON.stringify(revisions)); }, [revisions]);
+      useEffect(() => { localStorage.setItem('forge_mocks', JSON.stringify(mocks)); }, [mocks]);
+      useEffect(() => { localStorage.setItem('forge_formulas', JSON.stringify(formulas)); }, [formulas]);
+      useEffect(() => { localStorage.setItem('forge_mistakes', JSON.stringify(mistakes)); }, [mistakes]);
+      useEffect(() => { localStorage.setItem('forge_journal', JSON.stringify(journal)); }, [journal]);
+      useEffect(() => { localStorage.setItem('forge_quick_note', quickNote); }, [quickNote]);
+
+      // --- DYNAMIC CALCULATIONS ---
+      // GATE 2027 Target Date: Feb 1, 2027
+      const daysLeftToGate = useMemo(() => {
+        const target = new Date('2027-02-01T00:00:00');
+        const now = new Date();
+        const diff = target - now;
+        return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+      }, []);
+
+      // Calculate Total Subject Completion %
+      const overallCompletion = useMemo(() => {
+        let totalChaps = 0;
+        let completedChaps = 0;
+        subjects.forEach(s => {
+          s.chapters.forEach(c => {
+            totalChaps++;
+            if (c.status === 'Completed') completedChaps++;
+            if (c.status === 'In Progress') completedChaps += 0.5;
+          });
+        });
+        return Math.round((completedChaps / totalChaps) * 100);
+      }, [subjects]);
+
+      // Calculate Total PYQs Completion %
+      const pyqCompletion = useMemo(() => {
+        const total = subjects.reduce((acc, s) => acc + s.pyqsTotal, 0);
+        const done = subjects.reduce((acc, s) => acc + s.pyqsAttempted, 0);
+        return Math.round((done / total) * 100);
+      }, [subjects]);
+
+      // Calculate Readiness Score out of 100
+      const readinessScore = useMemo(() => {
+        const completionWeight = overallCompletion * 0.40;
+        const pyqWeight = pyqCompletion * 0.25;
+        const mockAvg = mocks.length > 0 ? (mocks.reduce((acc, m) => acc + (m.score / m.total) * 100, 0) / mocks.length) : 50;
+        const mockWeight = mockAvg * 0.20;
+        const streakWeight = Math.min(100, (streak / 30) * 100) * 0.15;
+        return Math.round(completionWeight + pyqWeight + mockWeight + streakWeight);
+      }, [overallCompletion, pyqCompletion, mocks, streak]);
+
+      // --- UI ACTION HANDLERS ---
+      const handleChapterStatusChange = (subjectId, chapterIndex, newStatus) => {
+        setSubjects(prev => prev.map(s => {
+          if (s.id !== subjectId) return s;
+          const updatedChaps = [...s.chapters];
+          updatedChaps[chapterIndex].status = newStatus;
+          return { ...s, chapters: updatedChaps };
+        }));
+      };
+
+      const handleMarkRevisionDone = (id) => {
+        setRevisions(prev => prev.map(r => r.id === id ? { ...r, status: 'Completed', dueDate: 'Done' } : r));
+      };
+
+      const handleAddMock = (newMock) => {
+        setMocks(prev => [newMock, ...prev]);
+        setIsAddMockOpen(false);
+      };
+
+      const handleResetData = () => {
+        if (confirm("Reset Forge back to standard Mechanical Engineering 2027 roadmap baseline?")) {
+          localStorage.clear();
+          window.location.reload();
+        }
+      };
 
       return (
-        <div className="flex h-screen w-screen overflow-hidden bg-[#09090b]">
-          {/* SIDEBAR */}
-          <aside className="w-64 border-r border-borderDark bg-[#0d0d10] flex flex-col justify-between p-5">
+        <div className="flex h-screen overflow-hidden bg-[#09090b] text-zinc-100">
+          
+          {/* SIDEBAR NAVIGATION */}
+          <aside className="w-64 bg-[#0d0d12] border-r border-zinc-800/80 flex flex-col justify-between hidden md:flex z-20 select-none">
             <div>
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-4 h-4 bg-white rounded-sm"></div>
-                <h1 className="text-xl font-bold tracking-tight text-white">Forge OS</h1>
+              {/* BRAND HEADER */}
+              <div className="p-5 border-b border-zinc-800/60 flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-cyan-500 to-emerald-400 p-[1px] shadow-lg shadow-indigo-500/20">
+                    <div className="w-full h-full bg-[#09090b] rounded-[11px] flex items-center justify-center">
+                      <Icon name="Flame" className="w-5 h-5 text-cyan-400" />
+                    </div>
+                  </div>
+                  <div>
+                    <h1 className="font-semibold text-base tracking-wide text-zinc-100 flex items-center space-x-1">
+                      <span>FORGE</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">ME</span>
+                    </h1>
+                    <p className="text-[11px] text-zinc-500 font-mono tracking-wider uppercase">GATE 2027 OS</p>
+                  </div>
+                </div>
               </div>
 
-              <nav className="space-y-1.5">
+              {/* NAVIGATION LINKS */}
+              <nav className="p-3 space-y-1">
                 {[
-                  { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
-                  { id: 'roadmap', label: 'Roadmap', icon: 'map' },
-                  { id: 'formulas', label: 'Formula Register', icon: 'calculator' },
-                  { id: 'mistakes', label: 'Mistake Vault', icon: 'alert-triangle' },
-                  { id: 'tracker', label: 'Study Logger', icon: 'clock' }
-                ].map((item) => (
+                  { id: 'dashboard', label: 'Dashboard', icon: 'BarChart' },
+                  { id: 'roadmap', label: 'Roadmap', icon: 'Target' },
+                  { id: 'subjects', label: 'Subjects & Chapters', icon: 'BookOpen' },
+                  { id: 'revision', label: 'Spaced Revision', icon: 'RotateCcw', badge: revisions.filter(r=>r.status==='Pending').length },
+                  { id: 'timetable', label: 'Timetable & Cal', icon: 'Calendar' },
+                  { id: 'tracker', label: 'Study Tracker', icon: 'Clock' },
+                  { id: 'mocks', label: 'Mock Test Module', icon: 'Shield' },
+                  { id: 'formulas', label: 'Formula & Mistakes', icon: 'Notebook' },
+                  { id: 'journal', label: 'Daily Journal', icon: 'Brain' },
+                  { id: 'achievements', label: 'Achievements', icon: 'Award' }
+                ].map(item => (
                   <button
                     key={item.id}
                     onClick={() => setActiveTab(item.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all ${
                       activeTab === item.id 
-                        ? 'bg-zinc-800 text-white shadow-sm' 
-                        : 'text-zinc-400 hover:text-white hover:bg-zinc-900'
+                        ? 'bg-gradient-to-r from-indigo-600/20 to-cyan-600/10 text-cyan-300 border border-indigo-500/30' 
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/40'
                     }`}
                   >
-                    <i data-lucide={item.icon} className="w-4 h-4"></i>
-                    {item.label}
+                    <div className="flex items-center space-x-3">
+                      <Icon name={item.icon} className={`w-4 h-4 ${activeTab === item.id ? 'text-cyan-400' : 'text-zinc-400'}`} />
+                      <span>{item.label}</span>
+                    </div>
+                    {item.badge > 0 && (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                        {item.badge}
+                      </span>
+                    )}
                   </button>
                 ))}
               </nav>
             </div>
 
-            <div className="p-3 glass-card rounded-xl">
-              <p className="text-xs text-zinc-500 uppercase tracking-widest font-semibold">GATE 2027 Target</p>
-              <p className="text-2xl font-black text-white mt-1">{daysLeft} <span className="text-xs font-normal text-zinc-400">Days Left</span></p>
+            {/* QUICK ACTIONS & RESET */}
+            <div className="p-4 border-t border-zinc-800/60 space-y-2">
+              <button 
+                onClick={() => setIsFocusMode(true)}
+                className="w-full py-2 px-3 rounded-lg bg-zinc-800/60 hover:bg-zinc-700/60 text-zinc-300 text-xs font-medium flex items-center justify-center space-x-2 border border-zinc-700/40 transition-colors"
+              >
+                <Icon name="Maximize" className="w-3.5 h-3.5 text-indigo-400" />
+                <span>Enter Focus Mode</span>
+              </button>
+              
+              <button 
+                onClick={handleResetData}
+                className="w-full py-1.5 text-[11px] text-zinc-500 hover:text-zinc-400 font-mono text-center block transition-colors"
+              >
+                Reset Baseline Data
+              </button>
             </div>
           </aside>
 
           {/* MAIN CONTENT AREA */}
-          <main className="flex-1 overflow-y-auto p-8 bg-[#09090b]">
-            {activeTab === 'dashboard' && (
-              <DashboardView daysLeft={daysLeft} overallProgress={overallProgress} roadmap={roadmap} logs={logs} />
-            )}
-            {activeTab === 'roadmap' && (
-              <RoadmapView roadmap={roadmap} setRoadmap={setRoadmap} />
-            )}
-            {activeTab === 'formulas' && (
-              <FormulasView formulas={formulas} setFormulas={setFormulas} />
-            )}
-            {activeTab === 'mistakes' && (
-              <MistakesView mistakes={mistakes} setMistakes={setMistakes} />
-            )}
-            {activeTab === 'tracker' && (
-              <TrackerView logs={logs} setLogs={setLogs} roadmap={roadmap} />
-            )}
-          </main>
-        </div>
-      );
-    }
+          <div className="flex-1 flex flex-col overflow-hidden">
+            
+            {/* TOP HEADER BAR */}
+            <header className="h-16 border-b border-zinc-800/80 bg-[#0d0d12]/80 backdrop-blur-md px-6 flex items-center justify-between z-10">
+              
+              {/* LEFT: Target Countdown & Readiness */}
+              <div className="flex items-center space-x-6">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                  <span className="text-xs text-zinc-400 font-mono">GATE 2027 COUNTDOWN:</span>
+                  <span className="text-sm font-semibold font-mono text-cyan-300 bg-cyan-950/60 border border-cyan-800/50 px-2.5 py-0.5 rounded">
+                    {daysLeftToGate} Days
+                  </span>
+                </div>
 
-    // DASHBOARD COMPONENT
-    function DashboardView({ daysLeft, overallProgress, roadmap, logs }) {
-      const totalHours = logs.reduce((sum, log) => sum + Number(log.hours), 0);
-
-      return (
-        <div className="max-w-5xl mx-auto space-y-8">
-          <header className="flex justify-between items-end border-b border-borderDark pb-6">
-            <div>
-              <h2 className="text-3xl font-bold tracking-tight text-white">System Command</h2>
-              <p className="text-zinc-400 mt-1">GATE 2027 Mechanical Engineering Preparation OS</p>
-            </div>
-            <div className="text-right">
-              <span className="text-xs uppercase tracking-widest text-zinc-500 font-semibold">Exam Date</span>
-              <p className="text-sm font-medium text-white">February 6, 2027</p>
-            </div>
-          </header>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="glass-card p-6 rounded-2xl">
-              <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Weighted Readiness</span>
-              <p className="text-4xl font-extrabold text-white mt-2">{overallProgress}%</p>
-              <div className="w-full bg-zinc-800 h-1.5 rounded-full mt-4 overflow-hidden">
-                <div className="bg-blue-500 h-full transition-all duration-500" style={{ width: `${overallProgress}%` }}></div>
-              </div>
-            </div>
-
-            <div className="glass-card p-6 rounded-2xl">
-              <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Logged Study Time</span>
-              <p className="text-4xl font-extrabold text-white mt-2">{totalHours} <span className="text-lg font-normal text-zinc-400">Hrs</span></p>
-              <p className="text-xs text-zinc-500 mt-2">Logged across {logs.length} sessions</p>
-            </div>
-
-            <div className="glass-card p-6 rounded-2xl border-l-4 border-l-blue-500">
-              <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">AI Coach Focus</span>
-              <p className="text-lg font-semibold text-white mt-2">High ROI Priority</p>
-              <p className="text-xs text-zinc-400 mt-1">Manufacturing & Maths hold 29% of overall syllabus weightage.</p>
-            </div>
-          </div>
-
-          <div className="glass-card p-6 rounded-2xl">
-            <h3 className="text-lg font-bold text-white mb-4">Subject Syllabus Status</h3>
-            <div className="space-y-4">
-              {roadmap.map((item) => (
-                <div key={item.id} className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-zinc-300 font-medium">{item.name} <span className="text-xs text-zinc-500">({item.weight}% weight)</span></span>
-                    <span className="text-zinc-400">{item.progress}%</span>
+                <div className="hidden lg:flex items-center space-x-2 text-xs text-zinc-400">
+                  <span>Readiness:</span>
+                  <div className="w-24 bg-zinc-800 rounded-full h-2 overflow-hidden border border-zinc-700">
+                    <div className="bg-gradient-to-r from-indigo-500 to-cyan-400 h-full transition-all duration-500" style={{ width: `${readinessScore}%` }}></div>
                   </div>
-                  <div className="w-full bg-zinc-800/60 h-2 rounded-full overflow-hidden">
-                    <div className="bg-zinc-200 h-full transition-all" style={{ width: `${item.progress}%` }}></div>
+                  <span className="font-mono text-zinc-200">{readinessScore}/100</span>
+                </div>
+              </div>
+
+              {/* RIGHT: AI Coach & Recovery Wizard Controls */}
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setIsRecoveryOpen(true)}
+                  className="px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700/80 text-amber-300 text-xs font-medium border border-amber-500/30 flex items-center space-x-1.5 transition-all"
+                >
+                  <Icon name="Wand" className="w-3.5 h-3.5 text-amber-400" />
+                  <span className="hidden sm:inline">Recovery Wizard</span>
+                </button>
+
+                <button
+                  onClick={() => setIsAICoachOpen(true)}
+                  className="px-4 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 text-white text-xs font-semibold shadow-lg shadow-indigo-500/25 hover:opacity-95 flex items-center space-x-2 border border-cyan-300/30 glow-pulse transition-all"
+                >
+                  <Icon name="Brain" className="w-4 h-4 text-cyan-200" />
+                  <span>What Should I Do Now?</span>
+                </button>
+              </div>
+            </header>
+
+            {/* DYNAMIC TAB VIEW CONTAINERS */}
+            <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+              
+              {/* DASHBOARD TAB */}
+              {activeTab === 'dashboard' && (
+                <div className="space-y-6">
+                  
+                  {/* HERO BANNER & CORE STATS GRID */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    
+                    {/* READINESS SCORE CARD */}
+                    <div className="glass-card p-5 rounded-xl space-y-2 relative overflow-hidden">
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs text-zinc-400 font-medium">Readiness Score</span>
+                        <Icon name="Target" className="w-4 h-4 text-cyan-400" />
+                      </div>
+                      <div className="flex items-baseline space-x-2">
+                        <span className="text-3xl font-bold text-zinc-100 font-mono">{readinessScore}</span>
+                        <span className="text-xs text-zinc-500">/ 100</span>
+                      </div>
+                      <p className="text-[11px] text-emerald-400 flex items-center space-x-1">
+                        <Icon name="Zap" className="w-3 h-3" />
+                        <span>Calculated across 5 metrics</span>
+                      </p>
+                      <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-2">
+                        <div className="bg-gradient-to-r from-indigo-500 to-cyan-400 h-1.5 rounded-full" style={{ width: `${readinessScore}%` }}></div>
+                      </div>
+                    </div>
+
+                    {/* OVERALL SYLLABUS PROGRESS */}
+                    <div className="glass-card p-5 rounded-xl space-y-2">
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs text-zinc-400 font-medium">Syllabus Complete</span>
+                        <Icon name="BookOpen" className="w-4 h-4 text-indigo-400" />
+                      </div>
+                      <div className="flex items-baseline space-x-2">
+                        <span className="text-3xl font-bold text-zinc-100 font-mono">{overallCompletion}%</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400">Current: Phase 1 (SOM Target)</p>
+                      <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-2">
+                        <div className="bg-indigo-500 h-1.5 rounded-full" style={{ width: `${overallCompletion}%` }}></div>
+                      </div>
+                    </div>
+
+                    {/* STUDY STREAK */}
+                    <div className="glass-card p-5 rounded-xl space-y-2">
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs text-zinc-400 font-medium">Study Streak</span>
+                        <Icon name="Flame" className="w-4 h-4 text-amber-400" />
+                      </div>
+                      <div className="flex items-baseline space-x-2">
+                        <span className="text-3xl font-bold text-zinc-100 font-mono">{streak}</span>
+                        <span className="text-xs text-zinc-500">Days</span>
+                      </div>
+                      <p className="text-[11px] text-amber-300">Consistency: 92% this month</p>
+                      <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-2">
+                        <div className="bg-amber-500 h-1.5 rounded-full" style={{ width: '92%' }}></div>
+                      </div>
+                    </div>
+
+                    {/* TOTAL STUDY HOURS */}
+                    <div className="glass-card p-5 rounded-xl space-y-2">
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs text-zinc-400 font-medium">Total Hours Logged</span>
+                        <Icon name="Clock" className="w-4 h-4 text-emerald-400" />
+                      </div>
+                      <div className="flex items-baseline space-x-2">
+                        <span className="text-3xl font-bold text-zinc-100 font-mono">{studyHours}</span>
+                        <span className="text-xs text-zinc-500">hrs</span>
+                      </div>
+                      <p className="text-[11px] text-emerald-400">+18.5 hrs logged this week</p>
+                      <div className="w-full bg-zinc-800 rounded-full h-1.5 mt-2">
+                        <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: '65%' }}></div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* AI COACH PROMPT STRIP */}
+                  <div className="glass-panel p-6 rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 via-zinc-900 to-cyan-950/30 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-start space-x-4">
+                      <div className="p-3 rounded-xl bg-indigo-500/20 border border-indigo-500/40 text-cyan-300">
+                        <Icon name="Brain" className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-semibold text-zinc-100">Next Recommended Action</h3>
+                        <p className="text-xs text-zinc-300 mt-1 max-w-2xl">
+                          You are currently in Phase 1 (SOM Completion). You have 2 pending spaced revisions due today (Torsion & Entropy) before starting Deflection of Beams.
+                        </p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setIsAICoachOpen(true)}
+                      className="whitespace-nowrap px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-semibold text-xs transition-colors flex items-center space-x-2 shadow-lg shadow-cyan-500/20"
+                    >
+                      <Icon name="Play" className="w-3.5 h-3.5 fill-current" />
+                      <span>Start Guided Session</span>
+                    </button>
+                  </div>
+
+                  {/* TWO COLUMN GRID: HEATMAP & REVISION QUEUE */}
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    {/* GITHUB STYLE STUDY HEATMAP (2 COLUMNS) */}
+                    <div className="lg:col-span-2 glass-card p-5 rounded-xl space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Icon name="BarChart" className="w-4 h-4 text-cyan-400" />
+                          <h3 className="text-sm font-semibold text-zinc-200">Study Intensity Grid</h3>
+                        </div>
+                        <span className="text-xs text-zinc-500 font-mono">Last 160 Days</span>
+                      </div>
+
+                      {/* SVG / GRID HEATMAP MATRIX */}
+                      <div className="overflow-x-auto pb-2">
+                        <div className="grid grid-rows-7 grid-flow-col gap-1.5 min-w-[500px]">
+                          {Array.from({ length: 112 }).map((_, i) => {
+                            const intensity = (i % 7 === 0 || i % 11 === 0) ? 0 : (i % 3 === 0 ? 3 : (i % 2 === 0 ? 2 : 1));
+                            const colors = ['bg-zinc-800/80', 'bg-indigo-950/80 border border-indigo-800/40', 'bg-indigo-700/80', 'bg-cyan-400'];
+                            return (
+                              <div
+                                key={i}
+                                title={`Day ${i + 1}: ${intensity * 2.5} hrs logged`}
+                                className={`w-3.5 h-3.5 rounded-sm ${colors[intensity]} heatmap-cell cursor-pointer`}
+                              />
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between text-[11px] text-zinc-500 pt-2 border-t border-zinc-800/60">
+                        <span>Less</span>
+                        <div className="flex items-center space-x-1.5">
+                          <div className="w-2.5 h-2.5 rounded-sm bg-zinc-800"></div>
+                          <div className="w-2.5 h-2.5 rounded-sm bg-indigo-950 border border-indigo-800"></div>
+                          <div className="w-2.5 h-2.5 rounded-sm bg-indigo-700"></div>
+                          <div className="w-2.5 h-2.5 rounded-sm bg-cyan-400"></div>
+                        </div>
+                        <span>More (6+ hrs)</span>
+                      </div>
+                    </div>
+
+                    {/* TODAY'S REVISION & PENDING TASKS */}
+                    <div className="glass-card p-5 rounded-xl space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Icon name="RotateCcw" className="w-4 h-4 text-indigo-400" />
+                          <h3 className="text-sm font-semibold text-zinc-200">Spaced Revision Queue</h3>
+                        </div>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">
+                          {revisions.filter(r => r.status === 'Pending').length} Due
+                        </span>
+                      </div>
+
+                      <div className="space-y-2.5">
+                        {revisions.slice(0, 4).map(rev => (
+                          <div key={rev.id} className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 flex items-center justify-between">
+                            <div>
+                              <p className="text-xs font-medium text-zinc-200">{rev.topic}</p>
+                              <div className="flex items-center space-x-2 text-[10px] text-zinc-500 mt-1">
+                                <span>Interval: {rev.interval}</span>
+                                <span>•</span>
+                                <span className={rev.status === 'Pending' ? 'text-rose-400' : 'text-emerald-400'}>{rev.dueDate}</span>
+                              </div>
+                            </div>
+                            {rev.status === 'Pending' ? (
+                              <button
+                                onClick={() => handleMarkRevisionDone(rev.id)}
+                                className="px-2.5 py-1 rounded text-[11px] bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/40 transition-colors"
+                              >
+                                Review
+                              </button>
+                            ) : (
+                              <Icon name="CheckCircle" className="w-4 h-4 text-emerald-400" />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                  </div>
+
+                  {/* QUICK NOTE EDITOR & STRATEGY CARD */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    {/* QUICK NOTES SCRATCHPAD */}
+                    <div className="glass-card p-5 rounded-xl space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Icon name="Notebook" className="w-4 h-4 text-amber-400" />
+                          <h3 className="text-sm font-semibold text-zinc-200">Quick Notes & Traps</h3>
+                        </div>
+                        <span className="text-[10px] text-zinc-500 font-mono">Auto-saved</span>
+                      </div>
+                      <textarea
+                        value={quickNote}
+                        onChange={(e) => setQuickNote(e.target.value)}
+                        placeholder="Write down formula reminders, difficult PYQ numbers, or daily thoughts..."
+                        className="w-full h-28 bg-zinc-900/90 border border-zinc-800 rounded-lg p-3 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-indigo-500/50 font-mono resize-none"
+                      ></textarea>
+                    </div>
+
+                    {/* STRATEGY / MOTIVATIONAL CARD FROM PDF GUIDE */}
+                    <div className="glass-card p-5 rounded-xl space-y-3 border-l-4 border-l-cyan-500 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-center space-x-2 text-cyan-400 text-xs font-mono mb-2 uppercase tracking-wider">
+                          <Icon name="Shield" className="w-4 h-4" />
+                          <span>Core Execution Rule</span>
+                        </div>
+                        <blockquote className="text-xs text-zinc-300 italic leading-relaxed">
+                          "The goal is not to finish lectures. The goal is to enter the exam remembering, applying, and trusting the subjects you have studied."
+                        </blockquote>
+                      </div>
+                      <p className="text-[11px] text-zinc-500 font-mono">
+                        Baseline: 3 focused hours on busy days; 6-7 hours on free days.
+                      </p>
+                    </div>
+
+                  </div>
+
+                </div>
+              )}
+
+              {/* ROADMAP TAB */}
+              {activeTab === 'roadmap' && (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h2 className="text-xl font-bold text-zinc-100">GATE 2027 Mechanical Engineering Master Roadmap</h2>
+                      <p className="text-xs text-zinc-400 mt-1">End-to-End Execution Plan: 25 July 2026 to Examination Day</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 relative before:absolute before:inset-0 before:left-6 before:w-0.5 before:bg-zinc-800">
+                    {phases.map(p => (
+                      <div key={p.id} className="relative pl-12 glass-card p-6 rounded-xl space-y-3">
+                        <div className={`absolute left-4 top-6 w-4 h-4 rounded-full border-2 ${
+                          p.status === 'Active' 
+                            ? 'bg-cyan-400 border-cyan-200 glow-cyan' 
+                            : 'bg-zinc-900 border-zinc-700'
+                        }`}></div>
+
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-xs font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700">{p.dates}</span>
+                            <h3 className="text-base font-semibold text-zinc-100 mt-1">{p.title}</h3>
+                          </div>
+                          {p.status === 'Active' && (
+                            <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                              Active Phase
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="text-xs text-zinc-300 leading-relaxed">{p.description}</p>
+
+                        <div className="space-y-1.5 pt-2 border-t border-zinc-800/60">
+                          <span className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">Key Deliverables</span>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {p.objectives.map((obj, i) => (
+                              <div key={i} className="flex items-center space-x-2 text-xs text-zinc-400">
+                                <Icon name="CheckCircle" className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
+                                <span>{obj}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      );
-    }
+              )}
 
-    // ROADMAP COMPONENT
-    function RoadmapView({ roadmap, setRoadmap }) {
-      const updateProgress = (id, newProgress) => {
-        setRoadmap(roadmap.map(item => item.id === id ? { ...item, progress: Math.min(100, Math.max(0, newProgress)) } : item));
-      };
+              {/* SUBJECTS & CHAPTERS TAB */}
+              {activeTab === 'subjects' && (
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-100">Syllabus & Chapter Progress Tracker</h2>
+                    <p className="text-xs text-zinc-400 mt-1">Select chapter status to automatically compute subject progress %</p>
+                  </div>
 
-      return (
-        <div className="max-w-4xl mx-auto space-y-6">
-          <header className="border-b border-borderDark pb-6">
-            <h2 className="text-3xl font-bold text-white">GATE ME Syllabus Roadmap</h2>
-            <p className="text-zinc-400 text-sm mt-1">Adjust completion percentages as you complete subjects and PYQs.</p>
-          </header>
+                  <div className="grid grid-cols-1 gap-4">
+                    {subjects.map(s => {
+                      const completedCount = s.chapters.filter(c => c.status === 'Completed').length;
+                      const totalCount = s.chapters.length;
+                      const percent = Math.round((completedCount / totalCount) * 100);
 
-          <div className="grid gap-4">
-            {roadmap.map((item) => (
-              <div key={item.id} className="glass-card p-5 rounded-xl flex items-center justify-between">
-                <div className="flex-1 pr-6">
-                  <h3 className="text-base font-semibold text-white">{item.name}</h3>
-                  <p className="text-xs text-zinc-500 mt-0.5">GATE Weightage: {item.weight}%</p>
+                      return (
+                        <div key={s.id} className="glass-card p-5 rounded-xl space-y-4">
+                          
+                          {/* SUBJECT HEADER */}
+                          <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-zinc-800/60">
+                            <div>
+                              <div className="flex items-center space-x-2">
+                                <h3 className="text-base font-semibold text-zinc-100">{s.name}</h3>
+                                <span className={`text-[10px] font-mono px-2 py-0.5 rounded ${
+                                  s.priority === 'High' ? 'bg-rose-500/20 text-rose-300 border border-rose-500/30' : 'bg-amber-500/20 text-amber-300'
+                                }`}>
+                                  Weightage ~{s.weightage} Marks
+                                </span>
+                              </div>
+                              <p className="text-xs text-zinc-500 mt-0.5">Resource: {s.resource}</p>
+                            </div>
+
+                            {/* PROGRESS BAR & STATS */}
+                            <div className="flex items-center space-x-6">
+                              <div className="text-right">
+                                <span className="text-sm font-bold text-cyan-300 font-mono">{percent}%</span>
+                                <p className="text-[10px] text-zinc-500">{completedCount}/{totalCount} Chapters</p>
+                              </div>
+                              <div className="w-32 bg-zinc-800 rounded-full h-2 overflow-hidden border border-zinc-700">
+                                <div className="bg-gradient-to-r from-indigo-500 to-cyan-400 h-full" style={{ width: `${percent}%` }}></div>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* CHAPTER STATUS DROPDOWNS GRID */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {s.chapters.map((chap, idx) => (
+                              <div key={idx} className="p-2.5 rounded-lg bg-zinc-900/60 border border-zinc-800/80 flex items-center justify-between">
+                                <span className="text-xs text-zinc-300 font-medium truncate max-w-[180px]" title={chap.name}>
+                                  {chap.name}
+                                </span>
+                                <select
+                                  value={chap.status}
+                                  onChange={(e) => handleChapterStatusChange(s.id, idx, e.target.value)}
+                                  className={`text-[11px] font-mono rounded px-2 py-1 bg-zinc-950 border focus:outline-none ${
+                                    chap.status === 'Completed' ? 'text-emerald-400 border-emerald-500/30' :
+                                    chap.status === 'In Progress' ? 'text-amber-400 border-amber-500/30' : 'text-zinc-500 border-zinc-800'
+                                  }`}
+                                >
+                                  <option value="Completed">Completed</option>
+                                  <option value="In Progress">In Progress</option>
+                                  <option value="Pending">Pending</option>
+                                </select>
+                              </div>
+                            ))}
+                          </div>
+
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={item.progress}
-                    onChange={(e) => updateProgress(item.id, Number(e.target.value))}
-                    className="w-16 bg-zinc-900 border border-zinc-700 text-white rounded-lg px-2 py-1 text-center text-sm focus:outline-none focus:border-blue-500"
-                  />
-                  <span className="text-sm text-zinc-400">%</span>
+              )}
+
+              {/* SPACED REVISION SYSTEM TAB */}
+              {activeTab === 'revision' && (
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-100">Spaced Repetition Engine</h2>
+                    <p className="text-xs text-zinc-400 mt-1">24 Hour → 7 Day → 30 Day → 90 Day automated revision queue</p>
+                  </div>
+
+                  {/* SUNDAY ROTATION WIDGET FROM PDF */}
+                  <div className="glass-panel p-5 rounded-xl border border-indigo-500/30 space-y-3">
+                    <div className="flex items-center space-x-2 text-indigo-400">
+                      <Icon name="RotateCcw" className="w-5 h-5" />
+                      <h3 className="text-sm font-semibold text-zinc-100">Sunday Maintenance Rotation Rules</h3>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+                      <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800">
+                        <p className="font-semibold text-cyan-300">Math (45 mins)</p>
+                        <p className="text-zinc-400 text-[11px] mt-1">Rotate Linear Alg → Calc → Diff Eq → Prob</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800">
+                        <p className="font-semibold text-amber-300">Basic Thermo (45 mins)</p>
+                        <p className="text-zinc-400 text-[11px] mt-1">Formula recall + 8-15 quality PYQs</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800">
+                        <p className="font-semibold text-emerald-300">Applied Thermo (45 mins)</p>
+                        <p className="text-zinc-400 text-[11px] mt-1">IC Engines, RAC, Compressors & Nozzles</p>
+                      </div>
+                      <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800">
+                        <p className="font-semibold text-indigo-300">Recent Completed (45 mins)</p>
+                        <p className="text-zinc-400 text-[11px] mt-1">SOM / TOM / Fluids maintenance</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* QUEUE TABLE */}
+                  <div className="glass-card p-5 rounded-xl space-y-4">
+                    <h3 className="text-sm font-semibold text-zinc-200">Active Spaced Revision List</h3>
+                    <div className="space-y-2">
+                      {revisions.map(rev => (
+                        <div key={rev.id} className="p-4 rounded-lg bg-zinc-900/80 border border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                          <div className="space-y-1">
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300">{rev.subject}</span>
+                            <h4 className="text-sm font-semibold text-zinc-100">{rev.topic}</h4>
+                          </div>
+                          <div className="flex items-center space-x-6 text-xs">
+                            <div>
+                              <span className="text-zinc-500 block text-[10px]">Interval</span>
+                              <span className="font-mono text-zinc-300">{rev.interval}</span>
+                            </div>
+                            <div>
+                              <span className="text-zinc-500 block text-[10px]">Status / Due</span>
+                              <span className={`font-mono ${rev.status === 'Pending' ? 'text-rose-400' : 'text-emerald-400'}`}>{rev.dueDate}</span>
+                            </div>
+                            {rev.status === 'Pending' && (
+                              <button
+                                onClick={() => handleMarkRevisionDone(rev.id)}
+                                className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors"
+                              >
+                                Mark Revised
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TIMETABLE & CALENDAR TAB */}
+              {activeTab === 'timetable' && (
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-100">Timetable & Operating Schedule</h2>
+                    <p className="text-xs text-zinc-400 mt-1">Adaptive schedules for busy college days vs free days</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    {/* BUSY COLLEGE DAY SCHEDULE */}
+                    <div className="glass-card p-5 rounded-xl space-y-4">
+                      <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                        <h3 className="text-sm font-semibold text-amber-300 flex items-center space-x-2">
+                          <Icon name="Clock" className="w-4 h-4" />
+                          <span>College Day Schedule (3–4 Hours Target)</span>
+                        </h3>
+                      </div>
+                      <div className="space-y-3 text-xs">
+                        <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
+                          <span className="font-mono text-cyan-400">Primary Block (~2 Hours)</span>
+                          <p className="text-zinc-300">One focused lecture/section plus notes. Stop at a natural concept boundary.</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
+                          <span className="font-mono text-cyan-400">PYQ Practice (~1 Hour)</span>
+                          <p className="text-zinc-300">Questions from yesterday's chapter; log errors in Mistake Register.</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
+                          <span className="font-mono text-cyan-400">Recall & Formula (~30 Mins)</span>
+                          <p className="text-zinc-300">Active recall of today's material, review 5-10 old formulas.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* FREE DAY SCHEDULE */}
+                    <div className="glass-card p-5 rounded-xl space-y-4">
+                      <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                        <h3 className="text-sm font-semibold text-emerald-300 flex items-center space-x-2">
+                          <Icon name="Zap" className="w-4 h-4" />
+                          <span>Free Day Schedule (6–7 Hours Target)</span>
+                        </h3>
+                      </div>
+                      <div className="space-y-3 text-xs">
+                        <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
+                          <span className="font-mono text-emerald-400">Morning Session (2.5 Hours)</span>
+                          <p className="text-zinc-300">Primary lecture + rigorous notes with active recall breaks.</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
+                          <span className="font-mono text-emerald-400">Afternoon Session (2 Hours)</span>
+                          <p className="text-zinc-300">PYQs and standard question practice; repair concept gaps.</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-1">
+                          <span className="font-mono text-emerald-400">Evening Session (1.5–2 Hours)</span>
+                          <p className="text-zinc-300">Revision register + Math/Thermo maintenance rotation.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+              {/* MOCK TEST MODULE TAB */}
+              {activeTab === 'mocks' && (
+                <div className="space-y-6">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h2 className="text-xl font-bold text-zinc-100">Mock Test Analytics & Performance</h2>
+                      <p className="text-xs text-zinc-400 mt-1">Track scores, accuracy trends, and negative mark penalties</p>
+                    </div>
+                    <button
+                      onClick={() => setIsAddMockOpen(true)}
+                      className="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center space-x-1.5 transition-colors"
+                    >
+                      <Icon name="Plus" className="w-4 h-4" />
+                      <span>Log New Mock</span>
+                    </button>
+                  </div>
+
+                  {/* MOCK LIST TABLE */}
+                  <div className="glass-card p-5 rounded-xl space-y-4">
+                    <h3 className="text-sm font-semibold text-zinc-200">Logged Mock Attempts</h3>
+                    <div className="space-y-3">
+                      {mocks.map(m => (
+                        <div key={m.id} className="p-4 rounded-lg bg-zinc-900/80 border border-zinc-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div>
+                            <h4 className="text-sm font-semibold text-zinc-100">{m.name}</h4>
+                            <p className="text-[11px] text-zinc-500 font-mono mt-0.5">Date: {m.date} • Duration: {m.time}</p>
+                          </div>
+                          <div className="flex items-center space-x-6 text-xs font-mono">
+                            <div>
+                              <span className="text-zinc-500 block text-[10px]">Score</span>
+                              <span className="text-cyan-300 font-bold">{m.score} / {m.total}</span>
+                            </div>
+                            <div>
+                              <span className="text-zinc-500 block text-[10px]">Accuracy</span>
+                              <span className="text-emerald-400 font-bold">{m.accuracy}%</span>
+                            </div>
+                            <div>
+                              <span className="text-zinc-500 block text-[10px]">Neg. Marks</span>
+                              <span className="text-rose-400 font-bold">-{m.negative}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* FORMULA & MISTAKE REGISTERS TAB */}
+              {activeTab === 'formulas' && (
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-100">Formula Register & Mistake Ledger</h2>
+                    <p className="text-xs text-zinc-400 mt-1">Instruments that turn study time into revisable exam knowledge</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    {/* FORMULA CARDS */}
+                    <div className="space-y-4">
+                      <h3 className="text-sm font-semibold text-cyan-300 flex items-center space-x-2">
+                        <Icon name="Notebook" className="w-4 h-4" />
+                        <span>Core Formula Register</span>
+                      </h3>
+                      {formulas.map(f => (
+                        <div key={f.id} className="glass-card p-4 rounded-xl space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-zinc-100">{f.title}</span>
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">{f.subject}</span>
+                          </div>
+                          <div className="p-3 rounded bg-zinc-950 font-mono text-xs text-indigo-300 text-center border border-indigo-500/30">
+                            {f.formula}
+                          </div>
+                          <p className="text-[11px] text-zinc-400"><strong className="text-zinc-300">Assumptions:</strong> {f.assumptions}</p>
+                          <p className="text-[11px] text-rose-300"><strong className="text-rose-400">Common Trap:</strong> {f.trap}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* MISTAKE LEDGER */}
+                    <div className="space-y-4">
+                      <h3 className="text-sm font-semibold text-rose-300 flex items-center space-x-2">
+                        <Icon name="AlertCircle" className="w-4 h-4" />
+                        <span>Mistake Ledger</span>
+                      </h3>
+                      {mistakes.map(m => (
+                        <div key={m.id} className="glass-card p-4 rounded-xl space-y-2 border-l-4 border-l-rose-500">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-zinc-100">{m.question}</span>
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">{m.category}</span>
+                          </div>
+                          <p className="text-[11px] text-zinc-300"><strong>Error:</strong> {m.error}</p>
+                          <p className="text-[11px] text-emerald-300"><strong>Corrective Action:</strong> {m.action}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                  </div>
+                </div>
+              )}
+
+              {/* JOURNAL TAB */}
+              {activeTab === 'journal' && (
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-100">Daily Preparation Journal</h2>
+                    <p className="text-xs text-zinc-400 mt-1">Reflect on daily momentum, mood, and technical challenges</p>
+                  </div>
+
+                  <div className="glass-card p-5 rounded-xl space-y-4">
+                    <h3 className="text-sm font-semibold text-zinc-200">Past Reflections</h3>
+                    <div className="space-y-3">
+                      {journal.map(j => (
+                        <div key={j.id} className="p-4 rounded-lg bg-zinc-900/80 border border-zinc-800 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-mono text-zinc-400">{j.date}</span>
+                            <span className="text-xs font-semibold text-cyan-300">{j.mood}</span>
+                          </div>
+                          <p className="text-xs text-emerald-300"><strong>Wins:</strong> {j.wins}</p>
+                          <p className="text-xs text-amber-300"><strong>Challenges:</strong> {j.challenges}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ACHIEVEMENTS TAB */}
+              {activeTab === 'achievements' && (
+                <div className="space-y-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-100">Milestones & Achievements</h2>
+                    <p className="text-xs text-zinc-400 mt-1">SaaS-style gamification to reward steady consistency</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {achievements.map(a => (
+                      <div key={a.id} className={`glass-card p-5 rounded-xl space-y-3 border ${
+                        a.unlocked ? 'border-indigo-500/40 bg-indigo-950/20' : 'border-zinc-800 opacity-50'
+                      }`}>
+                        <div className="flex items-center space-x-3">
+                          <div className={`p-2.5 rounded-lg ${a.unlocked ? 'bg-indigo-500/20 text-cyan-300' : 'bg-zinc-800 text-zinc-500'}`}>
+                            <Icon name={a.icon} className="w-6 h-6" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-semibold text-zinc-100">{a.title}</h4>
+                            <p className="text-[11px] text-zinc-400">{a.desc}</p>
+                          </div>
+                        </div>
+                        <div className="text-[10px] font-mono text-right">
+                          <span className={a.unlocked ? 'text-emerald-400' : 'text-zinc-600'}>
+                            {a.unlocked ? '✓ Unlocked' : 'Locked'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+            </main>
+          </div>
+
+          {/* --- FOCUS MODE FULLSCREEN OVERLAY --- */}
+          {isFocusMode && (
+            <div className="fixed inset-0 bg-[#09090b] z-50 p-8 flex flex-col justify-between">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></div>
+                  <span className="text-xs font-mono text-zinc-400">FOCUS MODE ACTIVE</span>
+                </div>
+                <button
+                  onClick={() => setIsFocusMode(false)}
+                  className="px-3 py-1.5 rounded-lg bg-zinc-800 text-zinc-300 text-xs hover:bg-zinc-700"
+                >
+                  Exit Focus Mode
+                </button>
+              </div>
+
+              {/* POMODORO TIMER CORE */}
+              <div className="text-center space-y-6 my-auto">
+                <span className="text-xs font-mono text-indigo-400 uppercase tracking-widest">Current Task: SOM Torsion Equations & PYQs</span>
+                <div className="text-8xl md:text-9xl font-bold font-mono text-zinc-100 tracking-tighter">
+                  25:00
+                </div>
+                <div className="flex justify-center space-x-4">
+                  <button className="px-8 py-3 rounded-xl bg-cyan-500 text-zinc-950 font-bold text-sm shadow-lg shadow-cyan-500/30 hover:bg-cyan-400">
+                    Start Session
+                  </button>
+                  <button className="px-6 py-3 rounded-xl bg-zinc-800 text-zinc-300 font-semibold text-sm hover:bg-zinc-700">
+                    Reset
+                  </button>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
 
-    // FORMULA REGISTER COMPONENT
-    function FormulasView({ formulas, setFormulas }) {
-      const [title, setTitle] = useState('');
-      const [subject, setSubject] = useState('');
-      const [latex, setLatex] = useState('');
-
-      const addFormula = (e) => {
-        e.preventDefault();
-        if (!title || !latex) return;
-        setFormulas([...formulas, { id: Date.now(), subject: subject || 'General', title, latex }]);
-        setTitle(''); setSubject(''); setLatex('');
-      };
-
-      return (
-        <div className="max-w-4xl mx-auto space-y-8">
-          <header className="border-b border-borderDark pb-6">
-            <h2 className="text-3xl font-bold text-white">Formula Register</h2>
-            <p className="text-zinc-400 text-sm mt-1">Rendered with KaTeX mathematics engine.</p>
-          </header>
-
-          <form onSubmit={addFormula} className="glass-card p-5 rounded-xl space-y-4">
-            <h3 className="text-sm font-semibold text-white uppercase tracking-wider">Add New Formula</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="Title (e.g. Bending Stress)"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
-              />
-              <input
-                type="text"
-                placeholder="Subject (e.g. SOM)"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
-              />
-            </div>
-            <textarea
-              placeholder="LaTeX Expression (e.g. \sigma = \frac{M y}{I})"
-              value={latex}
-              onChange={(e) => setLatex(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500 h-20"
-            />
-            <button type="submit" className="bg-white text-black font-semibold px-4 py-2 rounded-lg text-sm hover:bg-zinc-200 transition">Save Formula</button>
-          </form>
-
-          <div className="grid gap-4">
-            {formulas.map((item) => (
-              <FormulaCard key={item.id} formula={item} />
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    function FormulaCard({ formula }) {
-      const containerRef = React.useRef(null);
-
-      useEffect(() => {
-        if (containerRef.current && window.katex) {
-          try {
-            window.katex.render(formula.latex, containerRef.current, { displayMode: true, throwOnError: false });
-          } catch (e) {
-            containerRef.current.innerText = formula.latex;
-          }
-        }
-      }, [formula.latex]);
-
-      return (
-        <div className="glass-card p-5 rounded-xl space-y-2">
-          <div className="flex justify-between items-center">
-            <h4 className="font-semibold text-white">{formula.title}</h4>
-            <span className="text-xs bg-zinc-800 text-zinc-300 px-2.5 py-1 rounded-md">{formula.subject}</span>
-          </div>
-          <div ref={containerRef} className="py-3 text-lg text-blue-400 overflow-x-auto"></div>
-        </div>
-      );
-    }
-
-    // MISTAKE VAULT COMPONENT
-    function MistakesView({ mistakes, setMistakes }) {
-      const [topic, setTopic] = useState('');
-      const [error, setError] = useState('');
-      const [lesson, setLesson] = useState('');
-
-      const addMistake = (e) => {
-        e.preventDefault();
-        if (!topic || !error) return;
-        setMistakes([{ id: Date.now(), topic, error, lesson, date: new Date().toLocaleDateString() }, ...mistakes]);
-        setTopic(''); setError(''); setLesson('');
-      };
-
-      return (
-        <div className="max-w-4xl mx-auto space-y-8">
-          <header className="border-b border-borderDark pb-6">
-            <h2 className="text-3xl font-bold text-white">Mistake Vault</h2>
-            <p className="text-zinc-400 text-sm mt-1">Log mistakes made during test series and PYQ practice to prevent repeats.</p>
-          </header>
-
-          <form onSubmit={addMistake} className="glass-card p-5 rounded-xl space-y-4">
-            <input
-              type="text"
-              placeholder="Topic / Question Ref (e.g. Fluid Statics - Buoyancy Q4)"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
-            />
-            <textarea
-              placeholder="What mistake did you make? (Calculation, Conceptual, Misread question)"
-              value={error}
-              onChange={(e) => setError(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500 h-20"
-            />
-            <input
-              type="text"
-              placeholder="Key lesson / Correct approach"
-              value={lesson}
-              onChange={(e) => setLesson(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
-            />
-            <button type="submit" className="bg-white text-black font-semibold px-4 py-2 rounded-lg text-sm hover:bg-zinc-200 transition">Log Mistake</button>
-          </form>
-
-          <div className="space-y-4">
-            {mistakes.map((m) => (
-              <div key={m.id} className="glass-card p-5 rounded-xl space-y-2 border-l-4 border-l-red-500">
-                <div className="flex justify-between items-center">
-                  <h4 className="font-semibold text-white">{m.topic}</h4>
-                  <span className="text-xs text-zinc-500">{m.date}</span>
-                </div>
-                <p className="text-sm text-zinc-300"><strong className="text-red-400">Error:</strong> {m.error}</p>
-                {m.lesson && <p className="text-sm text-zinc-400"><strong className="text-emerald-400">Lesson:</strong> {m.lesson}</p>}
+              <div className="text-center text-xs text-zinc-600 font-mono">
+                Forge Yourself. Every Day.
               </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-
-    // STUDY LOGGER COMPONENT
-    function TrackerView({ logs, setLogs, roadmap }) {
-      const [subject, setSubject] = useState(roadmap[0]?.name || '');
-      const [hours, setHours] = useState('');
-      const [notes, setNotes] = useState('');
-
-      const addLog = (e) => {
-        e.preventDefault();
-        if (!hours) return;
-        setLogs([{ id: Date.now(), subject, hours, notes, date: new Date().toLocaleDateString() }, ...logs]);
-        setHours(''); setNotes('');
-      };
-
-      return (
-        <div className="max-w-4xl mx-auto space-y-8">
-          <header className="border-b border-borderDark pb-6">
-            <h2 className="text-3xl font-bold text-white">Daily Study Tracker</h2>
-            <p className="text-zinc-400 text-sm mt-1">Log hours spent studying or solving PYQs.</p>
-          </header>
-
-          <form onSubmit={addLog} className="glass-card p-5 rounded-xl space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <select
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
-              >
-                {roadmap.map((s) => <option key={s.id} value={s.name}>{s.name}</option>)}
-              </select>
-              <input
-                type="number"
-                step="0.5"
-                placeholder="Hours Spent (e.g. 3.5)"
-                value={hours}
-                onChange={(e) => setHours(e.target.value)}
-                className="bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
-              />
             </div>
-            <input
-              type="text"
-              placeholder="Session Notes (e.g. Completed Fluid Kinematics PYQs 2015-2024)"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-lg p-2.5 text-sm focus:outline-none focus:border-blue-500"
-            />
-            <button type="submit" className="bg-white text-black font-semibold px-4 py-2 rounded-lg text-sm hover:bg-zinc-200 transition">Record Session</button>
-          </form>
+          )}
 
-          <div className="space-y-3">
-            {logs.map((log) => (
-              <div key={log.id} className="glass-card p-4 rounded-xl flex justify-between items-center">
-                <div>
-                  <h4 className="font-semibold text-white text-sm">{log.subject}</h4>
-                  <p className="text-xs text-zinc-400">{log.notes || 'No extra notes'}</p>
+          {/* --- AI STUDY COACH MODAL ("What Should I Do Now?") --- */}
+          {isAICoachOpen && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+              <div className="glass-panel w-full max-w-xl rounded-2xl p-6 space-y-5 border border-indigo-500/40 glow-indigo">
+                <div className="flex justify-between items-center pb-3 border-b border-zinc-800">
+                  <div className="flex items-center space-x-2 text-cyan-300">
+                    <Icon name="Brain" className="w-5 h-5" />
+                    <h3 className="font-semibold text-base">AI Coach — Real-Time Recommendation</h3>
+                  </div>
+                  <button onClick={() => setIsAICoachOpen(false)} className="text-zinc-500 hover:text-zinc-300 text-xs">✕ Close</button>
                 </div>
-                <div className="text-right">
-                  <span className="text-base font-bold text-blue-400">{log.hours} hrs</span>
-                  <p className="text-[10px] text-zinc-500">{log.date}</p>
+
+                <div className="space-y-4 text-xs leading-relaxed text-zinc-300">
+                  <div className="p-3.5 rounded-lg bg-indigo-950/40 border border-indigo-800/50">
+                    <p className="font-semibold text-indigo-300 mb-1">Diagnosis based on your current state:</p>
+                    <ul className="list-disc list-inside space-y-1 text-zinc-400">
+                      <li>You are in <strong>Phase 1 (SOM Completion)</strong>.</li>
+                      <li>You have <strong>2 Pending Spaced Revisions</strong> due today.</li>
+                      <li>Your PYQ completion for SOM is currently at 61%.</li>
+                    </ul>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-zinc-200">Recommended 90-Minute Block Execution:</h4>
+                    <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 space-y-1">
+                      <span className="font-mono text-cyan-400">Step 1 (15 Mins): Spaced Recall</span>
+                      <p>Review 24h revision card: <i>Torsion in Circular Shafts formula set</i>.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 space-y-1">
+                      <span className="font-mono text-cyan-400">Step 2 (50 Mins): Core Lecture / Concept</span>
+                      <p>Watch PW Lecture: <i>Deflection of Beams (Macaulay Method & Double Integration)</i>.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-zinc-900 border border-zinc-800 space-y-1">
+                      <span className="font-mono text-cyan-400">Step 3 (25 Mins): Immediate PYQ Solve</span>
+                      <p>Solve 5 GATE PYQs on deflection; log errors in Mistake Ledger.</p>
+                    </div>
+                  </div>
                 </div>
+
+                <button
+                  onClick={() => {
+                    setIsAICoachOpen(false);
+                    setIsFocusMode(true);
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 text-white font-semibold text-xs shadow-lg shadow-indigo-500/25"
+                >
+                  Accept Recommendation & Enter Focus Mode
+                </button>
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+
+          {/* --- RECOVERY WIZARD MODAL --- */}
+          {isRecoveryOpen && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+              <div className="glass-panel w-full max-w-lg rounded-2xl p-6 space-y-5 border border-amber-500/40">
+                <div className="flex justify-between items-center pb-3 border-b border-zinc-800">
+                  <div className="flex items-center space-x-2 text-amber-300">
+                    <Icon name="Wand" className="w-5 h-5" />
+                    <h3 className="font-semibold text-base">Roadmap Recovery Wizard</h3>
+                  </div>
+                  <button onClick={() => setIsRecoveryOpen(false)} className="text-zinc-500 hover:text-zinc-300 text-xs">✕ Close</button>
+                </div>
+
+                <p className="text-xs text-zinc-300 leading-relaxed">
+                  Did college workload or fatigue cause you to fall behind? Select how much time was missed. The algorithm will automatically compress lower-ROI topics (Material Science, selective Heat Transfer) while protecting high-ROI core subjects (SOM, Math, TOM, FM, IE).
+                </p>
+
+                <div className="space-y-2 text-xs">
+                  <label className="block text-zinc-400">Missed Duration:</label>
+                  <select className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2.5 text-zinc-200">
+                    <option>1 – 3 Days (Minor Buffer Adjust)</option>
+                    <option>4 – 7 Days (Compress Material Science to 10h crash YouTube)</option>
+                    <option>2+ Weeks (Strategic Roadmap Re-balancing)</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => {
+                    alert("Roadmap successfully re-balanced! Lower ROI topics compressed; High ROI core protected.");
+                    setIsRecoveryOpen(false);
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold text-xs transition-colors"
+                >
+                  Execute Schedule Recovery
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* --- ADD MOCK RESULT MODAL --- */}
+          {isAddMockOpen && (
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+              <div className="glass-panel w-full max-w-md rounded-2xl p-6 space-y-4 border border-indigo-500/40">
+                <div className="flex justify-between items-center pb-2 border-b border-zinc-800">
+                  <h3 className="font-semibold text-sm text-zinc-100">Log Mock Test Outcome</h3>
+                  <button onClick={() => setIsAddMockOpen(false)} className="text-zinc-500 text-xs">✕</button>
+                </div>
+
+                <form onSubmit={(e) => {
+                  e.preventDefault();
+                  const form = e.target;
+                  handleAddMock({
+                    id: Date.now(),
+                    name: form.name.value,
+                    date: form.date.value,
+                    score: Number(form.score.value),
+                    total: Number(form.total.value),
+                    accuracy: Number(form.accuracy.value),
+                    negative: Number(form.negative.value),
+                    time: form.time.value,
+                    weak: form.weak.value
+                  });
+                }} className="space-y-3 text-xs">
+                  <div>
+                    <label className="block text-zinc-400">Test Name</label>
+                    <input name="name" required placeholder="e.g. SOM Subject Test 2" className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-zinc-200" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-zinc-400">Date</label>
+                      <input name="date" type="date" required defaultValue={new Date().toISOString().split('T')[0]} className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-zinc-200" />
+                    </div>
+                    <div>
+                      <label className="block text-zinc-400">Time Taken</label>
+                      <input name="time" placeholder="e.g. 45 mins" required className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-zinc-200" />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-zinc-400">Score</label>
+                      <input name="score" type="number" step="0.1" required className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-zinc-200" />
+                    </div>
+                    <div>
+                      <label className="block text-zinc-400">Total</label>
+                      <input name="total" type="number" defaultValue="50" required className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-zinc-200" />
+                    </div>
+                    <div>
+                      <label className="block text-zinc-400">Accuracy %</label>
+                      <input name="accuracy" type="number" required className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-zinc-200" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-zinc-400">Negative Marks</label>
+                    <input name="negative" type="number" step="0.01" defaultValue="1.33" required className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-zinc-200" />
+                  </div>
+                  <div>
+                    <label className="block text-zinc-400">Weak Topics Identified</label>
+                    <input name="weak" placeholder="e.g. Macaulay method calculation" className="w-full bg-zinc-900 border border-zinc-800 rounded p-2 text-zinc-200" />
+                  </div>
+
+                  <button type="submit" className="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-semibold transition-colors mt-2">
+                    Save Test Record
+                  </button>
+                </form>
+              </div>
+            </div>
+          )}
+
         </div>
       );
     }
 
+    // Render App Component to DOM
     ReactDOM.createRoot(document.getElementById('root')).render(<App />);
   </script>
 </body>
