@@ -1,696 +1,1512 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GATE 2027 Mechanical Engineering Preparation Guide</title>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --primary-light: #eff6ff;
-            --text-main: #0f172a;
-            --text-muted: #475569;
-            --bg-main: #f8fafc;
-            --bg-card: #ffffff;
-            --border: #e2e8f0;
-            --accent-green: #059669;
-            --accent-amber: #d97706;
-            --accent-purple: #7c3aed;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FORGE — GATE 2027 Operating System</title>
+  <style>
+    :root {
+      --bg-primary: #09090b;
+      --bg-secondary: #121215;
+      --bg-elevated: #1c1c21;
+      --bg-hover: #26262e;
+      --border-color: #27272a;
+      --border-accent: #3f3f46;
+      
+      --text-primary: #f4f4f5;
+      --text-secondary: #a1a1aa;
+      --text-muted: #71717a;
+      
+      --accent-blue: #3b82f6;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #8b5cf6;
+      
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            line-height: 1.6;
-            display: flex;
-            min-height: 100vh;
-        }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        /* Sidebar Navigation */
-        aside {
-            width: 280px;
-            background-color: #1e293b;
-            color: #f8fafc;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            padding: 1.5rem 1rem;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-        }
+    /* Sidebar Navigation */
+    aside {
+      width: 260px;
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1.5rem 1rem;
+      user-select: none;
+      flex-shrink: 0;
+    }
 
-        aside h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            color: #38bdf8;
-            margin-bottom: 0.25rem;
-        }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0 0.5rem 1.5rem 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
 
-        aside p {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            margin-bottom: 1.5rem;
-        }
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      color: #fff;
+    }
 
-        aside nav ul {
-            list-style: none;
-        }
+    .brand-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
 
-        aside nav li {
-            margin-bottom: 0.5rem;
-        }
+    .nav-list {
+      list-style: none;
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
 
-        aside nav a {
-            color: #cbd5e1;
-            text-decoration: none;
-            font-size: 0.875rem;
-            display: block;
-            padding: 0.6rem 0.8rem;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.65rem 0.75rem;
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
 
-        aside nav a:hover, aside nav a.active {
-            background-color: #334155;
-            color: #ffffff;
-            font-weight: 600;
-        }
+    .nav-item:hover {
+      background-color: var(--bg-elevated);
+      color: var(--text-primary);
+    }
 
-        /* Main Content Area */
-        main {
-            margin-left: 280px;
-            flex: 1;
-            padding: 2.5rem 3rem;
-            max-width: 1200px;
-        }
+    .nav-item.active {
+      background-color: var(--bg-elevated);
+      color: var(--text-primary);
+      border-left: 3px solid var(--accent-blue);
+    }
 
-        header {
-            background-color: var(--bg-card);
-            padding: 2rem;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            margin-bottom: 2rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+    }
 
-        header h2 {
-            font-size: 1.875rem;
-            color: var(--text-main);
-            margin-bottom: 0.5rem;
-        }
+    .sidebar-footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 1rem;
+    }
 
-        header p {
-            color: var(--text-muted);
-            font-size: 1rem;
-        }
+    .btn-focus-trigger {
+      width: 100%;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      border: none;
+      padding: 0.75rem;
+      border-radius: var(--radius-sm);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: opacity var(--transition-fast);
+    }
 
-        .badge-bar {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-            flex-wrap: wrap;
-        }
+    .btn-focus-trigger:hover {
+      opacity: 0.9;
+    }
 
-        .badge {
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            padding: 0.35rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
+    /* Main Workspace */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background-color: var(--bg-primary);
+    }
 
-        /* Card Sections */
-        section {
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            scroll-margin-top: 2rem;
-        }
+    header {
+      height: 64px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      background-color: var(--bg-secondary);
+    }
 
-        section h3 {
-            font-size: 1.35rem;
-            color: var(--primary-dark);
-            border-bottom: 2px solid var(--primary-light);
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.25rem;
-        }
+    .header-greeting h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
 
-        section h4 {
-            font-size: 1.05rem;
-            margin: 1.25rem 0 0.5rem 0;
-            color: var(--text-main);
-        }
+    .header-greeting p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
 
-        /* Tables */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1rem 0;
-            font-size: 0.9rem;
-        }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
 
-        th, td {
-            padding: 0.75rem 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
+    .cmd-badge {
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-color);
+      padding: 0.35rem 0.65rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-        th {
-            background-color: #f1f5f9;
-            color: var(--text-main);
-            font-weight: 600;
-        }
+    .cmd-badge kbd {
+      background: var(--bg-primary);
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+    }
 
-        tr:hover {
-            background-color: #f8fafc;
-        }
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem;
+    }
 
-        /* Callout Boxes */
-        .callout {
-            background-color: var(--primary-light);
-            border-left: 4px solid var(--primary);
-            padding: 1rem 1.25rem;
-            border-radius: 0 8px 8px 0;
-            margin: 1rem 0;
-            font-size: 0.925rem;
-        }
+    /* UI Layout & Components */
+    .grid-dashboard {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.25rem;
+    }
 
-        .callout-warning {
-            background-color: #fffbebfb;
-            border-left-color: var(--accent-amber);
-        }
+    .card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: border-color var(--transition-fast);
+    }
 
-        /* Lists */
-        ul, ol {
-            padding-left: 1.25rem;
-            margin-bottom: 1rem;
-        }
+    .card:hover {
+      border-color: var(--border-accent);
+    }
 
-        li {
-            margin-bottom: 0.4rem;
-            font-size: 0.925rem;
-            color: var(--text-muted);
-        }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
 
-        li strong {
-            color: var(--text-main);
-        }
+    .card-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
 
-        /* Grid Layouts */
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.25rem;
-            margin-top: 1rem;
-        }
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background-color: var(--bg-elevated);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
 
-        .card {
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.25rem;
-            background: #fafafa;
-        }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+      width: 0%;
+      transition: width var(--transition-normal);
+    }
 
-        .card h5 {
-            font-size: 0.95rem;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
+    /* Column Spans */
+    .col-12 { grid-column: span 12; }
+    .col-8 { grid-column: span 8; }
+    .col-6 { grid-column: span 6; }
+    .col-4 { grid-column: span 4; }
+    .col-3 { grid-column: span 3; }
 
-        /* Responsive */
-        @media (max-width: 900px) {
-            body { flex-direction: column; }
-            aside { width: 100%; height: auto; position: relative; }
-            main { margin-left: 0; padding: 1.5rem; }
-        }
-    </style>
+    /* Interactive Elements & Dynamic Views */
+    .tab-view {
+      display: none;
+    }
+
+    .tab-view.active {
+      display: block;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 36px;
+      height: 36px;
+      margin-bottom: 0.75rem;
+      stroke: var(--text-muted);
+    }
+
+    .empty-state p {
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Specific Module Styling */
+    .countdown-display {
+      display: flex;
+      gap: 1rem;
+      margin-top: 0.5rem;
+    }
+
+    .countdown-unit {
+      background-color: var(--bg-elevated);
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-sm);
+      text-align: center;
+      min-width: 60px;
+    }
+
+    .countdown-num {
+      font-size: 1.25rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+    }
+
+    .countdown-lbl {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-elevated);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn:hover {
+      background-color: var(--bg-hover);
+      border-color: var(--border-accent);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #2563eb;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0,0,0,0.75);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-fast);
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 500px;
+      padding: 1.5rem;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.35rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.6rem;
+      background-color: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    textarea.form-control {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    /* Syllabus & Lecture Tree */
+    .tree-node {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.5rem;
+      background-color: var(--bg-secondary);
+    }
+
+    .tree-header {
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tree-header:hover {
+      background-color: var(--bg-elevated);
+    }
+
+    .tree-content {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--border-color);
+      display: none;
+      background-color: var(--bg-primary);
+    }
+
+    .tree-node.expanded > .tree-content {
+      display: block;
+    }
+
+    .lecture-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .lecture-item:last-child {
+      border-bottom: none;
+    }
+
+    /* Checkbox Custom */
+    .checkbox-custom {
+      width: 18px;
+      height: 18px;
+      border: 1px solid var(--border-accent);
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+    }
+
+    .checkbox-custom.checked {
+      background-color: var(--accent-green);
+      border-color: var(--accent-green);
+    }
+
+    .checkbox-custom.checked::after {
+      content: '✓';
+      color: white;
+      font-size: 0.75rem;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 2000;
+    }
+
+    .toast {
+      background-color: var(--bg-elevated);
+      border: 1px solid var(--border-accent);
+      color: var(--text-primary);
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+      animation: slideIn 0.2s cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
 </head>
 <body>
 
-    <!-- Navigation Sidebar -->
-    <aside>
-        <h1>GATE 2027 ME</h1>
-        <p>Personal Roadmap Dashboard[cite: 3]</p>
-        <nav>
-            <ul>
-                <li><a href="#section1">1. Starting Point & Rules</a></li>
-                <li><a href="#section2">2. Subject Resource Guide</a></li>
-                <li><a href="#section3">3. Phase-Wise Roadmap</a></li>
-                <li><a href="#section4">4. Weekly Revision Schedule</a></li>
-                <li><a href="#section5">5. Daily Workflow & Modes</a></li>
-                <li><a href="#section6">6. Subject Playbooks</a></li>
-                <li><a href="#section7">7. Registers System</a></li>
-                <li><a href="#section8">8. PYQ & Mock Strategy</a></li>
-                <li><a href="#section9">9. Functional Techniques</a></li>
-                <li><a href="#section10">10. Scorecard & Checklist</a></li>
-            </ul>
-        </nav>
-    </aside>
+  <!-- Sidebar Nav -->
+  <aside>
+    <div>
+      <div class="brand">
+        <div class="brand-logo">F</div>
+        <div class="brand-title">FORGE</div>
+      </div>
+      <ul class="nav-list">
+        <li class="nav-item active" onclick="switchTab('dashboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Dashboard
+        </li>
+        <li class="nav-item" onclick="switchTab('roadmap')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+          Roadmap
+        </li>
+        <li class="nav-item" onclick="switchTab('syllabus')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          Syllabus Tracker
+        </li>
+        <li class="nav-item" onclick="switchTab('lectures')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Lecture Tracker
+        </li>
+        <li class="nav-item" onclick="switchTab('revision')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.5 2v6h-6"></path><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+          Revision Queue
+        </li>
+        <li class="nav-item" onclick="switchTab('mistakes')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          Mistake Register
+        </li>
+        <li class="nav-item" onclick="switchTab('mocks')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          Mock Tests
+        </li>
+        <li class="nav-item" onclick="switchTab('aicoach')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a10 10 0 1 0 10 10H12V2z"></path><path d="M12 12L2.1 12a10 10 0 0 0 16.8 6.1L12 12z"></path></svg>
+          AI Study Coach
+        </li>
+        <li class="nav-item" onclick="switchTab('journal')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          Daily Journal
+        </li>
+      </ul>
+    </div>
+    <div class="sidebar-footer">
+      <button class="btn-focus-trigger" onclick="openFocusModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        Focus Mode
+      </button>
+    </div>
+  </aside>
 
-    <!-- Main Content -->
-    <main>
-        <header>
-            <h2>Mechanical Engineering Preparation Guide</h2>
-            <p>Practical, end-to-end roadmap from 25 July 2026 to GATE 2027 examination[cite: 3]. Sustainable, revision-led preparation[cite: 3].</p>
-            <div class="badge-bar">
-                <span class="badge">Baseline: 3 Hours (Busy Days)[cite: 3]</span>
-                <span class="badge">Max: 6-7 Hours (Free Days)[cite: 3]</span>
-                <span class="badge">Philosophy: Revision-Led[cite: 3]</span>
+  <!-- Main Workspace -->
+  <main>
+    <header>
+      <div class="header-greeting">
+        <h2 id="dynamic-greeting">Good Day</h2>
+        <p id="current-date-display">System ready</p>
+      </div>
+      <div class="header-actions">
+        <div class="cmd-badge" onclick="openCmdPalette()">
+          <span>Command Palette</span>
+          <kbd>Ctrl K</kbd>
+        </div>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <!-- DASHBOARD TAB -->
+      <div id="dashboard-view" class="tab-view active">
+        <div class="grid-dashboard">
+          
+          <!-- Countdown -->
+          <div class="card col-6">
+            <div class="card-header">
+              <span class="card-title">GATE 2027 Countdown</span>
+              <span class="badge" style="font-size: 0.75rem; color: var(--text-muted);">Feb 2027 Target</span>
             </div>
-        </header>
-
-        <!-- Section 1 -->
-        <section id="section1">
-            <h3>1. Starting Point and Planning Rules</h3>
-            <p><strong>Reset Principle:</strong> Treat 25 July as the real Day 1[cite: 3]. Do not attempt to recover missed days through burnout[cite: 3]. Measure progress by chapters completed, PYQs attempted, and revisions performed[cite: 3].</p>
-            
-            <h4>Current Academic Position</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Area</th>
-                        <th>Status</th>
-                        <th>Decision in Guide</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Strength of Materials</strong></td>
-                        <td>In progress; resumed at torsion[cite: 3]</td>
-                        <td>Finish through PW in detail; integrate chapter-wise PYQs immediately[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Engineering Mathematics</strong></td>
-                        <td>Completed from concise playlist[cite: 3]</td>
-                        <td>Do not rewatch full course[cite: 3]. Rebuild mastery through weekly practice[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Engineering Mechanics</strong></td>
-                        <td>Covered through kinetics of particles[cite: 3]</td>
-                        <td>Finish centroid/MOI if pending and rigid-body kinetics via YouTube + PYQs[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Thermodynamics (Basic & Applied)</strong></td>
-                        <td>Completed (Includes RAC & IC)[cite: 3]</td>
-                        <td>Retention-only: weekly recall, PYQs, monthly mixed revision[cite: 3]. No rewatching[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Heat Transfer</strong></td>
-                        <td>Left midway; felt hectic[cite: 3]</td>
-                        <td>Selective, high-yield coverage only, later in the plan[cite: 3].</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h4>Non-Negotiable Rules</h4>
-            <ul>
-                <li><strong>One primary subject at a time:</strong> Weekdays should not fragment across multiple new core subjects[cite: 3].</li>
-                <li><strong>Learning needs questions:</strong> Every chapter moves through notes -> PYQs -> mistake review -> spaced revision[cite: 3].</li>
-                <li><strong>Protect prior investment:</strong> Math, Basic Thermo, and Applied Thermo stay in light weekly rotation[cite: 3].</li>
-                <li><strong>80% Rule:</strong> If standard PYQs are mostly solvable, move forward[cite: 3]. Return during planned revision[cite: 3].</li>
-            </ul>
-
-            <h4>Core Time Allocation</h4>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Period</th>
-                        <th>Current Subject</th>
-                        <th>Maintenance / Revision</th>
-                        <th>Questions & Testing</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Now through Phase 3</td>
-                        <td>~70%[cite: 3]</td>
-                        <td>~20%[cite: 3]</td>
-                        <td>~10%[cite: 3]</td>
-                    </tr>
-                    <tr>
-                        <td>Phase 4</td>
-                        <td>~40%[cite: 3]</td>
-                        <td>~35%[cite: 3]</td>
-                        <td>~25%[cite: 3]</td>
-                    </tr>
-                    <tr>
-                        <td>Final Revision / Jan</td>
-                        <td>No routine lectures[cite: 3]</td>
-                        <td>~45%[cite: 3]</td>
-                        <td>~55%[cite: 3]</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <!-- Section 2 -->
-        <section id="section2">
-            <h3>2. Subject Resource Guide</h3>
-            <p>Choose the shortest reliable path that preserves marks[cite: 3]. "Full PW" means using the enrolled PW course[cite: 3].</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Subject</th>
-                        <th>Main Resource</th>
-                        <th>Depth & Purpose</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Engg Mathematics</strong></td>
-                        <td>Existing notes + PYQs[cite: 3]</td>
-                        <td>Questions only in rotation[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Engg Mechanics</strong></td>
-                        <td>YouTube continuation + PYQs[cite: 3]</td>
-                        <td>Finish centroid, MOI, rigid body kinetics (~1 week)[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>SOM</strong></td>
-                        <td>PW full course[cite: 3]</td>
-                        <td>In detail from torsion onward + PYQs & subject test[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>TOM & Vibrations</strong></td>
-                        <td>PW full course[cite: 3]</td>
-                        <td>In detail: mechanisms, gears, governors, balancing, vibrations[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Fluid Mechanics</strong></td>
-                        <td>PW full course[cite: 3]</td>
-                        <td>In detail: statics, Bernoulli, pipe flow, boundary layer, turbines[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Manufacturing 1 & 2</strong></td>
-                        <td>PW full course[cite: 3]</td>
-                        <td>In detail: use comparison tables, exception lists, compact summary[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Industrial Engg</strong></td>
-                        <td>PW full course[cite: 3]</td>
-                        <td>Complete fully. High return for time invested[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Machine Design</strong></td>
-                        <td>PW full course[cite: 3]</td>
-                        <td>Complete fully; link shafts, springs, joints to SOM[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Material Science</strong></td>
-                        <td>Concise YouTube crash series[cite: 3]</td>
-                        <td>Compress to 10-15 hours; short notes on recurring facts/diagrams[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Heat Transfer</strong></td>
-                        <td>Selective YouTube + Notes[cite: 3]</td>
-                        <td>Conduction, fins, radiation basics, heat exchangers first[cite: 3].</td>
-                    </tr>
-                </tbody>
-            </table>
-            <div class="callout">
-                <strong>Resource Rule When Stuck:</strong> First diagnose with 3-5 questions: is it a missing concept, forgotten formula, or calculation error? Rewatch only the exact segment needed[cite: 3].
+            <div class="countdown-display">
+              <div class="countdown-unit"><div class="countdown-num" id="cd-days">00</div><div class="countdown-lbl">Days</div></div>
+              <div class="countdown-unit"><div class="countdown-num" id="cd-hours">00</div><div class="countdown-lbl">Hours</div></div>
+              <div class="countdown-unit"><div class="countdown-num" id="cd-mins">00</div><div class="countdown-lbl">Mins</div></div>
             </div>
-        </section>
-
-        <!-- Section 3 -->
-        <section id="section3">
-            <h3>3. End-to-End Phase-Wise Roadmap</h3>
-            <div class="grid-2">
-                <div class="card">
-                    <h5>Phase 1: Momentum & SOM Completion</h5>
-                    <p><strong>25 July - 15 August</strong>[cite: 3]</p>
-                    <ul>
-                        <li>Continue PW from torsion in circular shafts through remaining modules[cite: 3].</li>
-                        <li>Max 2-page formula summary per chapter + chapter PYQs[cite: 3].</li>
-                        <li>End target: SOM notes done, formula register section, 1 subject test[cite: 3].</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <h5>Phase 2: Core Mechanics</h5>
-                    <p><strong>16 August - 30 September</strong>[cite: 3]</p>
-                    <ul>
-                        <li>Engg Mechanics (~1 week via YouTube): Centroid, MOI, rigid body kinetics[cite: 3].</li>
-                        <li>TOM & Vibrations (PW): Mechanisms, velocity, gears, governors, vibrations[cite: 3].</li>
-                        <li>Solve PYQs after each unit, not at the end[cite: 3].</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <h5>Phase 3: Fluids & Manufacturing</h5>
-                    <p><strong>1 October - 10 November</strong>[cite: 3]</p>
-                    <ul>
-                        <li>Fluid Mechanics & Machinery (PW): Statics, Bernoulli, pipe flow, turbomachines[cite: 3].</li>
-                        <li>Manufacturing 1 & 2 (PW): Casting, welding, forming, machining, non-traditional[cite: 3].</li>
-                        <li>Build comparison tables; start sectional testing[cite: 3].</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <h5>Phase 4: Design, IE & Compressed</h5>
-                    <p><strong>11 November - 10 December</strong>[cite: 3]</p>
-                    <ul>
-                        <li>Machine Design (PW) & Industrial Engg (PW)[cite: 3].</li>
-                        <li>Material Science (10-15 hrs concise YouTube)[cite: 3].</li>
-                        <li>Selective Heat Transfer & General Aptitude practice[cite: 3].</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <h5>Phase 5: Consolidation</h5>
-                    <p><strong>11 December - 31 December</strong>[cite: 3]</p>
-                    <ul>
-                        <li>No new major subjects[cite: 3]. Revise via formula and mistake registers[cite: 3].</li>
-                        <li>Weekly sectional tests + 1 Full-Length Mock per week[cite: 3].</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <h5>Phase 6: Final Attack</h5>
-                    <p><strong>January - Examination</strong>[cite: 3]</p>
-                    <ul>
-                        <li>~2 full-length mocks per week (10-12 total)[cite: 3].</li>
-                        <li>Analyze each test thoroughly[cite: 3]. Daily formula revision & mistake register review[cite: 3].</li>
-                    </ul>
-                </div>
+            <div style="margin-top: 1rem;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                <span>Preparation Journey</span>
+                <span id="journey-perc">0%</span>
+              </div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" id="journey-fill"></div></div>
             </div>
-        </section>
+          </div>
 
-        <!-- Section 4 -->
-        <section id="section4">
-            <h3>4. Integrated Weekly Revision Schedule</h3>
-            <p>Maintains Math and Thermo alive without stealing the week from the primary subject[cite: 3].</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Day / Block</th>
-                        <th>What To Do</th>
-                        <th>Purpose</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>Mon-Fri Primary</strong></td>
-                        <td>Lecture + notes for current subject; PYQs from prior topic; 15-min recall[cite: 3].</td>
-                        <td>Steady forward movement[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Saturday (2-4 hrs)</strong></td>
-                        <td>Revise week's chapters; reattempt marked PYQs; update registers; backlog[cite: 3].</td>
-                        <td>Consolidates new learning[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Sunday Math (45m)</strong></td>
-                        <td>Rotate: Linear Algebra -> Calculus -> DE -> Numerical -> Probability[cite: 3].</td>
-                        <td>Strengthens math continuously[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Sunday Basic Thermo (45m)</strong></td>
-                        <td>Formula recall + 8-15 quality PYQs (Properties, 1st/2nd Law, Cycles)[cite: 3].</td>
-                        <td>Protects core subject[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Sunday Applied Thermo (45m)</strong></td>
-                        <td>Formula recall + 8-15 PYQs (IC Engines, RAC, Compressors, Turbines)[cite: 3].</td>
-                        <td>Keeps RAC & IC active[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Sunday Completed Sub (45m)</strong></td>
-                        <td>Rotate completed subjects (SOM/TOM/FM/Mfg/MD) via formulas + marked questions[cite: 3].</td>
-                        <td>Prevents early subject decay[cite: 3].</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <!-- Section 5 -->
-        <section id="section5">
-            <h3>5. Daily Workflow and Study Modes</h3>
-            <h4>5-Step Chapter Workflow</h4>
-            <ol>
-                <li><strong>Learn:</strong> Watch lectures and make purposeful notes[cite: 3].</li>
-                <li><strong>Recall:</strong> Close notes for 5 minutes and write/explain core ideas & formulas from memory[cite: 3].</li>
-                <li><strong>Practice:</strong> Solve chapter-wise PYQs as soon as chapter is complete[cite: 3].</li>
-                <li><strong>Diagnose:</strong> Log useful errors into the mistake register[cite: 3].</li>
-                <li><strong>Space:</strong> Revisit content within 24 hrs, 7 days, 30 days, and final revision[cite: 3].</li>
-            </ol>
-
-            <div class="grid-2">
-                <div class="card">
-                    <h5>Busy College Day (3-4 Hours)</h5>
-                    <ul>
-                        <li><strong>Primary Learning (~2 hrs):</strong> 1 focused lecture + notes[cite: 3].</li>
-                        <li><strong>PYQs (~1 hr):</strong> Questions from prior chapter[cite: 3].</li>
-                        <li><strong>Recall / Formula (20-30 min):</strong> Review 5-10 old formulas & today's content[cite: 3].</li>
-                    </ul>
-                </div>
-                <div class="card">
-                    <h5>Free Day (6-7 Hours)</h5>
-                    <ul>
-                        <li><strong>Morning (2.5 hrs):</strong> Primary lecture + notes + active recall[cite: 3].</li>
-                        <li><strong>Afternoon (2 hrs):</strong> PYQs & practice; repair gaps[cite: 3].</li>
-                        <li><strong>Evening (1.5-2 hrs):</strong> Revision/Formula register + maintenance[cite: 3].</li>
-                    </ul>
-                </div>
+          <!-- Readiness Score -->
+          <div class="card col-6">
+            <div class="card-header">
+              <span class="card-title">Readiness Score</span>
             </div>
-        </section>
-
-        <!-- Section 6 -->
-        <section id="section6">
-            <h3>6. Subject-Specific Playbooks</h3>
-            <ul>
-                <li><strong>SOM:</strong> Link formulas to loading diagrams/physical meaning[cite: 3]. Watch radius vs diameter, signs, and units[cite: 3].</li>
-                <li><strong>Engg Mathematics:</strong> Solve without looking at notes first[cite: 3]. Maintain micro-sheet of standard forms[cite: 3].</li>
-                <li><strong>Thermodynamics (Basic & Applied):</strong> Keep assumptions list[cite: 3]. Draw cycles/diagrams from memory[cite: 3].</li>
-                <li><strong>TOM & Vibrations:</strong> Solve enough questions to make kinematics setup automatic[cite: 3]. Formula page per unit[cite: 3].</li>
-                <li><strong>Manufacturing:</strong> Create comparison tables (process, capability, defects, exceptions)[cite: 3]. Factual recall multiplier[cite: 3].</li>
-                <li><strong>Industrial Engg:</strong> Make model/formula sheet for inventory, CPM/PERT, queuing, forecasting[cite: 3].</li>
-            </ul>
-        </section>
-
-        <!-- Section 7 -->
-        <section id="section7">
-            <h3>7. Registers System</h3>
-            <div class="grid-2">
-                <div class="card">
-                    <h5>Formula Register</h5>
-                    <p>Limit each chapter to 1-2 pages[cite: 3]. Include core formulas, conditions, unit reminders, and simple diagrams[cite: 3]. Allows refreshing a whole subject in 1 hour[cite: 3].</p>
-                </div>
-                <div class="card">
-                    <h5>Mistake Register Categories</h5>
-                    <ul>
-                        <li><strong>Concept Error:</strong> Misunderstood core idea -> Revisit lecture segment[cite: 3].</li>
-                        <li><strong>Formula Error:</strong> Wrong relation or unit -> Clarify in formula register[cite: 3].</li>
-                        <li><strong>Calculation Error:</strong> Arithmetic or sign error -> Apply 30-sec check routine[cite: 3].</li>
-                        <li><strong>Careless Reading:</strong> Missed word/condition -> Underline conditions during reading[cite: 3].</li>
-                    </ul>
-                </div>
+            <div style="display: flex; align-items: center; gap: 1.5rem; height: 100%;">
+              <div style="font-size: 3rem; font-weight: 800; font-family: var(--font-mono); color: var(--accent-blue);" id="readiness-score">0</div>
+              <div>
+                <h4 style="font-size: 0.95rem;" id="readiness-status">Unavailable</h4>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;" id="readiness-desc">Complete lectures and revisions to compute readiness.</p>
+              </div>
             </div>
-        </section>
+          </div>
 
-        <!-- Section 8 -->
-        <section id="section8">
-            <h3>8. PYQ and Mock-Test Strategy</h3>
-            <p>Questions are not a final-stage activity; they are how you learn[cite: 3].</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Period</th>
-                        <th>Testing Target</th>
-                        <th>Analysis Expectation</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><strong>October</strong></td>
-                        <td>1 sectional test every 2 weeks[cite: 3]</td>
-                        <td>Identify if weak score is content, recall, or timing[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>November</strong></td>
-                        <td>1 sectional test per week[cite: 3]</td>
-                        <td>Maintain evolving list of weak chapters[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>December</strong></td>
-                        <td>1 full-length mock/week + 1 sectional test[cite: 3]</td>
-                        <td>Spend at least as long analyzing as writing[cite: 3].</td>
-                    </tr>
-                    <tr>
-                        <td><strong>January</strong></td>
-                        <td>~2 full-length mocks/week (10-12 total)[cite: 3]</td>
-                        <td>Convert every test into a repair plan[cite: 3].</td>
-                    </tr>
-                </tbody>
-            </table>
-        </section>
-
-        <!-- Section 9 -->
-        <section id="section9">
-            <h3>9. Functional Techniques</h3>
-            <div class="grid-2">
-                <div class="card">
-                    <h5>Active Recall</h5>
-                    <p>Close notes and explain concepts aloud or reconstruct on paper from memory[cite: 3].</p>
-                </div>
-                <div class="card">
-                    <h5>Error-Driven Revision</h5>
-                    <p>Do not reread an entire chapter for one wrong answer[cite: 3]. Repair the exact failure point[cite: 3].</p>
-                </div>
-                <div class="card">
-                    <h5>Assumption-First Thinking</h5>
-                    <p>State physical assumptions before selecting equations to prevent formula dumping[cite: 3].</p>
-                </div>
-                <div class="card">
-                    <h5>Backlog Buffer</h5>
-                    <p>Use Saturday and free-day evenings for spillover[cite: 3]. Do not push the whole plan back[cite: 3].</p>
-                </div>
+          <!-- Overall Progress -->
+          <div class="card col-8">
+            <div class="card-header">
+              <span class="card-title">Overall Preparation Progress</span>
+              <span id="overall-perc-text" style="font-weight: 700; font-family: var(--font-mono);">0%</span>
             </div>
-        </section>
+            <div class="progress-bar-bg" style="height: 12px;"><div class="progress-bar-fill" id="overall-fill"></div></div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.75rem;">
+              Weighted system across Lectures, PYQs, Revisions, and Mocks.
+            </p>
+          </div>
 
-        <!-- Section 10 -->
-        <section id="section10">
-            <h3>10. Final Checklist and Sunday Scorecard</h3>
-            <div class="callout callout-warning">
-                <strong>Sunday Scorecard (5 Lines to Write Every Week):</strong>
-                <ol>
-                    <li>Chapters/units completed this week[cite: 3]</li>
-                    <li>PYQs attempted and top 3 error patterns[cite: 3]</li>
-                    <li>Formulas/concepts that are fading[cite: 3]</li>
-                    <li>One weakest topic to repair next week[cite: 3]</li>
-                    <li>Exact chapters and test target for coming week[cite: 3]</li>
-                </ol>
+          <!-- Current Study -->
+          <div class="card col-4">
+            <div class="card-header">
+              <span class="card-title">Current Focus</span>
             </div>
-            <p><em>"A sustainable 3-hour day executed consistently is more powerful than a plan that only works on ideal days[cite: 3]."</em></p>
-        </section>
-    </main>
+            <div id="current-study-content">
+              <div class="empty-state">
+                <p>No active study session.</p>
+              </div>
+            </div>
+          </div>
 
-    <script>
-        // Smooth scroll highlighting for sidebar navigation
-        const navLinks = document.querySelectorAll('aside nav a');
-        window.addEventListener('scroll', () => {
-            let current = '';
-            document.querySelectorAll('section').forEach(section => {
-                const sectionTop = section.offsetTop;
-                if (pageYOffset >= sectionTop - 100) {
-                    current = section.getAttribute('id');
-                }
-            });
+          <!-- Today's Recommendations -->
+          <div class="card col-6">
+            <div class="card-header">
+              <span class="card-title">Today's Study Recommendation</span>
+            </div>
+            <div id="today-recommendation">
+              <div class="empty-state">
+                <p>Start your first lecture in the Lecture Tracker.</p>
+              </div>
+            </div>
+          </div>
 
-            navLinks.forEach(a => {
-                a.classList.remove('active');
-                if (a.getAttribute('href') === `#${current}`) {
-                    a.classList.add('active');
-                }
-            });
+          <!-- Pending Revisions -->
+          <div class="card col-6">
+            <div class="card-header">
+              <span class="card-title">Revisions Due Today</span>
+            </div>
+            <div id="today-revision-content">
+              <div class="empty-state">
+                <p>No revisions scheduled for today.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Driven Motivation -->
+          <div class="card col-8">
+            <div class="card-header">
+              <span class="card-title">Preparation Insights</span>
+            </div>
+            <div id="motivation-content" style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5;">
+              Welcome to Forge. Your preparation system is completely empty and ready for your first activity.
+            </div>
+          </div>
+
+          <!-- Quick Notes -->
+          <div class="card col-4">
+            <div class="card-header">
+              <span class="card-title">Quick Scratchpad</span>
+            </div>
+            <textarea class="form-control" id="scratchpad" placeholder="Write quick notes here... (Saves automatically)" style="height: 80px;" oninput="saveScratchpad()"></textarea>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ROADMAP TAB -->
+      <div id="roadmap-view" class="tab-view">
+        <h3 style="margin-bottom: 1rem;">GATE 2027 Preparation Roadmap</h3>
+        <div id="roadmap-container"></div>
+      </div>
+
+      <!-- SYLLABUS TAB -->
+      <div id="syllabus-view" class="tab-view">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3>Syllabus Progress Tracker</h3>
+          <input type="text" class="form-control" placeholder="Search subject..." id="syllabus-search" oninput="renderSyllabus()" style="width: 250px;">
+        </div>
+        <div id="syllabus-container"></div>
+      </div>
+
+      <!-- LECTURES TAB -->
+      <div id="lectures-view" class="tab-view">
+        <h3 style="margin-bottom: 1rem;">Lecture Progress Tracker</h3>
+        <div id="lectures-container"></div>
+      </div>
+
+      <!-- REVISION TAB -->
+      <div id="revision-view" class="tab-view">
+        <h3 style="margin-bottom: 1rem;">Revision System Queue</h3>
+        <div id="revision-container"></div>
+      </div>
+
+      <!-- MISTAKES TAB -->
+      <div id="mistakes-view" class="tab-view">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3>Mistake Register</h3>
+          <button class="btn btn-primary" onclick="openMistakeModal()">+ Record Mistake</button>
+        </div>
+        <div id="mistakes-container"></div>
+      </div>
+
+      <!-- MOCKS TAB -->
+      <div id="mocks-view" class="tab-view">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3>Mock Test Tracker</h3>
+          <button class="btn btn-primary" onclick="openMockModal()">+ Record Mock Score</button>
+        </div>
+        <div id="mocks-container"></div>
+      </div>
+
+      <!-- AI COACH TAB -->
+      <div id="aicoach-view" class="tab-view">
+        <h3 style="margin-bottom: 1rem;">AI Study Coach</h3>
+        <div class="card">
+          <div id="ai-response-area" style="min-height: 200px; font-size: 0.95rem; line-height: 1.6; margin-bottom: 1rem;">
+            Hello. I am your local GATE Coach. I analyze your recorded progress, revisions, and mistake register to generate tailored recommendations.
+          </div>
+          <button class="btn btn-primary" onclick="generateAIAdvice()">Analyze My Preparation</button>
+        </div>
+      </div>
+
+      <!-- JOURNAL TAB -->
+      <div id="journal-view" class="tab-view">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h3>Daily Preparation Journal</h3>
+          <button class="btn btn-primary" onclick="saveJournalEntry()">Save Today's Entry</button>
+        </div>
+        <div class="card" style="margin-bottom: 1.5rem;">
+          <div class="form-group">
+            <label>Today's Reflection & Notes</label>
+            <textarea class="form-control" id="journal-input" placeholder="Reflect on your study session today..."></textarea>
+          </div>
+        </div>
+        <h4>Previous Entries</h4>
+        <div id="journal-history" style="margin-top: 1rem;"></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Modals -->
+  <!-- Focus Mode Modal -->
+  <div class="modal-overlay" id="modal-focus">
+    <div class="modal" style="text-align: center;">
+      <h3>Focus Mode</h3>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.5rem;">Deep work timer</p>
+      <div style="font-size: 3.5rem; font-weight: 800; font-family: var(--font-mono); margin-bottom: 1.5rem;" id="focus-timer-display">25:00</div>
+      <div style="display: flex; gap: 0.5rem; justify-content: center;">
+        <button class="btn btn-primary" id="btn-focus-start" onclick="toggleFocusTimer()">Start Focus</button>
+        <button class="btn" onclick="closeFocusModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mistake Modal -->
+  <div class="modal-overlay" id="modal-mistake">
+    <div class="modal">
+      <h3 style="margin-bottom: 1rem;">Record Mistake</h3>
+      <div class="form-group">
+        <label>Subject</label>
+        <select class="form-control" id="mistake-subject-select"></select>
+      </div>
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" class="form-control" id="mistake-title" placeholder="e.g. Sign convention error in Torsion">
+      </div>
+      <div class="form-group">
+        <label>Description & Learning</label>
+        <textarea class="form-control" id="mistake-desc" placeholder="Explain what went wrong and how to avoid it..."></textarea>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+        <button class="btn" onclick="closeMistakeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveMistake()">Save Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mock Modal -->
+  <div class="modal-overlay" id="modal-mock">
+    <div class="modal">
+      <h3 style="margin-bottom: 1rem;">Record Mock Test Result</h3>
+      <div class="form-group">
+        <label>Test Name / Subject</label>
+        <input type="text" class="form-control" id="mock-name" placeholder="e.g. SOM Subject Test 1">
+      </div>
+      <div class="form-group">
+        <label>Marks Obtained</label>
+        <input type="number" class="form-control" id="mock-score" placeholder="e.g. 42">
+      </div>
+      <div class="form-group">
+        <label>Total Marks</label>
+        <input type="number" class="form-control" id="mock-total" value="50">
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+        <button class="btn" onclick="closeMockModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveMock()">Save Score</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Command Palette Modal -->
+  <div class="modal-overlay" id="modal-cmd">
+    <div class="modal">
+      <input type="text" class="form-control" id="cmd-input" placeholder="Type a command or navigate..." oninput="handleCmdInput(this.value)">
+      <div id="cmd-results" style="margin-top: 1rem; max-height: 200px; overflow-y: auto;"></div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- JavaScript Application Engine -->
+  <script>
+    /* App Core State & Data Schema */
+    const SYLLABUS_DATA = [
+      {
+        name: "Applied Thermodynamics",
+        weightage: "8-10%",
+        phase: 2,
+        chapters: ["VCRS", "Analysis of VCRS", "Vapor Absorption System", "Gas Refrigeration", "Psychrometry", "Thermodynamic Cycles", "Otto Cycle Analysis", "Diesel Cycle Analysis", "Dual Cycle Analysis", "Engine Tests and Analysis", "Brayton Cycle", "Rankine Cycle", "Centrifugal Air Compressors", "Axial Compressors", "Steam Turbine", "Powerplant Auxiliaries", "Compressible Flow"]
+      },
+      {
+        name: "Basic Thermodynamics",
+        weightage: "5-7%",
+        phase: 1,
+        chapters: ["Basic Concepts", "Work and Heat", "First Law of Thermodynamics", "Second Law of Thermodynamics", "Entropy", "Exergy", "Properties of Substances", "Thermodynamic Relations"]
+      },
+      {
+        name: "Engineering Mathematics",
+        weightage: "13%",
+        phase: 1,
+        chapters: ["Linear Algebra", "Calculus", "Vector Calculus", "Complex Analysis", "Differential Equations", "Numerical Methods", "Transform Theory and Fourier Series", "Probability and Statistics"]
+      },
+      {
+        name: "Engineering Mechanics",
+        weightage: "4-6%",
+        phase: 1,
+        chapters: ["Basic Concepts", "Equilibrium", "Friction and It’s Applications", "Truss and Frames", "Centroid", "Moment of Inertia", "Kinematics of Particles", "Kinematics of Rigid Bodies", "Kinetics of Particles", "Kinetics of Rigid Bodies", "Lagrange’s Equation of Motion"]
+      },
+      {
+        name: "Fluid Mechanics & Machinery",
+        weightage: "7-8%",
+        phase: 2,
+        chapters: ["Fluid and It’s Properties", "Pressure and It’s Measurement", "Hydrostatic Forces", "Buoyancy and Stability", "Fluid Kinematics", "Fluid Dynamics", "Laminar FLow", "Flow through Pipes", "Boundary Layer Theory", "Dimensional Analysis and Model Studies", "Turbulent Flow", "Drag and Lift", "Basic Principles of Turbomachinery", "Turbines", "Pumps", "Compressors", "Steam and Gas Turbines", "Theory of Jet Propulsion"]
+      },
+      {
+        name: "General Aptitude",
+        weightage: "15%",
+        phase: 1,
+        chapters: ["Quantitative Aptitude", "Analytical Reasoning", "Spatial Aptitude"]
+      },
+      {
+        name: "Heat Transfer",
+        weightage: "5-7%",
+        phase: 2,
+        chapters: ["Introduction", "Steady Conduction Heat Transfer", "Critical Radius of Insulation", "Fins", "Unsteady –Transient Conduction Heat Transfer", "Convection Heat Transfer", "Radiation Heat Transfer", "Heat Exchanger"]
+      },
+      {
+        name: "Industrial Engineering",
+        weightage: "5-6%",
+        phase: 3,
+        chapters: ["Forecasting", "Break Even Analysis", "Production Planning", "Linear Porgramming", "Simplex Method", "Assignment", "Transportation", "PERT & CPM", "Inventory Control", "Queuing Theory and Line Balancing", "Work Study, MRP and Plant Layout"]
+      },
+      {
+        name: "Machine Design",
+        weightage: "4-6%",
+        phase: 3,
+        chapters: ["Brakes", "Clutches", "Design against Static Loads", "Design against Fluctuating Loads", "Welded, Riveted and Bolted Joints", "Bearings", "Gears", "Springs", "Shafts, Keys and Coupling"]
+      },
+      {
+        name: "Manufacturing Process - I",
+        weightage: "7-9%",
+        phase: 3,
+        chapters: ["Theory of Metal Cutting", "Tool Life", "Non Traditional Machining Method", "Welding", "NC, CNC", "Machine Tool", "Additive Manufacturing"]
+      },
+      {
+        name: "Manufacturing Process - II",
+        weightage: "5-7%",
+        phase: 3,
+        chapters: ["Metal Forming", "Metrology", "Additional Topic", "Casting"]
+      },
+      {
+        name: "Material Science",
+        weightage: "3-5%",
+        phase: 1,
+        chapters: ["Introduction to Material Science", "Phase Diagrams", "Dislocation Theory", "Additional Topic", "TTT Diagram", "Heat Treatment", "Crystallography", "Corrosion", "Nano Material and Polymer", "Ceramic and Composite"]
+      },
+      {
+        name: "Strength of Materials",
+        weightage: "7-8%",
+        phase: 1,
+        chapters: ["Introduction and Properties of Materials", "Axially Loaded Members", "Torsion in Circular Shafts", "Shear Forces and Bending Moments", "Bending Stresses in Beams", "Shear Stresses in Beams", "Deflection of Beams", "Energy Methods", "Complex Stresses", "Complex Strains", "Combined Loadings", "Pressure Vessels", "Columns"]
+      },
+      {
+        name: "Theory of Machines & Vibrations",
+        weightage: "8-10%",
+        phase: 2,
+        chapters: ["Simple Mechanism", "Velocity Analysis", "Acceleration Analysis", "Gear", "Gear Train", "Analysis of Slider Crank Mechanism", "Flywheel", "Balancing", "Vibration", "Gyroscope", "Cam and Follower", "Governor"]
+      },
+      {
+        name: "Verbal Aptitude",
+        weightage: "5%",
+        phase: 1,
+        chapters: ["Parts of Speech", "Vocabulary", "Reading Comprehension and Miscellaneous"]
+      }
+    ];
+
+    let state = {
+      completedLectures: {}, // key: "Subject_Chapter_Index" -> true
+      revisions: {},         // key: "Subject_Chapter" -> count
+      mistakes: [],
+      mocks: [],
+      journal: {},
+      scratchpad: ""
+    };
+
+    /* App Initialization */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      initGreetings();
+      initCountdown();
+      renderAllViews();
+      setupKeyListeners();
+    });
+
+    function loadState() {
+      const saved = localStorage.getItem('forge_state');
+      if (saved) {
+        try { state = JSON.parse(saved); } catch(e){}
+      }
+      if (state.scratchpad) {
+        document.getElementById('scratchpad').value = state.scratchpad;
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem('forge_state', JSON.stringify(state));
+      syncCalculations();
+    }
+
+    function showToast(msg) {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerText = msg;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    /* Tab Switching */
+    function switchTab(tabId) {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
+      
+      const selectedNav = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick').includes(tabId));
+      if(selectedNav) selectedNav.classList.add('active');
+      
+      const selectedView = document.getElementById(tabId + '-view');
+      if(selectedView) selectedView.classList.add('active');
+    }
+
+    /* Greeting & Time */
+    function initGreetings() {
+      const hr = new Date().getHours();
+      let g = "Good Night";
+      if (hr >= 5 && hr < 12) g = "Good Morning";
+      else if (hr >= 12 && hr < 17) g = "Good Afternoon";
+      else if (hr >= 17 && hr < 22) g = "Good Evening";
+      
+      document.getElementById('dynamic-greeting').innerText = g;
+      document.getElementById('current-date-display').innerText = new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    /* Countdown */
+    function initCountdown() {
+      const target = new Date("February 1, 2027 09:00:00").getTime();
+      function update() {
+        const now = new Date().getTime();
+        const diff = target - now;
+        if(diff > 0) {
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          document.getElementById('cd-days').innerText = days;
+          document.getElementById('cd-hours').innerText = hours;
+          document.getElementById('cd-mins').innerText = mins;
+        }
+      }
+      update();
+      setInterval(update, 60000);
+    }
+
+    /* Calculation Engine */
+    function syncCalculations() {
+      let totalLectures = 0;
+      let completedCount = 0;
+
+      SYLLABUS_DATA.forEach(s => {
+        s.chapters.forEach(c => {
+          totalLectures += 1; // 1 key lecture unit per chapter for calculation model
+          const key = `${s.name}_${c}`;
+          if(state.completedLectures[key]) completedCount++;
         });
-    </script>
+      });
+
+      const overallPerc = totalLectures > 0 ? Math.round((completedCount / totalLectures) * 100) : 0;
+      
+      document.getElementById('journey-perc').innerText = `${overallPerc}%`;
+      document.getElementById('journey-fill').style.width = `${overallPerc}%`;
+      document.getElementById('overall-perc-text').innerText = `${overallPerc}%`;
+      document.getElementById('overall-fill').style.width = `${overallPerc}%`;
+
+      // Readiness computation
+      const readiness = Math.round(overallPerc * 0.7 + (state.mocks.length > 0 ? 30 : 0));
+      document.getElementById('readiness-score').innerText = readiness;
+      if(readiness > 0) {
+        document.getElementById('readiness-status').innerText = readiness > 50 ? "On Track" : "Building Momentum";
+        document.getElementById('readiness-desc').innerText = "Based on completed lectures and mock logs.";
+      }
+
+      renderDashboardDynamicCards();
+    }
+
+    function renderAllViews() {
+      renderSyllabus();
+      renderLectures();
+      renderRoadmap();
+      renderRevision();
+      renderMistakes();
+      renderMocks();
+      renderJournal();
+      syncCalculations();
+      populateMistakeSubjects();
+    }
+
+    /* Dashboard Context Cards */
+    function renderDashboardDynamicCards() {
+      // Find current study focus
+      let currentSub = null, currentChap = null;
+      for (let s of SYLLABUS_DATA) {
+        for (let c of s.chapters) {
+          if (!state.completedLectures[`${s.name}_${c}`]) {
+            currentSub = s.name;
+            currentChap = c;
+            break;
+          }
+        }
+        if (currentSub) break;
+      }
+
+      const focusDiv = document.getElementById('current-study-content');
+      const recDiv = document.getElementById('today-recommendation');
+      
+      if(currentSub) {
+        focusDiv.innerHTML = `<h4 style="color:var(--accent-blue);">${currentSub}</h4><p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.2rem;">${currentChap}</p>`;
+        recDiv.innerHTML = `<p style="font-size:0.85rem; color:var(--text-primary);">Watch lecture & complete notes for: <br><strong style="color:var(--accent-green);">${currentChap}</strong> (${currentSub})</p>`;
+      } else if (SYLLABUS_DATA.length > 0) {
+        focusDiv.innerHTML = `<p style="color:var(--accent-green);">All syllabus lectures completed!</p>`;
+        recDiv.innerHTML = `<p style="color:var(--text-muted);">Focus entirely on Revision Queue & Mock Tests.</p>`;
+      }
+
+      // Insights
+      const motDiv = document.getElementById('motivation-content');
+      const completedKeys = Object.keys(state.completedLectures).filter(k => state.completedLectures[k]);
+      if(completedKeys.length === 0) {
+        motDiv.innerText = "Welcome to Forge. Your preparation system is completely empty and ready for your first activity.";
+      } else {
+        motDiv.innerText = `You have completed ${completedKeys.length} chapters so far. Consistency is key for GATE 2027. Keep advancing step by step.`;
+      }
+    }
+
+    /* Module: Syllabus */
+    function renderSyllabus() {
+      const container = document.getElementById('syllabus-container');
+      const query = document.getElementById('syllabus-search').value.toLowerCase();
+      container.innerHTML = "";
+
+      SYLLABUS_DATA.filter(s => s.name.toLowerCase().includes(query)).forEach(s => {
+        let completed = 0;
+        s.chapters.forEach(c => { if(state.completedLectures[`${s.name}_${c}`]) completed++; });
+        const perc = Math.round((completed / s.chapters.length) * 100);
+
+        const card = document.createElement('div');
+        card.className = "card";
+        card.style.marginBottom = "0.75rem";
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h4 style="font-size:1rem;">${s.name}</h4>
+              <p style="font-size:0.75rem; color:var(--text-muted);">Weightage: ${s.weightage} | Phase ${s.phase}</p>
+            </div>
+            <div style="text-align:right;">
+              <span style="font-family:var(--font-mono); font-weight:700;">${perc}%</span>
+              <p style="font-size:0.75rem; color:var(--text-muted);">${completed}/${s.chapters.length} Chapters</p>
+            </div>
+          </div>
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${perc}%;"></div></div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    /* Module: Lectures Tracker */
+    function renderLectures() {
+      const container = document.getElementById('lectures-container');
+      container.innerHTML = "";
+
+      SYLLABUS_DATA.forEach(s => {
+        const node = document.createElement('div');
+        node.className = "tree-node";
+        
+        let subCompleted = 0;
+        s.chapters.forEach(c => { if(state.completedLectures[`${s.name}_${c}`]) subCompleted++; });
+
+        node.innerHTML = `
+          <div class="tree-header" onclick="this.parentElement.classList.toggle('expanded')">
+            <span style="font-weight:600;">${s.name}</span>
+            <span style="font-size:0.8rem; color:var(--text-muted);">${subCompleted}/${s.chapters.length} Done</span>
+          </div>
+          <div class="tree-content">
+            ${s.chapters.map(c => {
+              const key = `${s.name}_${c}`;
+              const isDone = !!state.completedLectures[key];
+              return `
+                <div class="lecture-item">
+                  <span style="font-size:0.85rem; ${isDone ? 'text-decoration:line-through; color:var(--text-muted);' : ''}">${c}</span>
+                  <div class="checkbox-custom ${isDone ? 'checked' : ''}" onclick="toggleLecture('${s.name}', '${c}')"></div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+        container.appendChild(node);
+      });
+    }
+
+    function toggleLecture(sub, chap) {
+      const key = `${sub}_${chap}`;
+      state.completedLectures[key] = !state.completedLectures[key];
+      saveState();
+      renderLectures();
+      renderSyllabus();
+      renderRoadmap();
+      renderRevision();
+      showToast(state.completedLectures[key] ? "Chapter completed!" : "Chapter updated");
+    }
+
+    /* Module: Roadmap */
+    function renderRoadmap() {
+      const container = document.getElementById('roadmap-container');
+      container.innerHTML = "";
+
+      [1, 2, 3].forEach(p => {
+        const pSubjects = SYLLABUS_DATA.filter(s => s.phase === p);
+        const card = document.createElement('div');
+        card.className = "card";
+        card.style.marginBottom = "1rem";
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="card-title">Phase ${p} ${p===1 ? '— Foundations' : p===2 ? '— Core Thermal & Fluid' : '— Applied & Manufacturing'}</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0.5rem;">
+            ${pSubjects.map(s => {
+              let done = 0;
+              s.chapters.forEach(c => { if(state.completedLectures[`${s.name}_${c}`]) done++; });
+              const perc = Math.round((done / s.chapters.length) * 100);
+              return `
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;">
+                  <span>${s.name}</span>
+                  <span style="font-family:var(--font-mono);">${perc}%</span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    /* Module: Revision System */
+    function renderRevision() {
+      const container = document.getElementById('revision-container');
+      container.innerHTML = "";
+
+      const completed = [];
+      SYLLABUS_DATA.forEach(s => {
+        s.chapters.forEach(c => {
+          if(state.completedLectures[`${s.name}_${c}`]) {
+            completed.push({ subject: s.name, chapter: c });
+          }
+        });
+      });
+
+      if(completed.length === 0) {
+        container.innerHTML = `<div class="empty-state"><p>No chapters ready for revision yet. Complete chapters in Lecture Tracker.</p></div>`;
+        return;
+      }
+
+      completed.forEach(item => {
+        const key = `${item.subject}_${item.chapter}`;
+        const count = state.revisions[key] || 0;
+        const card = document.createElement('div');
+        card.className = "card";
+        card.style.marginBottom = "0.5rem";
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h4 style="font-size:0.9rem;">${item.chapter}</h4>
+              <p style="font-size:0.75rem; color:var(--text-muted);">${item.subject}</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:1rem;">
+              <span style="font-size:0.8rem; color:var(--text-muted);">Revised: ${count} times</span>
+              <button class="btn" onclick="markRevision('${key}')">+ Mark Revised</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function markRevision(key) {
+      state.revisions[key] = (state.revisions[key] || 0) + 1;
+      saveState();
+      renderRevision();
+      showToast("Revision logged!");
+    }
+
+    /* Module: Mistakes */
+    function populateMistakeSubjects() {
+      const select = document.getElementById('mistake-subject-select');
+      select.innerHTML = SYLLABUS_DATA.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    }
+
+    function renderMistakes() {
+      const container = document.getElementById('mistakes-container');
+      container.innerHTML = "";
+
+      if(state.mistakes.length === 0) {
+        container.innerHTML = `<div class="empty-state"><p>No mistakes recorded yet. Learn once, remember forever.</p></div>`;
+        return;
+      }
+
+      state.mistakes.forEach((m, idx) => {
+        const card = document.createElement('div');
+        card.className = "card";
+        card.style.marginBottom = "0.75rem";
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+            <div>
+              <span style="font-size:0.7rem; color:var(--accent-red); font-weight:700; text-transform:uppercase;">${m.subject}</span>
+              <h4 style="font-size:0.95rem; margin-top:0.1rem;">${m.title}</h4>
+              <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.4rem;">${m.desc}</p>
+            </div>
+            <button class="btn" style="color:var(--accent-red); padding:0.25rem 0.5rem;" onclick="deleteMistake(${idx})">Delete</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function openMistakeModal() { document.getElementById('modal-mistake').classList.add('active'); }
+    function closeMistakeModal() { document.getElementById('modal-mistake').classList.remove('active'); }
+
+    function saveMistake() {
+      const sub = document.getElementById('mistake-subject-select').value;
+      const title = document.getElementById('mistake-title').value;
+      const desc = document.getElementById('mistake-desc').value;
+
+      if(!title) return;
+
+      state.mistakes.push({ subject: sub, title, desc, date: new Date().toISOString() });
+      saveState();
+      renderMistakes();
+      closeMistakeModal();
+      document.getElementById('mistake-title').value = "";
+      document.getElementById('mistake-desc').value = "";
+      showToast("Mistake recorded.");
+    }
+
+    function deleteMistake(idx) {
+      state.mistakes.splice(idx, 1);
+      saveState();
+      renderMistakes();
+    }
+
+    /* Module: Mocks */
+    function renderMocks() {
+      const container = document.getElementById('mocks-container');
+      container.innerHTML = "";
+
+      if(state.mocks.length === 0) {
+        container.innerHTML = `<div class="empty-state"><p>No mock tests recorded yet.</p></div>`;
+        return;
+      }
+
+      state.mocks.forEach((m, idx) => {
+        const perc = Math.round((m.score / m.total) * 100);
+        const card = document.createElement('div');
+        card.className = "card";
+        card.style.marginBottom = "0.5rem";
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h4 style="font-size:0.95rem;">${m.name}</h4>
+              <p style="font-size:0.75rem; color:var(--text-muted);">${m.score} / ${m.total} Marks</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:1rem;">
+              <span style="font-family:var(--font-mono); font-weight:700; font-size:1.1rem; color:var(--accent-blue);">${perc}%</span>
+              <button class="btn" style="color:var(--accent-red); padding:0.25rem 0.5rem;" onclick="deleteMock(${idx})">Delete</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function openMockModal() { document.getElementById('modal-mock').classList.add('active'); }
+    function closeMockModal() { document.getElementById('modal-mock').classList.remove('active'); }
+
+    function saveMock() {
+      const name = document.getElementById('mock-name').value;
+      const score = parseFloat(document.getElementById('mock-score').value);
+      const total = parseFloat(document.getElementById('mock-total').value);
+
+      if(!name || isNaN(score) || !total) return;
+
+      state.mocks.push({ name, score, total, date: new Date().toISOString() });
+      saveState();
+      renderMocks();
+      closeMockModal();
+      document.getElementById('mock-name').value = "";
+      document.getElementById('mock-score').value = "";
+      showToast("Mock score recorded.");
+    }
+
+    function deleteMock(idx) {
+      state.mocks.splice(idx, 1);
+      saveState();
+      renderMocks();
+    }
+
+    /* Module: AI Study Coach */
+    function generateAIAdvice() {
+      const area = document.getElementById('ai-response-area');
+      const completedCount = Object.keys(state.completedLectures).filter(k => state.completedLectures[k]).length;
+      
+      let advice = "<strong>AI Preparation Analysis:</strong><br><br>";
+      
+      if(completedCount === 0) {
+        advice += "Your preparation has not started yet. Begin with Phase 1 subjects like <em>Basic Thermodynamics</em> or <em>Engineering Mathematics</em>. Complete at least 1 lecture today to activate tracking insights.";
+      } else {
+        advice += `You have completed ${completedCount} chapters across your syllabus.<br>`;
+        if(state.mistakes.length > 0) {
+          advice += `<br>• You have ${state.mistakes.length} recorded mistakes in your register. Review them periodically to ensure weak concepts are resolved.`;
+        }
+        if(state.mocks.length > 0) {
+          advice += `<br>• ${state.mocks.length} mock tests logged. Ensure you thoroughly analyze unattempted or incorrect questions.`;
+        }
+        advice += "<br><br><strong>Next Recommended Action:</strong> Continue following the current phase sequence in your Lecture Tracker and schedule active revisions every 3 days.";
+      }
+
+      area.innerHTML = advice;
+    }
+
+    /* Module: Daily Journal */
+    function renderJournal() {
+      const history = document.getElementById('journal-history');
+      history.innerHTML = "";
+      const dates = Object.keys(state.journal).sort().reverse();
+
+      if(dates.length === 0) {
+        history.innerHTML = `<div class="empty-state"><p>No previous journal entries.</p></div>`;
+        return;
+      }
+
+      dates.forEach(d => {
+        const card = document.createElement('div');
+        card.className = "card";
+        card.style.marginBottom = "0.5rem";
+        card.innerHTML = `
+          <span style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">${d}</span>
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-top:0.3rem;">${state.journal[d]}</p>
+        `;
+        history.appendChild(card);
+      });
+    }
+
+    function saveJournalEntry() {
+      const val = document.getElementById('journal-input').value;
+      if(!val) return;
+      const today = new Date().toISOString().split('T')[0];
+      state.journal[today] = val;
+      saveState();
+      renderJournal();
+      document.getElementById('journal-input').value = "";
+      showToast("Journal entry saved.");
+    }
+
+    /* Scratchpad */
+    function saveScratchpad() {
+      state.scratchpad = document.getElementById('scratchpad').value;
+      saveState();
+    }
+
+    /* Focus Mode Timer */
+    let focusInterval = null;
+    let focusSeconds = 25 * 60;
+    let focusRunning = false;
+
+    function openFocusModal() { document.getElementById('modal-focus').classList.add('active'); }
+    function closeFocusModal() { document.getElementById('modal-focus').classList.remove('active'); }
+
+    function toggleFocusTimer() {
+      const btn = document.getElementById('btn-focus-start');
+      if(focusRunning) {
+        clearInterval(focusInterval);
+        focusRunning = false;
+        btn.innerText = "Start Focus";
+      } else {
+        focusRunning = true;
+        btn.innerText = "Pause";
+        focusInterval = setInterval(() => {
+          if(focusSeconds > 0) {
+            focusSeconds--;
+            const m = Math.floor(focusSeconds / 60).toString().padStart(2, '0');
+            const s = (focusSeconds % 60).toString().padStart(2, '0');
+            document.getElementById('focus-timer-display').innerText = `${m}:${s}`;
+          } else {
+            clearInterval(focusInterval);
+            focusRunning = false;
+            showToast("Focus session complete!");
+            btn.innerText = "Start Focus";
+            focusSeconds = 25 * 60;
+          }
+        }, 1000);
+      }
+    }
+
+    /* Command Palette */
+    function openCmdPalette() {
+      document.getElementById('modal-cmd').classList.add('active');
+      document.getElementById('cmd-input').focus();
+    }
+
+    function closeCmdPalette() {
+      document.getElementById('modal-cmd').classList.remove('active');
+    }
+
+    function handleCmdInput(val) {
+      const results = document.getElementById('cmd-results');
+      results.innerHTML = "";
+      if(!val) return;
+
+      const tabs = ["dashboard", "roadmap", "syllabus", "lectures", "revision", "mistakes", "mocks", "aicoach", "journal"];
+      tabs.filter(t => t.includes(val.toLowerCase())).forEach(t => {
+        const item = document.createElement('div');
+        item.style.padding = "0.5rem";
+        item.style.cursor = "pointer";
+        item.style.borderBottom = "1px solid var(--border-color)";
+        item.innerText = `Navigate to ${t.toUpperCase()}`;
+        item.onclick = () => { switchTab(t); closeCmdPalette(); };
+        results.appendChild(item);
+      });
+    }
+
+    function setupKeyListeners() {
+      window.addEventListener('keydown', (e) => {
+        if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          openCmdPalette();
+        }
+        if(e.key === 'Escape') {
+          closeCmdPalette();
+          closeFocusModal();
+          closeMistakeModal();
+          closeMockModal();
+        }
+      });
+    }
+  </script>
 </body>
 </html>
