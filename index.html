@@ -3,1437 +3,1679 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FORGE — GATE 2027 Preparation Operating System</title>
+    <title>FORGE — GATE 2027 Preparation OS</title>
     <style>
+        /* ==========================================================================
+           FORGE DESIGN SYSTEM & BASE STYLES (Dark Mode Only, Linear/Raycast Vibe)
+           ========================================================================== */
         :root {
-            --bg-dark: #07090e;
-            --bg-card: #0f131c;
-            --bg-card-hover: #161b27;
-            --bg-elevated: #1a202c;
-            --border-color: rgba(255, 255, 255, 0.07);
-            --border-highlight: rgba(255, 255, 255, 0.15);
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
+            --bg-primary: #090a0f;
+            --bg-secondary: #11131d;
+            --bg-elevated: #181b29;
+            --bg-hover: #222638;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-focus: rgba(99, 102, 241, 0.5);
             
-            --accent-primary: #38bdf8;
-            --accent-glow: rgba(56, 189, 248, 0.25);
-            --success: #10b981;
-            --success-glow: rgba(16, 185, 129, 0.3);
-            --warning: #f59e0b;
-            --warning-glow: rgba(245, 158, 11, 0.3);
-            --danger: #ef4444;
-            --danger-glow: rgba(239, 68, 68, 0.3);
-            --purple: #8b5cf6;
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
             
-            --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --transition-fast: 0.15s ease;
-            --transition-normal: 0.25s ease;
+            --accent-primary: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.25);
+            --accent-secondary: #8b5cf6;
+            
+            --color-success: #10b981;
+            --color-success-glow: rgba(16, 185, 129, 0.2);
+            --color-warning: #f59e0b;
+            --color-warning-glow: rgba(245, 158, 11, 0.2);
+            --color-danger: #ef4444;
+            --color-danger-glow: rgba(239, 68, 68, 0.2);
+            --color-info: #3b82f6;
+
             --radius-sm: 6px;
             --radius-md: 10px;
             --radius-lg: 16px;
+            --radius-full: 9999px;
+            
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+            --transition-fast: 150ms ease;
+            --transition-normal: 250ms ease;
+            --shadow-card: 0 10px 30px -10px rgba(0,0,0,0.5);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            user-select: none;
         }
 
         body {
-            background-color: var(--bg-dark);
+            background-color: var(--bg-primary);
             color: var(--text-primary);
-            font-family: var(--font-family);
+            font-family: var(--font-sans);
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: hidden;
             display: flex;
             height: 100vh;
-            overflow: hidden;
-            -webkit-font-smoothing: antialiased;
+            width: 100vw;
         }
 
-        /* Sidebar UI */
-        sidebar {
-            width: 260px;
-            background-color: var(--bg-card);
+        /* Typography */
+        h1, h2, h3, h4, h5 { font-weight: 600; color: var(--text-primary); }
+        h1 { font-size: 1.75rem; letter-spacing: -0.02em; }
+        h2 { font-size: 1.35rem; letter-spacing: -0.01em; }
+        h3 { font-size: 1.1rem; }
+        p { color: var(--text-secondary); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: var(--radius-full); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-color); }
+
+        /* Modern Steppers Component */
+        .stepper-container {
+            display: inline-flex;
+            align-items: center;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 2px;
+            gap: 4px;
+            transition: border-color var(--transition-fast);
+        }
+        .stepper-container:focus-within {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+        .stepper-btn {
+            background: var(--bg-elevated);
+            border: none;
+            color: var(--text-primary);
+            width: 26px;
+            height: 26px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background var(--transition-fast);
+        }
+        .stepper-btn:hover { background: var(--bg-hover); color: var(--accent-primary); }
+        .stepper-input {
+            width: 50px;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            text-align: center;
+            font-weight: 600;
+            font-family: var(--font-mono);
+            outline: none;
+            -moz-appearance: textfield;
+        }
+        .stepper-input::-webkit-outer-spin-button,
+        .stepper-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+        /* App Layout */
+        #app-sidebar {
+            width: 240px;
+            background: var(--bg-secondary);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             padding: 20px 14px;
-            z-index: 100;
+            flex-shrink: 0;
+            z-index: 10;
         }
 
-        .brand-header {
+        .brand {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 8px 10px 24px 10px;
+            padding: 0 8px 20px 8px;
             border-bottom: 1px solid var(--border-color);
-            margin-bottom: 20px;
         }
-
-        .forge-logo {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #0284c7 0%, #38bdf8 50%, #818cf8 100%);
-            border-radius: 8px;
+        .brand-logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-weight: 800;
+            color: white;
             box-shadow: 0 0 15px var(--accent-glow);
         }
+        .brand-title { font-size: 1.1rem; font-weight: 700; letter-spacing: 1px; }
 
-        .brand-title {
-            font-size: 1.2rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-            background: linear-gradient(to right, #ffffff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .nav-menu {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            list-style: none;
-            overflow-y: auto;
-        }
-
+        .nav-menu { display: flex; flex-direction: column; gap: 4px; margin-top: 16px; }
         .nav-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px 14px;
-            border-radius: var(--radius-md);
+            padding: 10px 12px;
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            font-weight: 500;
+            border-radius: var(--radius-md);
             cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
             transition: all var(--transition-fast);
         }
-
-        .nav-item:hover {
-            background-color: var(--bg-card-hover);
-            color: var(--text-primary);
-        }
-
+        .nav-item:hover { background: var(--bg-elevated); color: var(--text-primary); }
         .nav-item.active {
-            background-color: rgba(56, 189, 248, 0.1);
-            color: var(--accent-primary);
+            background: var(--bg-elevated);
+            color: var(--text-primary);
             border-left: 3px solid var(--accent-primary);
         }
+        .nav-item svg { width: 18px; height: 18px; fill: currentColor; }
 
-        .nav-item svg {
-            width: 18px;
-            height: 18px;
-            fill: none;
-            stroke: currentColor;
-            stroke-width: 2;
-        }
-
-        /* Main Content Container */
-        .main-wrapper {
-            flex: 1;
+        #app-content {
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
-            position: relative;
+            overflow: hidden;
+            background: var(--bg-primary);
         }
 
-        .top-bar {
-            padding: 16px 32px;
+        /* Top Header */
+        header.top-header {
+            height: 64px;
             border-bottom: 1px solid var(--border-color);
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            background-color: rgba(7, 9, 14, 0.8);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 90;
+            justify-content: space-between;
+            padding: 0 30px;
+            background: rgba(9, 10, 15, 0.8);
+            backdrop-filter: blur(12px);
+            z-index: 5;
         }
 
-        .view-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-        }
-
-        .user-status {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .btn-header {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+        }
+        .btn-header:hover { border-color: var(--accent-primary); background: var(--bg-hover); }
+
+        /* Main Workspace Scroll Area */
+        main.main-viewport {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 30px;
         }
 
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background-color: var(--success);
-            box-shadow: 0 0 8px var(--success-glow);
-        }
-
-        .view-container {
-            padding: 32px;
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .view-section {
-            display: none;
-        }
-
-        .view-section.active {
-            display: block;
-            animation: fadeIn 0.25s ease-out;
-        }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; animation: fadeIn 250ms ease-in-out; }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(4px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Cards & Grid Utilities */
-        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
-        .grid-asym { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-
-        .card {
-            background-color: var(--bg-card);
+        /* Generic Modern Cards */
+        .forge-card {
+            background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-lg);
-            padding: 24px;
-            transition: border-color var(--transition-fast);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
             position: relative;
             overflow: hidden;
+            transition: border-color var(--transition-fast);
         }
+        .forge-card:hover { border-color: rgba(255,255,255,0.15); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .card-title { font-size: 0.95rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
 
-        .card:hover {
-            border-color: var(--border-highlight);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .card-title {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Countdown Widget */
-        .countdown-grid {
-            display: flex;
-            gap: 16px;
-            margin-top: 10px;
-        }
-
-        .cd-box {
-            background: var(--bg-elevated);
-            padding: 12px 16px;
-            border-radius: var(--radius-md);
-            text-align: center;
-            flex: 1;
-            border: 1px solid var(--border-color);
-        }
-
-        .cd-val {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--accent-primary);
-        }
-
-        .cd-lbl {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
-
-        /* Custom Number Stepper */
-        .stepper-container {
-            display: flex;
-            align-items: center;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            width: fit-content;
-            overflow: hidden;
-        }
-
-        .stepper-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            width: 28px;
-            height: 28px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            transition: background var(--transition-fast);
-        }
-
-        .stepper-btn:hover {
-            background-color: var(--bg-card-hover);
-        }
-
-        .stepper-input {
-            width: 45px;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            text-align: center;
-            font-size: 0.85rem;
-            font-weight: 600;
-            -moz-appearance: textfield;
-        }
-
-        .stepper-input::-webkit-outer-spin-button,
-        .stepper-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        /* Progress Bar */
-        .progress-bar-bg {
-            background: var(--bg-elevated);
-            height: 8px;
-            border-radius: 4px;
+        /* Progress Bars */
+        .progress-track {
             width: 100%;
+            height: 8px;
+            background: var(--bg-elevated);
+            border-radius: var(--radius-full);
             overflow: hidden;
-            margin-top: 8px;
+            position: relative;
         }
-
-        .progress-bar-fill {
+        .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent-primary), var(--purple));
-            width: 0%;
-            transition: width 0.4s ease;
-            border-radius: 4px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: var(--radius-full);
+            transition: width 400ms cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Badges & Glows */
+        /* Dashboard Asymmetrical Layout */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+        }
+        .col-12 { grid-column: span 12; }
+        .col-8 { grid-column: span 8; }
+        .col-6 { grid-column: span 6; }
+        .col-4 { grid-column: span 4; }
+        .col-3 { grid-column: span 3; }
+
+        /* Badges */
         .badge {
             padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
+            border-radius: var(--radius-full);
+            font-size: 11px;
             font-weight: 600;
-            display: inline-block;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
+        .badge-pending { background: var(--color-danger-glow); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-progress { background: var(--color-warning-glow); color: var(--color-warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-completed { background: var(--color-success-glow); color: var(--color-success); border: 1px solid rgba(16, 185, 129, 0.3); }
 
-        .badge-completed {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--success);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            box-shadow: 0 0 10px var(--success-glow);
-        }
-
-        .badge-progress {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--warning);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            box-shadow: 0 0 10px var(--warning-glow);
-        }
-
-        .badge-pending {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-            border: 1px solid rgba(239, 68, 68, 0.3);
-            box-shadow: 0 0 10px var(--danger-glow);
-        }
-
-        /* Custom Non-Closing Dropdown Select */
-        .custom-select-wrapper {
-            position: relative;
-            user-select: none;
-        }
-
-        .select-box {
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            padding: 8px 12px;
-            border-radius: var(--radius-sm);
-            color: var(--text-primary);
-            cursor: pointer;
-            font-size: 0.85rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .select-options {
-            position: absolute;
-            top: 105%;
-            left: 0;
-            right: 0;
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            z-index: 50;
-            display: none;
-            max-height: 200px;
-            overflow-y: auto;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-        }
-
-        .select-options.show {
-            display: block;
-        }
-
-        .option-item {
-            padding: 8px 12px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: background var(--transition-fast);
-        }
-
-        .option-item:hover {
-            background: var(--bg-card-hover);
-        }
-
-        .option-item.selected {
-            color: var(--accent-primary);
-            font-weight: 600;
-        }
-
-        /* Form Inputs */
-        input[type="text"], textarea, select {
+        /* Inputs & Textareas */
+        .forge-input, .forge-select, .forge-textarea {
             width: 100%;
-            background: var(--bg-elevated);
+            background: var(--bg-primary);
             border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 10px 14px;
             color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
             font-family: inherit;
-            font-size: 0.88rem;
+            font-size: 13px;
             outline: none;
-            transition: border-color var(--transition-fast);
+            transition: all var(--transition-fast);
         }
-
-        input[type="text"]:focus, textarea:focus, select:focus {
+        .forge-input:focus, .forge-select:focus, .forge-textarea:focus {
             border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px var(--accent-glow);
         }
 
-        .btn {
-            background: var(--accent-primary);
-            color: #000;
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
             border: none;
             padding: 10px 18px;
-            border-radius: var(--radius-sm);
+            border-radius: var(--radius-md);
             font-weight: 600;
-            font-size: 0.88rem;
             cursor: pointer;
             transition: opacity var(--transition-fast);
         }
+        .btn-primary:hover { opacity: 0.9; }
 
-        .btn:hover {
-            opacity: 0.9;
-        }
+        /* Circular Readiness Indicator */
+        .circular-chart { width: 90px; height: 90px; }
+        .circle-bg { fill: none; stroke: var(--bg-elevated); stroke-width: 3.8; }
+        .circle { fill: none; stroke-width: 3.8; stroke-linecap: round; stroke: var(--accent-primary); transition: stroke-dasharray 0.5s ease; }
+        .percentage { fill: var(--text-primary); font-family: var(--font-sans); font-weight: bold; font-size: 0.5em; text-anchor: middle; }
 
-        /* Syllabus Tracker Table */
-        .syllabus-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        .syllabus-table th {
-            text-align: left;
-            padding: 12px;
-            color: var(--text-muted);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .syllabus-table td {
-            padding: 14px 12px;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.88rem;
-        }
-
-        /* Chapter List Glow Styles */
-        .chapter-row {
-            padding: 12px 16px;
-            background: var(--bg-elevated);
-            border-radius: var(--radius-md);
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        /* Expandable Accordion Dropdowns for Syllabus & Lectures */
+        .accordion-item {
+            background: var(--bg-secondary);
             border: 1px solid var(--border-color);
-            transition: all var(--transition-normal);
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .accordion-header {
+            padding: 16px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-elevated);
+        }
+        .accordion-header:hover { background: var(--bg-hover); }
+        .accordion-body {
+            padding: 20px;
+            display: none;
+            border-top: 1px solid var(--border-color);
+        }
+        .accordion-item.open .accordion-body { display: block; }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 550px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
         }
 
-        .chapter-row.glow-completed {
-            border-color: var(--success);
-            box-shadow: 0 0 12px var(--success-glow);
+        /* Focus Workspace */
+        #focus-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: var(--bg-primary);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-
-        .chapter-row.glow-progress {
-            border-color: var(--warning);
-            box-shadow: 0 0 12px var(--warning-glow);
-        }
-
-        .chapter-row.glow-pending {
-            border-color: var(--danger);
-            box-shadow: 0 0 12px var(--danger-glow);
-        }
-
-        /* Empty States */
-        .empty-state {
-            text-align: center;
-            padding: 30px;
-            color: var(--text-muted);
-            font-size: 0.88rem;
+        #focus-screen.active { display: flex; }
+        .focus-timer-clock {
+            font-size: 6rem;
+            font-family: var(--font-mono);
+            font-weight: 700;
+            color: var(--accent-primary);
+            text-shadow: 0 0 30px var(--accent-glow);
+            margin: 20px 0;
         }
 
         /* Responsive */
         @media (max-width: 1024px) {
-            .grid-4, .grid-3 { grid-template-columns: repeat(2, 1fr); }
-            .grid-asym { grid-template-columns: 1fr; }
-        }
-
-        @media (max-width: 768px) {
-            body { flex-direction: column; overflow-y: auto; }
-            sidebar { width: 100%; height: auto; }
-            .grid-2, .grid-4, .grid-3 { grid-template-columns: 1fr; }
+            .col-8, .col-6, .col-4, .col-3 { grid-column: span 12; }
+            #app-sidebar { width: 70px; }
+            .brand-title, .nav-item span { display: none; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar Navigation -->
-    <sidebar>
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id-="app-sidebar" id="app-sidebar">
         <div>
-            <div class="brand-header">
-                <div class="forge-logo">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
-                </div>
+            <div class="brand">
+                <div class="brand-logo">F</div>
                 <div class="brand-title">FORGE</div>
             </div>
-            
-            <ul class="nav-menu">
-                <li class="nav-item active" onclick="switchView('dashboard', this)">
-                    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                    Dashboard
-                </li>
-                <li class="nav-item" onclick="switchView('roadmap', this)">
-                    <svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-                    Roadmap
-                </li>
-                <li class="nav-item" onclick="switchView('syllabus', this)">
-                    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                    Syllabus Tracker
-                </li>
-                <li class="nav-item" onclick="switchView('lectures', this)">
-                    <svg viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-                    Lecture Tracker
-                </li>
-                <li class="nav-item" onclick="switchView('mock', this)">
-                    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                    Mock Test Tracker
-                </li>
-                <li class="nav-item" onclick="switchView('journal', this)">
-                    <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    Daily Journal
-                </li>
-            </ul>
+            <nav class="nav-menu">
+                <a class="nav-item active" data-tab="dashboard">
+                    <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-item" data-tab="roadmap">
+                    <svg viewBox="0 0 24 24"><path d="M15 15v-2.586l-3-3-4.293 4.293-1.414-1.414L12 6.586l4.414 4.414V8h2v7h-3z"/></svg>
+                    <span>Roadmap</span>
+                </a>
+                <a class="nav-item" data-tab="syllabus">
+                    <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+                    <span>Syllabus Tracker</span>
+                </a>
+                <a class="nav-item" data-tab="lectures">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    <span>Lecture Tracker</span>
+                </a>
+                <a class="nav-item" data-tab="revision">
+                    <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                    <span>Revision Engine</span>
+                </a>
+                <a class="nav-item" data-tab="mistakes">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                    <span>Mistake Register</span>
+                </a>
+                <a class="nav-item" data-tab="mocks">
+                    <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                    <span>Mock Analytics</span>
+                </a>
+                <a class="nav-item" data-tab="aicoach">
+                    <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 0-.9-3.8 8.5 8.5 0 0 0-7.6-4.7 8.38 8.38 0 0 0-3.8.9L3 2.5l1.4 5.7a8.38 8.38 0 0 0-.9 3.8 8.5 8.5 0 0 0 4.7 7.6 8.38 8.38 0 0 0 3.8.9h.5a8.48 8.48 0 0 0 8.5-8.5v-.5z"/></svg>
+                    <span>AI Study Coach</span>
+                </a>
+                <a class="nav-item" data-tab="journal">
+                    <svg viewBox="0 0 24 24"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    <span>Daily Journal</span>
+                </a>
+            </nav>
         </div>
-        <div style="font-size:0.75rem; color:var(--text-muted); padding:10px;">
-            GATE ME 2027 OS • v2.0
+        <div style="padding: 10px 8px; border-top: 1px solid var(--border-color);">
+            <div style="font-size: 11px; color: var(--text-muted);">GATE 2027 TARGET</div>
+            <div style="font-weight: bold; color: var(--text-primary); margin-top: 2px;">FEB 2027</div>
         </div>
-    </sidebar>
+    </aside>
 
-    <!-- Main Workspace -->
-    <div class="main-wrapper">
-        <div class="top-bar">
-            <div class="view-title" id="current-view-title">Mission Control Dashboard</div>
-            <div class="user-status">
-                <div class="status-dot"></div>
-                GATE 2027 Aspirant
+    <!-- CONTENT AREA -->
+    <div id="app-content">
+        <!-- HEADER -->
+        <header class="top-header">
+            <div>
+                <span id="current-date-display" style="color: var(--text-muted); font-size: 12px; font-weight: 500;"></span>
+                <div id="dynamic-greeting" style="font-weight: 600; font-size: 15px;">Good Morning.</div>
             </div>
-        </div>
+            <div class="header-actions">
+                <button class="btn-header" id="btn-cmd-palette">
+                    <kbd style="background: var(--bg-primary); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color);">Ctrl K</kbd>
+                    <span>Command Palette</span>
+                </button>
+                <button class="btn-header" id="btn-start-focus" style="border-color: var(--accent-primary); color: var(--accent-primary);">
+                    <span>⚡ Focus Mode</span>
+                </button>
+            </div>
+        </header>
 
-        <div class="view-container">
+        <!-- MAIN VIEWPORT -->
+        <main class="main-viewport">
 
-            <!-- 1. DASHBOARD VIEW -->
-            <div id="view-dashboard" class="view-section active">
-                <div style="margin-bottom: 24px;">
-                    <h1 id="dynamic-greeting" style="font-size: 1.8rem; font-weight: 800;">Good Day.</h1>
-                    <p style="color: var(--text-secondary); font-size:0.95rem;">Ready to continue building today's progress?</p>
-                </div>
-
-                <div class="grid-asym" style="margin-bottom:20px;">
-                    <!-- Countdown & Overall Progress -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-title">Countdown to GATE 2027</div>
-                            <span class="badge badge-progress" id="preparation-journey-pct">0% Complete</span>
+            <!-- TAB 1: DASHBOARD -->
+            <section id="pane-dashboard" class="tab-pane active">
+                <div class="dashboard-grid">
+                    
+                    <!-- COUNTDOWN CARD -->
+                    <div class="forge-card col-4">
+                        <div class="card-header"><span class="card-title">Countdown to GATE 2027</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 8px;">
+                            <span id="dash-countdown-days" style="font-size: 2.5rem; font-weight: 800; color: var(--accent-primary);">--</span>
+                            <span style="font-weight: 600; color: var(--text-secondary);">Days Remaining</span>
                         </div>
-                        <div class="countdown-grid">
-                            <div class="cd-box"><div class="cd-val" id="cd-days">000</div><div class="cd-lbl">Days</div></div>
-                            <div class="cd-box"><div class="cd-val" id="cd-hours">00</div><div class="cd-lbl">Hours</div></div>
-                            <div class="cd-box"><div class="cd-val" id="cd-mins">00</div><div class="cd-lbl">Mins</div></div>
+                        <div style="margin-top: 12px; font-size: 12px; color: var(--text-muted); display: flex; justify-content: space-between;">
+                            <span>Journey Progress</span>
+                            <span id="dash-prep-journey-pct">0%</span>
                         </div>
-                        <div style="margin-top: 20px;">
-                            <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:var(--text-secondary);">
-                                <span>Overall Preparation Engine Progress</span>
-                                <span id="overall-progress-num">0%</span>
+                        <div class="progress-track" style="margin-top: 6px;">
+                            <div id="dash-journey-bar" class="progress-fill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+
+                    <!-- OVERALL PROGRESS CARD -->
+                    <div class="forge-card col-4">
+                        <div class="card-header"><span class="card-title">Overall Preparation</span></div>
+                        <div style="display: flex; align-items: baseline; gap: 8px;">
+                            <span id="dash-overall-pct" style="font-size: 2.5rem; font-weight: 800; color: var(--color-success);">0%</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">Syllabus & Practice</span>
+                        </div>
+                        <div class="progress-track" style="margin-top: 16px;">
+                            <div id="dash-overall-bar" class="progress-fill" style="width: 0%; background: var(--color-success);"></div>
+                        </div>
+                    </div>
+
+                    <!-- READINESS SCORE CARD -->
+                    <div class="forge-card col-4" style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <div class="card-title">Readiness Score</div>
+                            <div id="dash-readiness-status" style="font-size: 1.1rem; font-weight: 700; margin-top: 4px;">Unavailable</div>
+                            <div id="dash-readiness-sub" style="font-size: 11px; color: var(--text-muted); margin-top: 4px; max-width: 180px;">Complete first subject to calculate score.</div>
+                        </div>
+                        <div>
+                            <svg viewBox="0 0 36 36" class="circular-chart">
+                                <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                <path id="dash-readiness-circle" class="circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                <text id="dash-readiness-num" x="18" y="20.35" class="percentage">0</text>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- CURRENT STUDY CARD -->
+                    <div class="forge-card col-6">
+                        <div class="card-header"><span class="card-title">Current Study Focus</span></div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                            <div>
+                                <div style="font-size: 11px; color: var(--text-muted);">Current Phase</div>
+                                <div id="dash-curr-phase" style="font-weight: 600;">Phase 1</div>
                             </div>
-                            <div class="progress-bar-bg">
-                                <div class="progress-bar-fill" id="overall-progress-bar"></div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--text-muted);">Current Subject</div>
+                                <div id="dash-curr-subject" style="font-weight: 600;">Strength of Materials</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--text-muted);">Current Chapter</div>
+                                <div id="dash-curr-chapter" style="font-weight: 600; color: var(--accent-primary);">Torsion in Circular Shafts</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 11px; color: var(--text-muted);">Remaining Lectures</div>
+                                <div id="dash-curr-rem-lectures" style="font-weight: 600;">0</div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Readiness Score Card -->
-                    <div class="card" style="display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center;">
-                        <div class="card-title" style="margin-bottom:10px;">Readiness Score</div>
-                        <div style="font-size: 3rem; font-weight: 800; color: var(--accent-primary);" id="readiness-score-val">--</div>
-                        <div style="font-size:0.8rem; color:var(--text-secondary);" id="readiness-score-status">Complete first subject to calculate readiness.</div>
+                    <!-- TODAY'S STUDY CARD -->
+                    <div class="forge-card col-6">
+                        <div class="card-header"><span class="card-title">Today's Recommended Session</span></div>
+                        <div id="dash-today-study-content">
+                            <div style="font-size: 1.1rem; font-weight: 700;" id="dash-rec-subject">Strength of Materials</div>
+                            <div style="color: var(--text-secondary); margin-top: 2px;" id="dash-rec-chapter">Torsion in Circular Shafts</div>
+                            <div style="display: flex; gap: 12px; margin-top: 14px;">
+                                <span class="badge badge-progress" id="dash-rec-priority">HIGH PRIORITY</span>
+                                <span style="font-size: 12px; color: var(--text-muted);" id="dash-rec-time">Est. Time: ~2 Hours</span>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- PENDING CARDS (ONLY ACTIVE FOR COMPLETED SUBJECTS) -->
+                    <div class="forge-card col-4">
+                        <div class="card-header"><span class="card-title">Pending PYQs</span></div>
+                        <div id="dash-pending-pyqs-box">
+                            <div style="font-size: 12px; color: var(--text-muted);">Visible once first subject is completed in Syllabus Tracker.</div>
+                        </div>
+                    </div>
+
+                    <div class="forge-card col-4">
+                        <div class="card-header"><span class="card-title">Pending Revisions</span></div>
+                        <div id="dash-pending-revision-box">
+                            <div style="font-size: 12px; color: var(--text-muted);">Visible once first subject is completed in Syllabus Tracker.</div>
+                        </div>
+                    </div>
+
+                    <div class="forge-card col-4">
+                        <div class="card-header"><span class="card-title">Pending Subject Mocks</span></div>
+                        <div id="dash-pending-mocks-box">
+                            <div style="font-size: 12px; color: var(--text-muted);">Visible once first subject is completed in Syllabus Tracker.</div>
+                        </div>
+                    </div>
+
+                    <!-- TODAY'S GOALS (INCLUDES NEXT DAY'S GOAL FROM JOURNAL) -->
+                    <div class="forge-card col-6">
+                        <div class="card-header"><span class="card-title">Today's Goal</span></div>
+                        <div id="dash-today-goals-list" style="display: flex; flex-direction: column; gap: 8px;">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- QUICK NOTES & MOTIVATION CARD -->
+                    <div class="forge-card col-6">
+                        <div class="card-header"><span class="card-title">Data Insights & Quick Notes</span></div>
+                        <div id="dash-motivation-text" style="padding: 10px; background: var(--bg-elevated); border-radius: var(--radius-md); font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
+                            Start your first study session to unlock analytical insights.
+                        </div>
+                        <textarea class="forge-textarea" id="dash-quick-notes" rows="3" placeholder="Write anything you want to remember today..."></textarea>
+                    </div>
+
                 </div>
+            </section>
 
-                <div class="grid-3" style="margin-bottom:20px;">
-                    <!-- Current Phase & Subject -->
-                    <div class="card">
-                        <div class="card-title">Current Focus</div>
-                        <div style="margin-top:10px;">
-                            <div style="font-size:0.8rem; color:var(--text-muted);">Current Phase</div>
-                            <div style="font-weight:700; font-size:1rem; color:var(--accent-primary);" id="dash-current-phase">Phase 1 - Momentum & SOM</div>
-                            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:8px;">Current Subject</div>
-                            <div style="font-weight:600; font-size:0.95rem;" id="dash-current-subject">Strength of Materials</div>
-                        </div>
-                    </div>
-
-                    <!-- Today's Study Recommendation -->
-                    <div class="card">
-                        <div class="card-title">Today's Study</div>
-                        <div style="margin-top:10px;" id="dash-today-study-box">
-                            <div style="font-weight:600; font-size:0.95rem;" id="dash-study-subject">--</div>
-                            <div style="font-size:0.85rem; color:var(--text-secondary);" id="dash-study-chapter">No active study task</div>
-                        </div>
-                    </div>
-
-                    <!-- Today's Revision -->
-                    <div class="card">
-                        <div class="card-title">Today's Revision</div>
-                        <div style="margin-top:10px;" id="dash-today-revision-box">
-                            <div style="font-size:0.85rem; color:var(--text-muted);">No revision is scheduled for today.</div>
-                        </div>
-                    </div>
+            <!-- TAB 2: ROADMAP -->
+            <section id="pane-roadmap" class="tab-pane">
+                <div style="margin-bottom: 20px;">
+                    <h2>GATE 2027 Strategic Roadmap</h2>
+                    <p>Calculated directly from prompt structure & attached roadmap images.</p>
                 </div>
-
-                <!-- COMPLETED SUBJECTS ONLY CARDS -->
-                <div class="grid-3" style="margin-bottom:20px;">
-                    <div class="card">
-                        <div class="card-title">Pending PYQs (Completed Subjects)</div>
-                        <div style="margin-top:10px;" id="dash-pending-pyqs-container">
-                            <div class="empty-state">No completed subjects yet</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Pending Revisions</div>
-                        <div style="margin-top:10px;" id="dash-pending-revision-container">
-                            <div class="empty-state">No completed subjects yet</div>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title">Pending Mock Tests</div>
-                        <div style="margin-top:10px;" id="dash-pending-mocks-container">
-                            <div class="empty-state">No completed subjects yet</div>
-                        </div>
-                    </div>
+                <div id="roadmap-phases-container">
+                    <!-- Dynamic rendering of Phase 1 - Phase 4 -->
                 </div>
+            </section>
 
-                <div class="grid-3" style="margin-bottom:20px;">
-                    <!-- Today's Goals (From Daily Journal) -->
-                    <div class="card">
-                        <div class="card-title">Today's Goals</div>
-                        <div style="margin-top:10px;" id="dash-today-goals">
-                            <div style="font-size:0.85rem; color:var(--text-muted);">No goals set from yesterday's journal entry.</div>
-                        </div>
-                    </div>
-
-                    <!-- Motivational Card (Data Driven) -->
-                    <div class="card">
-                        <div class="card-title">System Insights</div>
-                        <div style="margin-top:10px; font-size:0.9rem; color:var(--text-secondary); line-height:1.5;" id="dash-motivation-text">
-                            Start your preparation journey today by marking your first lecture complete.
-                        </div>
-                    </div>
-
-                    <!-- Quick Notes -->
-                    <div class="card">
-                        <div class="card-title">Quick Notes</div>
-                        <textarea id="dash-quick-notes" placeholder="Write anything you want to remember today..." rows="3" style="margin-top:8px; resize:none;" oninput="saveQuickNotes()"></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. ROADMAP VIEW -->
-            <div id="view-roadmap" class="view-section">
-                <div style="margin-bottom:20px;">
-                    <h2>GATE 2027 Structured Roadmap</h2>
-                    <p style="color:var(--text-secondary); font-size:0.9rem;">Sequential phased roadmap based on Priority & ROI</p>
-                </div>
-                <div id="roadmap-phases-container" style="display:flex; flex-direction:column; gap:16px;">
-                    <!-- Phase cards injected by JS -->
-                </div>
-            </div>
-
-            <!-- 3. SYLLABUS PROGRESS TRACKER -->
-            <div id="view-syllabus" class="view-section">
-                <div style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+            <!-- TAB 3: SYLLABUS PROGRESS TRACKER -->
+            <section id="pane-syllabus" class="tab-pane">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <div>
                         <h2>Syllabus Progress Tracker</h2>
-                        <p style="color:var(--text-secondary); font-size:0.9rem;">Core data source for all preparation analytics</p>
+                        <p>Single source of truth. Sorted by Priority & ROI.</p>
                     </div>
-                    <input type="text" id="syllabus-search" placeholder="Search subjects..." style="width:250px;" oninput="renderSyllabusTracker()">
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="syllabus-search" class="forge-input" placeholder="Search subjects..." style="width: 200px;">
+                        <select id="syllabus-filter" class="forge-select" style="width: 150px;">
+                            <option value="all">All Subjects</option>
+                            <option value="pending">Pending</option>
+                            <option value="progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
                 </div>
-
-                <div class="card" style="padding:0; overflow-x:auto;">
-                    <table class="syllabus-table">
-                        <thead>
-                            <tr>
-                                <th>Subject</th>
-                                <th>Weightage</th>
-                                <th>Resource</th>
-                                <th>Lectures</th>
-                                <th>Notes</th>
-                                <th>PYQs</th>
-                                <th>Revision</th>
-                                <th>Mock Test</th>
-                                <th>Progress</th>
-                            </tr>
-                        </thead>
-                        <tbody id="syllabus-table-body">
-                            <!-- Injected dynamically -->
-                        </tbody>
-                    </table>
+                <div id="syllabus-cards-container">
+                    <!-- Dynamic subject cards -->
                 </div>
-            </div>
+            </section>
 
-            <!-- 4. LECTURE TRACKER -->
-            <div id="view-lectures" class="view-section">
-                <div style="margin-bottom:20px;">
-                    <h2>Lecture & Chapter Execution Tracker</h2>
-                    <p style="color:var(--text-secondary); font-size:0.9rem;">Track video lectures and chapter completion live</p>
-                </div>
-
-                <div class="grid-asym" style="margin-bottom:20px;">
+            <!-- TAB 4: LECTURE PROGRESS TRACKER -->
+            <section id="pane-lectures" class="tab-pane">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <div>
-                        <label style="font-size:0.8rem; color:var(--text-muted); display:block; margin-bottom:6px;">SELECT PHASE & SUBJECT</label>
-                        <div style="display:flex; gap:12px;">
-                            <select id="lecture-phase-select" onchange="onLecturePhaseChange()">
-                                <!-- Injected -->
-                            </select>
-                            <select id="lecture-subject-select" onchange="renderLectureChapters()">
-                                <!-- Injected -->
-                            </select>
-                        </div>
+                        <h2>Lecture Progress Tracker</h2>
+                        <p>Execution engine with modern numeric steppers.</p>
                     </div>
-                    <div class="card" style="padding:14px; display:flex; align-items:center; justify-content:space-between;">
-                        <div>
-                            <div style="font-size:0.75rem; color:var(--text-muted);">SUBJECT PROGRESS</div>
-                            <div style="font-size:1.2rem; font-weight:700; color:var(--accent-primary);" id="lecture-subject-pct">0%</div>
-                        </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:0.75rem; color:var(--text-muted);">WATCHED / TOTAL LECTURES</div>
-                            <div style="font-size:1rem; font-weight:600;" id="lecture-watched-count">0 / 0</div>
-                        </div>
-                    </div>
+                    <button class="btn-primary" id="btn-resume-studying">▶ Resume Studying</button>
                 </div>
-
-                <div id="lecture-chapters-list">
-                    <!-- Chapters injected dynamically with glowing borders -->
+                <div id="lecture-hierarchy-container">
+                    <!-- Hierarchical accordion view -->
                 </div>
-            </div>
+            </section>
 
-            <!-- 5. MOCK TEST TRACKER -->
-            <div id="view-mock" class="view-section">
-                <div style="margin-bottom:20px;">
-                    <h2>Mock Test Analytics & Performance</h2>
-                    <p style="color:var(--text-secondary); font-size:0.9rem;">Track performance trends across subject & full-length tests</p>
+            <!-- TAB 5: REVISION SYSTEM -->
+            <section id="pane-revision" class="tab-pane">
+                <div style="margin-bottom: 20px;">
+                    <h2>Automated Revision Engine</h2>
+                    <p>Only completed chapters are eligible for revision queuing.</p>
                 </div>
-
-                <!-- Performance Trend Analytics Header Area -->
-                <div class="card" style="margin-bottom:24px;">
-                    <div class="card-title">Performance Trend Analytics</div>
-                    <div class="grid-4" style="margin-top:15px;">
-                        <div class="cd-box"><div class="cd-val" id="mock-stat-total">0</div><div class="cd-lbl">Total Mocks</div></div>
-                        <div class="cd-box"><div class="cd-val" id="mock-stat-avg">0</div><div class="cd-lbl">Avg Score</div></div>
-                        <div class="cd-box"><div class="cd-val" id="mock-stat-high">0</div><div class="cd-lbl">Highest Score</div></div>
-                        <div class="cd-box"><div class="cd-val" id="mock-stat-acc">0%</div><div class="cd-lbl">Avg Accuracy</div></div>
-                    </div>
+                <div class="dashboard-grid" style="margin-bottom: 20px;">
+                    <div class="forge-card col-3"><div class="card-title">Due Today</div><div id="rev-stat-due" style="font-size: 1.8rem; font-weight: bold; color: var(--color-warning);">0</div></div>
+                    <div class="forge-card col-3"><div class="card-title">Overdue</div><div id="rev-stat-overdue" style="font-size: 1.8rem; font-weight: bold; color: var(--color-danger);">0</div></div>
+                    <div class="forge-card col-3"><div class="card-title">Completed Revisions</div><div id="rev-stat-done" style="font-size: 1.8rem; font-weight: bold; color: var(--color-success);">0</div></div>
+                    <div class="forge-card col-3"><div class="card-title">Total Eligible</div><div id="rev-stat-total" style="font-size: 1.8rem; font-weight: bold;">0</div></div>
                 </div>
+                <div id="revision-queue-list">
+                    <!-- Revision cards -->
+                </div>
+            </section>
 
-                <div class="grid-asym">
+            <!-- TAB 6: MISTAKE REGISTER -->
+            <section id="pane-mistakes" class="tab-pane">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                     <div>
-                        <h3 style="font-size:1rem; margin-bottom:12px;">Mock Test Log</h3>
-                        <div id="mock-history-list">
-                            <div class="empty-state">No mock tests added yet.</div>
+                        <h2>Mistake Register</h2>
+                        <p>Personal knowledge base of errors to never repeat.</p>
+                    </div>
+                    <button class="btn-primary" id="btn-open-add-mistake">+ New Mistake</button>
+                </div>
+                <div id="mistakes-list-container" class="dashboard-grid">
+                    <!-- Mistake Cards -->
+                </div>
+            </section>
+
+            <!-- TAB 7: MOCK TEST TRACKER -->
+            <section id="pane-mocks" class="tab-pane">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div>
+                        <h2>Mock Test Analytics</h2>
+                        <p>Performance evaluation & trend analytics.</p>
+                    </div>
+                    <button class="btn-primary" id="btn-open-add-mock">+ Record Mock Test</button>
+                </div>
+
+                <!-- ANALYTICS AREA TOP -->
+                <div class="forge-card" style="margin-bottom: 20px;">
+                    <div class="card-title" style="margin-bottom: 10px;">Performance Score Trend</div>
+                    <div style="height: 150px; width: 100%; display: flex; align-items: center; justify-content: center;" id="mock-trend-chart-box">
+                        <svg id="mock-svg-chart" style="width: 100%; height: 100%; overflow: visible;"></svg>
+                    </div>
+                </div>
+
+                <div id="mocks-list-container">
+                    <!-- Mock cards -->
+                </div>
+            </section>
+
+            <!-- TAB 8: AI STUDY COACH -->
+            <section id="pane-aicoach" class="tab-pane">
+                <div style="margin-bottom: 20px;">
+                    <h2>AI Study Coach</h2>
+                    <p>Intelligent mentor analyzing state real-time.</p>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="forge-card col-4">
+                        <div class="card-title">Coach Insights</div>
+                        <div id="ai-insights-box" style="margin-top: 14px; font-size: 13px; color: var(--text-secondary); display: flex; flex-direction: column; gap: 10px;">
+                            <!-- Calculated AI analysis -->
                         </div>
                     </div>
-                    <div>
-                        <div class="card">
-                            <div class="card-title" style="margin-bottom:12px;">Record New Mock Test</div>
-                            <div style="display:flex; flex-direction:column; gap:12px;">
-                                <input type="text" id="mock-input-name" placeholder="Mock Test Name (e.g. SOM Test 1)">
-                                <select id="mock-input-type">
-                                    <option value="Subject Mock">Subject Mock</option>
-                                    <option value="Full-Length Mock">Full-Length Mock</option>
+                    <div class="forge-card col-8" style="display: flex; flex-direction: column; height: 500px;">
+                        <div class="card-title">Mentor Chat</div>
+                        <div id="ai-chat-history" style="flex-grow: 1; overflow-y: auto; margin: 14px 0; display: flex; flex-direction: column; gap: 10px; padding-right: 6px;">
+                            <div style="background: var(--bg-elevated); padding: 12px; border-radius: var(--radius-md); max-width: 80%;">
+                                Welcome to Forge AI. I read all your real preparation statistics. Ask me what to study today or request an overall readiness analysis!
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="ai-chat-input" class="forge-input" placeholder="Ask your AI coach...">
+                            <button class="btn-primary" id="btn-ai-send">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 9: DAILY JOURNAL & FOCUS -->
+            <section id="pane-journal" class="tab-pane">
+                <div style="margin-bottom: 20px;">
+                    <h2>Daily Journal & Goals</h2>
+                    <p>Record daily reflection and set goals for tomorrow.</p>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="forge-card col-6">
+                        <div class="card-title">Today's Reflection</div>
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
+                            <div>
+                                <label style="font-size: 12px; color: var(--text-muted);">Today's Mood</label>
+                                <select id="journal-mood" class="forge-select" style="margin-top: 4px;">
+                                    <option value="Excellent">🚀 Excellent</option>
+                                    <option value="Good" selected>🙂 Good</option>
+                                    <option value="Neutral">😐 Neutral</option>
+                                    <option value="Tired">😴 Tired</option>
+                                    <option value="Burned Out">🔥 Burned Out</option>
                                 </select>
-                                <div style="display:flex; gap:10px;">
-                                    <div>
-                                        <label style="font-size:0.75rem; color:var(--text-muted);">SCORE</label>
-                                        <div class="stepper-container" style="margin-top:4px;">
-                                            <button class="stepper-btn" onclick="stepVal('mock-input-score', -1)">-</button>
-                                            <input type="number" id="mock-input-score" value="0" class="stepper-input">
-                                            <button class="stepper-btn" onclick="stepVal('mock-input-score', 1)">+</button>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label style="font-size:0.75rem; color:var(--text-muted);">TOTAL MARKS</label>
-                                        <div class="stepper-container" style="margin-top:4px;">
-                                            <button class="stepper-btn" onclick="stepVal('mock-input-total', -5)">-</button>
-                                            <input type="number" id="mock-input-total" value="100" class="stepper-input">
-                                            <button class="stepper-btn" onclick="stepVal('mock-input-total', 5)">+</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <button class="btn" style="margin-top:10px;" onclick="addMockTest()">Save Mock Test</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 6. DAILY JOURNAL -->
-            <div id="view-journal" class="view-section">
-                <div style="margin-bottom:20px;">
-                    <h2>Daily Journal & Goal Setting</h2>
-                    <p style="color:var(--text-secondary); font-size:0.9rem;">Record daily reflections and set tomorrow's objectives</p>
-                </div>
-
-                <div class="grid-asym">
-                    <div class="card">
-                        <div class="card-title" style="margin-bottom:12px;">Today's Entry</div>
-                        <div style="display:flex; flex-direction:column; gap:14px;">
-                            <div>
-                                <label style="font-size:0.8rem; color:var(--text-muted);">NEXT DAY'S GOALS (Will display in Dashboard under "Today's Goals")</label>
-                                <textarea id="journal-next-goals" rows="3" placeholder="Enter goals for tomorrow..." style="margin-top:6px;"></textarea>
                             </div>
                             <div>
-                                <label style="font-size:0.8rem; color:var(--text-muted);">DAILY REFLECTION & NOTES</label>
-                                <textarea id="journal-reflection" rows="6" placeholder="What went well today? What challenges did you face?" style="margin-top:6px;"></textarea>
+                                <label style="font-size: 12px; color: var(--text-muted);">Study Hours Logged Today</label>
+                                <input type="number" id="journal-hours" class="forge-input" value="0" min="0" step="0.5" style="margin-top: 4px;">
                             </div>
-                            <button class="btn" style="width:fit-content;" onclick="saveJournalEntry()">Save Journal Entry</button>
+                            <div>
+                                <label style="font-size: 12px; color: var(--text-muted);">Journal Entry & Notes</label>
+                                <textarea id="journal-content" class="forge-textarea" rows="4" placeholder="How was your study session today?" style="margin-top: 4px;"></textarea>
+                            </div>
+                            <!-- SPECIAL REQUIREMENT: NEXT DAY'S GOAL -->
+                            <div style="background: rgba(99, 102, 241, 0.1); padding: 12px; border-radius: var(--radius-md); border: 1px dashed var(--accent-primary);">
+                                <label style="font-size: 12px; color: var(--accent-primary); font-weight: 600;">🎯 Enter Next Day's Goal</label>
+                                <input type="text" id="journal-next-goal" class="forge-input" placeholder="e.g. Finish Torsion Lecture 15 & Solve 20 PYQs" style="margin-top: 6px;">
+                                <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">This goal will automatically display in the Dashboard under 'Today's Goals' on the next day!</div>
+                            </div>
+                            <button class="btn-primary" id="btn-save-journal">Save Journal Entry</button>
                         </div>
                     </div>
-
-                    <div>
-                        <div class="card">
-                            <div class="card-title" style="margin-bottom:12px;">Journal History</div>
-                            <div id="journal-history-list">
-                                <div class="empty-state">No journal entries saved yet.</div>
-                            </div>
+                    <div class="forge-card col-6">
+                        <div class="card-title">Previous Timeline</div>
+                        <div id="journal-timeline-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px; max-height: 400px; overflow-y: auto;">
+                            <!-- Historical entries -->
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
+        </main>
+    </div>
+
+    <!-- FOCUS MODE FULLSCREEN WORKSPACE -->
+    <div id="focus-screen">
+        <div style="color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;">DEEP WORK FOCUS MODE</div>
+        <div id="focus-task-title" style="font-size: 1.5rem; font-weight: bold; margin-top: 8px;">Strength of Materials — Torsion</div>
+        <div class="focus-timer-clock" id="focus-clock-display">25:00</div>
+        <div style="display: flex; gap: 14px;">
+            <button class="btn-primary" id="btn-focus-toggle">Pause</button>
+            <button class="btn-header" id="btn-focus-end" style="border-color: var(--color-danger); color: var(--color-danger);">End Session</button>
         </div>
     </div>
 
+    <!-- MODAL: ADD MISTAKE -->
+    <div class="modal-overlay" id="modal-mistake">
+        <div class="modal-card">
+            <h3 style="margin-bottom: 16px;">Record New Mistake</h3>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <input type="text" id="mistake-input-title" class="forge-input" placeholder="Mistake Title (e.g. Sign convention in Torsion)">
+                <select id="mistake-select-subject" class="forge-select"></select>
+                <select id="mistake-select-type" class="forge-select">
+                    <option value="Conceptual">Conceptual Error</option>
+                    <option value="Formula">Formula Error</option>
+                    <option value="Calculation">Calculation Mistake</option>
+                    <option value="Units">Units & Conversion</option>
+                </select>
+                <select id="mistake-select-severity" class="forge-select">
+                    <option value="Low">Low Severity</option>
+                    <option value="Medium" selected>Medium Severity</option>
+                    <option value="High">High Severity</option>
+                    <option value="Critical">Critical</option>
+                </select>
+                <textarea id="mistake-input-desc" class="forge-textarea" rows="3" placeholder="Detailed explanation of what went wrong..."></textarea>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                    <button class="btn-header" id="btn-close-mistake-modal">Cancel</button>
+                    <button class="btn-primary" id="btn-save-mistake">Save Entry</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ADD MOCK TEST -->
+    <div class="modal-overlay" id="modal-mock">
+        <div class="modal-card">
+            <h3 style="margin-bottom: 16px;">Record Mock Test Result</h3>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <input type="text" id="mock-input-title" class="forge-input" placeholder="Mock Name (e.g. SOM Subject Test 1)">
+                <select id="mock-select-type" class="forge-select">
+                    <option value="Subject Mock">Subject-wise Mock</option>
+                    <option value="Full Length">Full-Length Mock</option>
+                </select>
+                <select id="mock-select-subject" class="forge-select"></select>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="mock-input-score" class="forge-input" placeholder="Score Obtained">
+                    <input type="number" id="mock-input-total" class="forge-input" placeholder="Total Score" value="100">
+                </div>
+                <textarea id="mock-input-notes" class="forge-textarea" rows="2" placeholder="Analysis notes..."></textarea>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+                    <button class="btn-header" id="btn-close-mock-modal">Cancel</button>
+                    <button class="btn-primary" id="btn-save-mock">Save Result</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION ENGINE -->
     <script>
-        /* Global Data Architecture */
-        const APP_STORAGE_KEY = "FORGE_GATE_2027_DATA";
-
-        // Appendix B & C Academic Dataset
-        const SYLLABUS_DATA = [
-            { id: "SOM", name: "Strength of Materials", weight: "8-10 Marks", priority: 1, defaultResource: "PW Full Course", chapters: ["Introduction and Properties of Materials", "Axially Loaded Members", "Torsion in Circular Shafts", "Shear Forces and Bending Moments", "Bending Stresses in Beams", "Shear Stresses in Beams", "Deflection of Beams", "Energy Methods", "Complex Stresses", "Complex Strains", "Combined Loadings", "Pressure Vessels", "Columns"], phase: 1 },
-            { id: "EM", name: "Engineering Mechanics", weight: "4-5 Marks", priority: 2, defaultResource: "YouTube GateWallah", chapters: ["Basic Concepts", "Equilibrium", "Friction and It’s Applications", "Truss and Frames", "Centroid", "Moment of Inertia", "Kinematics of Particles", "Kinematics of Rigid Bodies", "Kinetics of Particles", "Kinetics of Rigid Bodies", "Lagrange’s Equation of Motion"], phase: 2 },
-            { id: "TOM", name: "Theory of Machines & Vibrations", weight: "8-10 Marks", priority: 3, defaultResource: "PW Full Course", chapters: ["Simple Mechanism", "Velocity Analysis", "Acceleration Analysis", "Gear", "Gear Train", "Analysis of Slider Crank Mechanism", "Flywheel", "Balancing", "Vibration", "Gyroscope", "Cam and Follower", "Governor"], phase: 2 },
-            { id: "FM", name: "Fluid Mechanics & Machinery", weight: "7-8 Marks", priority: 4, defaultResource: "PW Full Course", chapters: ["Fluid and It’s Properties", "Pressure and It’s Measurement", "Hydrostatic Forces", "Buoyancy and Stability", "Fluid Kinematics", "Fluid Dynamics", "Laminar FLow", "Flow through Pipes", "Boundary Layer Theory", "Dimensional Analysis and Model Studies", "Turbulent Flow", "Drag and Lift", "Basic Principles of Turbomachinery", "Turbines", "Pumps", "Compressors", "Steam and Gas Turbines", "Theory of Jet Propulsion"], phase: 3 },
-            { id: "MP1", name: "Manufacturing Process-I", weight: "6-7 Marks", priority: 5, defaultResource: "PW Full Course", chapters: ["Theory of Metal Cutting", "Tool Life", "Non Traditional Machining Method", "Welding", "(NC, CNC)", "Machine Tool", "Additive Manufacturing"], phase: 3 },
-            { id: "MP2", name: "Manufacturing Process-II", weight: "5-6 Marks", priority: 6, defaultResource: "PW Full Course", chapters: ["Metal Forming", "Metrology", "Additional Topic", "Casting"], phase: 3 },
-            { id: "MD", name: "Machine Design", weight: "4-5 Marks", priority: 7, defaultResource: "PW Full Course", chapters: ["Brakes", "Clutches", "Design against Static Loads", "Design against Fluctuating Loads", "(Welded, Riveted and Bolted Joints)", "Bearings", "Gears", "Springs", "(Shafts, Keys and Coupling)"], phase: 4 },
-            { id: "IE", name: "Industrial Engineering", weight: "5-6 Marks", priority: 8, defaultResource: "PW Full Course", chapters: ["Forecasting", "Break Even Analysis", "Production Planning", "Linear Porgramming", "Simplex Method", "Assignment", "Transportation", "PERT & CPM", "Inventory Control", "Queuing Theory and Line Balancing", "(Work Study, MRP and Plant Layout)"], phase: 4 },
-            { id: "MS", name: "Material Science", weight: "3-4 Marks", priority: 9, defaultResource: "YouTube Concise", chapters: ["Introduction to Material Science", "Phase Diagrams", "Dislocation Theory", "Additional Topic", "TTT Diagram", "Heat Treatment", "Crystallography", "Corrosion", "Nano Material and Polymer", "Ceramic and Composite"], phase: 4 },
-            { id: "GA", name: "General Aptitude", weight: "10 Marks", priority: 10, defaultResource: "Self Notes / PYQs", chapters: ["Quantitative Aptitude", "Analytical Reasoning", "Spatial Aptitude"], phase: 4 },
-            { id: "VA", name: "Verbal Aptitude", weight: "5 Marks", priority: 11, defaultResource: "Self Notes / PYQs", chapters: ["Parts of Speech", "Vocabulary", "Reading Comprehension and Miscellaneous"], phase: 4 },
-            { id: "HT", name: "Heat Transfer", weight: "4-5 Marks", priority: 12, defaultResource: "PW Selective", chapters: ["Introduction", "Steady Conduction Heat Transfer", "Critical Radius of Insulation", "Fins", "Unsteady –Transient Conduction Heat Transfer", "Convection Heat Transfer", "Radiation Heat Transfer", "Heat Exchanger"], phase: 4 },
-            { id: "BTHERMO", name: "Basic Thermodynamics", weight: "4-5 Marks", priority: 13, defaultResource: "PW Full Course", chapters: ["Basic Concepts", "Work and Heat", "First Law of Thermodynamics", "Second Law of Thermodynamics", "Entropy", "Exergy", "Properties of Substances", "Thermodynamic Relations"], phase: 1 },
-            { id: "ATHERMO", name: "Applied Thermodynamics", weight: "4-5 Marks", priority: 14, defaultResource: "PW Full Course", chapters: ["VCRS", "Analysis of VCRS", "Vapor Absorption System", "Gas Refrigeration", "Psychrometry", "Thermodynamic Cycles", "Otto Cycle Analysis", "Diesel Cycle Analysis", "Dual Cycle Analysis", "Engine Tests and Analysis", "Brayton Cycle", "Rankine Cycle", "Centrifugal Air Compressors", "Axial Compressors", "Steam Turbine", "Powerplant Auxiliaries", "Compressible Flow"], phase: 1 },
-            { id: "EMATH", name: "Engineering Mathematics", weight: "13 Marks", priority: 15, defaultResource: "PW Full Course", chapters: ["Linear Algebra", "Calculus", "Vector Calculus", "Complex Analysis", "Differential Equations", "Numerical Methods", "Transform Theory and Fourier Series", "Probability and Statistics"], phase: 1 }
-        ];
-
+        /* ==========================================================================
+           1. OFFICIAL GATE 2027 DATASETS & CONSTANTS (APPENDIX B & C)
+           ========================================================================== */
         const ROADMAP_PHASES = [
-            { phase: 1, title: "Phase 1 - Momentum and SOM Completion", dates: "25 July - 15 August", desc: "Finish Strength of Materials properly and restart a stable study rhythm." },
-            { phase: 2, title: "Phase 2 - Core Mechanics", dates: "16 August - 30 September", desc: "Build the mechanics base without wasting time repeating Engineering Mechanics." },
-            { phase: 3, title: "Phase 3 - Fluids and Manufacturing", dates: "1 October - 10 November", desc: "Complete two major, high-return areas while earlier subjects remain active." },
-            { phase: 4, title: "Phase 4 - Design, Management, and Compressed Subjects", dates: "11 November - 10 December", desc: "Finish the remaining high-return subjects; do not turn lower-return subjects into a time sink." },
-            { phase: 5, title: "Phase 5 - Consolidation", dates: "11 December - 31 December", desc: "No planned new major subject. Turn studied once into retrievable under pressure." },
-            { phase: 6, title: "Phase 6 - Final Attack", dates: "January - Examination", desc: "No new resources. Score improvement comes from analysis and recall." }
+            {
+                id: "phase1",
+                title: "Phase 1 - Momentum and SOM Completion",
+                dates: "25 July - 15 August",
+                desc: "Finish Strength of Materials properly and restart a stable study rhythm.",
+                subjects: ["Strength of Materials", "Engineering Mathematics", "Basic Thermodynamics", "Applied Thermodynamics"]
+            },
+            {
+                id: "phase2",
+                title: "Phase 2 - Core Mechanics",
+                dates: "16 August - 30 September",
+                desc: "Build the mechanics base without wasting time repeating Engineering Mechanics.",
+                subjects: ["Engineering Mechanics", "Theory of Machines & Vibrations"]
+            },
+            {
+                id: "phase3",
+                title: "Phase 3 - Fluids and Manufacturing",
+                dates: "1 October - 10 November",
+                desc: "Complete two major, high-return areas while earlier subjects remain active.",
+                subjects: ["Fluid Mechanics & Machinery", "Manufacturing Process I", "Manufacturing Process II"]
+            },
+            {
+                id: "phase4",
+                title: "Phase 4 - Design, Management, and Compressed Subjects",
+                dates: "11 November - 10 December",
+                desc: "Finish the remaining high-return subjects; do not turn lower-return subjects into a time sink.",
+                subjects: ["Machine Design", "Industrial Engineering", "Material Science", "General Aptitude", "Verbal Aptitude", "Heat Transfer"]
+            }
         ];
 
-        // Initial App State
-        let appState = {
-            syllabus: {},
-            chapters: {},
-            mocks: [],
-            journals: [],
-            quickNotes: "",
-            lastJournalDate: ""
+        const SUBJECT_CHAPTERS_DATA = {
+            "Applied Thermodynamics": ["VCRS", "Analysis of VCRS", "Vapor Absorption System", "Gas Refrigeration", "Psychrometry", "Thermodynamic Cycles", "Otto Cycle Analysis", "Diesel Cycle Analysis", "Dual Cycle Analysis", "Engine Tests and Analysis", "Brayton Cycle", "Rankine Cycle", "Centrifugal Air Compressors", "Axial Compressors", "Steam Turbine", "Powerplant Auxiliaries", "Compressible Flow"],
+            "Basic Thermodynamics": ["Basic Concepts", "Work and Heat", "First Law of Thermodynamics", "Second Law of Thermodynamics", "Entropy", "Exergy", "Properties of Substances", "Thermodynamic Relations"],
+            "Engineering Mathematics": ["Linear Algebra", "Calculus", "Vector Calculus", "Complex Analysis", "Differential Equations", "Numerical Methods", "Transform Theory and Fourier Series", "Probability and Statistics"],
+            "Engineering Mechanics": ["Basic Concepts", "Equilibrium", "Friction and It’s Applications", "Truss and Frames", "Centroid", "Moment of Inertia", "Kinematics of Particles", "Kinematics of Rigid Bodies", "Kinetics of Particles", "Kinetics of Rigid Bodies", "Lagrange’s Equation of Motion"],
+            "Fluid Mechanics & Machinery": ["Fluid and It’s Properties", "Pressure and It’s Measurement", "Hydrostatic Forces", "Buoyancy and Stability", "Fluid Kinematics", "Fluid Dynamics", "Laminar FLow", "Flow through Pipes", "Boundary Layer Theory", "Dimensional Analysis and Model Studies", "Turbulent Flow", "Drag and Lift", "Basic Principles of Turbomachinery", "Turbines", "Pumps", "Compressors", "Steam and Gas Turbines", "Theory of Jet Propulsion"],
+            "General Aptitude": ["Quantitative Aptitude", "Analytical Reasoning", "Spatial Aptitude"],
+            "Heat Transfer": ["Introduction", "Steady Conduction Heat Transfer", "Critical Radius of Insulation", "Fins", "Unsteady –Transient Conduction Heat Transfer", "Convection Heat Transfer", "Radiation Heat Transfer", "Heat Exchanger"],
+            "Industrial Engineering": ["Forecasting", "Break Even Analysis", "Production Planning", "Linear Porgramming", "Simplex Method", "Assignment", "Transportation", "PERT & CPM", "Inventory Control", "Queuing Theory and Line Balancing", "Work Study, MRP and Plant Layout"],
+            "Machine Design": ["Brakes", "Clutches", "Design against Static Loads", "Design against Fluctuating Loads", "Welded, Riveted and Bolted Joints", "Bearings", "Gears", "Springs", "Shafts, Keys and Coupling"],
+            "Manufacturing Process I": ["Theory of Metal Cutting", "Tool Life", "Non Traditional Machining Method", "Welding", "NC, CNC", "Machine Tool", "Additive Manufacturing"],
+            "Manufacturing Process II": ["Metal Forming", "Metrology", "Additional Topic", "Casting"],
+            "Material Science": ["Introduction to Material Science", "Phase Diagrams", "Dislocation Theory", "Additional Topic", "TTT Diagram", "Heat Treatment", "Crystallography", "Corrosion", "Nano Material and Polymer", "Ceramic and Composite"],
+            "Strength of Materials": ["Introduction and Properties of Materials", "Axially Loaded Members", "Torsion in Circular Shafts", "Shear Forces and Bending Moments", "Bending Stresses in Beams", "Shear Stresses in Beams", "Deflection of Beams", "Energy Methods", "Complex Stresses", "Complex Strains", "Combined Loadings", "Pressure Vessels", "Columns"],
+            "Theory of Machines & Vibrations": ["Simple Mechanism", "Velocity Analysis", "Acceleration Analysis", "Gear", "Gear Train", "Analysis of Slider Crank Mechanism", "Flywheel", "Balancing", "Vibration", "Gyroscope", "Cam and Follower", "Governor"],
+            "Verbal Aptitude": ["Parts of Speech", "Vocabulary", "Reading Comprehension and Miscellaneous"]
         };
 
-        /* Initialize Store */
-        function initStore() {
-            const saved = localStorage.getItem(APP_STORAGE_KEY);
-            if (saved) {
-                try {
-                    appState = JSON.parse(saved);
-                } catch(e) { console.error("Error loading saved state", e); }
-            }
+        const SUBJECT_METADATA = {
+            "Strength of Materials": { weight: "8-10%", priority: "High", resource: "PW Full Course" },
+            "Engineering Mathematics": { weight: "13%", priority: "High", resource: "PW / YouTube" },
+            "Fluid Mechanics & Machinery": { weight: "8-9%", priority: "High", resource: "PW Full Course" },
+            "Theory of Machines & Vibrations": { weight: "8-10%", priority: "High", resource: "PW Full Course" },
+            "Manufacturing Process I": { weight: "7-8%", priority: "High", resource: "PW Full Course" },
+            "Manufacturing Process II": { weight: "6-7%", priority: "Medium", resource: "PW Full Course" },
+            "Industrial Engineering": { weight: "5-6%", priority: "Medium", resource: "PW / Practice" },
+            "Machine Design": { weight: "4-5%", priority: "Medium", resource: "PW Full Course" },
+            "Basic Thermodynamics": { weight: "4-5%", priority: "High", resource: "Self / PW" },
+            "Applied Thermodynamics": { weight: "4-5%", priority: "Medium", resource: "PW Full Course" },
+            "Heat Transfer": { weight: "4-5%", priority: "Medium", resource: "Selective PW" },
+            "Engineering Mechanics": { weight: "3-4%", priority: "Medium", resource: "YouTube" },
+            "Material Science": { weight: "3-4%", priority: "Low", resource: "YouTube concise" },
+            "General Aptitude": { weight: "12%", priority: "High", resource: "Practice PYQs" },
+            "Verbal Aptitude": { weight: "3%", priority: "Low", resource: "Practice PYQs" }
+        };
 
-            // Ensure every subject has a default structure
-            SYLLABUS_DATA.forEach(sub => {
-                if (!appState.syllabus[sub.id]) {
-                    appState.syllabus[sub.id] = {
-                        resource: sub.defaultResource,
+        /* ==========================================================================
+           2. CENTRAL APP STATE STORE (Zero fake data on first run)
+           ========================================================================== */
+        const STORAGE_KEY = "FORGE_GATE_2027_STATE_V1";
+
+        function createInitialState() {
+            const subjectsObj = {};
+            
+            Object.keys(SUBJECT_CHAPTERS_DATA).forEach(subName => {
+                const chapters = SUBJECT_CHAPTERS_DATA[subName].map(chapName => ({
+                    name: chapName,
+                    status: "Pending", // Pending, In Progress, Completed
+                    totalLectures: 4,
+                    watchedLectures: 0,
+                    revisionsCount: 0,
+                    lastRevised: null
+                }));
+
+                subjectsObj[subName] = {
+                    resource: SUBJECT_METADATA[subName].resource,
+                    status: "Pending", // Pending, In Progress, Completed
+                    categories: {
                         lectures: "Pending",
                         notes: "Pending",
                         pyqs: "Pending",
                         revision: "Pending",
                         mock: "Pending"
-                    };
-                }
-                // Chapter progress tracking
-                sub.chapters.forEach(ch => {
-                    const chKey = `${sub.id}_${ch}`;
-                    if (!appState.chapters[chKey]) {
-                        appState.chapters[chKey] = "Pending"; // "Pending", "In Progress", "Completed"
-                    }
-                });
+                    },
+                    chapters: chapters
+                };
             });
 
-            saveStore();
-        }
-
-        function saveStore() {
-            localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(appState));
-            syncAppUI();
-        }
-
-        /* Number Stepper Utility */
-        function stepVal(inputId, delta) {
-            const input = document.getElementById(inputId);
-            if (!input) return;
-            let val = parseInt(input.value) || 0;
-            val = Math.max(0, val + delta);
-            input.value = val;
-        }
-
-        /* View Switching */
-        function switchView(viewId, el) {
-            document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            
-            const targetView = document.getElementById(`view-${viewId}`);
-            if (targetView) targetView.classList.add('active');
-            if (el) el.classList.add('active');
-
-            const titles = {
-                dashboard: "Mission Control Dashboard",
-                roadmap: "GATE 2027 Structured Roadmap",
-                syllabus: "Syllabus Progress Tracker",
-                lectures: "Lecture & Chapter Execution Tracker",
-                mock: "Mock Test Analytics & Performance",
-                journal: "Daily Journal & Goal Setting"
+            return {
+                subjects: subjectsObj,
+                mistakes: [],
+                mocks: [],
+                journals: {}, // "YYYY-MM-DD": { content, mood, hours, nextGoal }
+                quickNotes: "",
+                goalsToday: []
             };
-            document.getElementById('current-view-title').innerText = titles[viewId] || "Forge OS";
         }
 
-        /* Sync Application UI across all dependent modules */
-        function syncAppUI() {
-            updateCountdown();
+        let appState = loadState();
+
+        function loadState() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (!saved) return createInitialState();
+            try { return JSON.parse(saved); } catch (e) { return createInitialState(); }
+        }
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            syncAllEngines();
+        }
+
+        /* ==========================================================================
+           3. CORE SYNC & CALCULATION ENGINES
+           ========================================================================== */
+        function getSubjectProgressPct(subName) {
+            const sub = appState.subjects[subName];
+            if (!sub) return 0;
+
+            let totalLectures = 0;
+            let watchedLectures = 0;
+            sub.chapters.forEach(c => {
+                totalLectures += (c.totalLectures || 1);
+                watchedLectures += (c.watchedLectures || 0);
+            });
+
+            const lecPct = totalLectures > 0 ? (watchedLectures / totalLectures) * 100 : 0;
+            
+            // Weighted model: Lectures 35%, Notes 20%, PYQs 20%, Revision 15%, Mock 10%
+            const notesPct = sub.categories.notes === "Completed" ? 100 : (sub.categories.notes === "In Progress" ? 50 : 0);
+            const pyqPct = sub.categories.pyqs === "Completed" ? 100 : (sub.categories.pyqs === "In Progress" ? 50 : 0);
+            const revPct = sub.categories.revision === "Completed" ? 100 : (sub.categories.revision === "In Progress" ? 50 : 0);
+            const mockPct = sub.categories.mock === "Completed" ? 100 : (sub.categories.mock === "In Progress" ? 50 : 0);
+
+            const total = (lecPct * 0.35) + (notesPct * 0.20) + (pyqPct * 0.20) + (revPct * 0.15) + (mockPct * 0.10);
+            return Math.min(100, Math.round(total));
+        }
+
+        function getOverallProgressPct() {
+            const subNames = Object.keys(appState.subjects);
+            if (subNames.length === 0) return 0;
+            let sum = 0;
+            subNames.forEach(name => {
+                sum += getSubjectProgressPct(name);
+            });
+            return Math.round(sum / subNames.length);
+        }
+
+        function getReadinessScore() {
+            const overall = getOverallProgressPct();
+            const completedSubs = Object.keys(appState.subjects).filter(s => appState.subjects[s].status === "Completed").length;
+            if (completedSubs === 0 && overall === 0) return { score: 0, text: "Unavailable", desc: "Complete your first subject to calculate readiness." };
+
+            let base = overall * 0.6 + (completedSubs * 2.5);
+            if (appState.mocks.length > 0) {
+                const avgMock = appState.mocks.reduce((acc, m) => acc + (m.score / m.total * 100), 0) / appState.mocks.length;
+                base = (base * 0.7) + (avgMock * 0.3);
+            }
+            const score = Math.min(100, Math.round(base));
+            let text = "Keep Going";
+            if (score >= 80) text = "Excellent";
+            else if (score >= 50) text = "Good Progress";
+
+            return { score, text, desc: `Calculated from ${completedSubs} completed subjects and active stats.` };
+        }
+
+        function syncAllEngines() {
+            // Update Subject Statuses based on categories & chapters
+            Object.keys(appState.subjects).forEach(sName => {
+                const sub = appState.subjects[sName];
+                const pct = getSubjectProgressPct(sName);
+                if (pct === 100 && sub.categories.lectures === "Completed" && sub.categories.pyqs === "Completed") {
+                    sub.status = "Completed";
+                } else if (pct > 0) {
+                    sub.status = "In Progress";
+                } else {
+                    sub.status = "Pending";
+                }
+            });
+
             renderDashboard();
             renderRoadmap();
             renderSyllabusTracker();
-            renderLectureTrackerOptions();
-            renderMockTracker();
+            renderLectureTracker();
+            renderRevisionEngine();
+            renderMistakes();
+            renderMocks();
+            renderAICoach();
             renderJournal();
         }
 
-        /* 1. Countdown & Greeting */
-        function updateCountdown() {
-            const gateDate = new Date("February 6, 2027 09:30:00").getTime();
+        /* ==========================================================================
+           4. UI RENDER FUNCTIONS
+           ========================================================================== */
+
+        // DASHBOARD RENDER
+        function renderDashboard() {
+            // Countdown
+            const gateDate = new Date("February 6, 2027 09:00:00").getTime();
             const now = new Date().getTime();
             const diff = gateDate - now;
+            const daysLeft = Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+            document.getElementById("dash-countdown-days").innerText = daysLeft;
 
-            if (diff > 0) {
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const overallPct = getOverallProgressPct();
+            document.getElementById("dash-prep-journey-pct").innerText = overallPct + "%";
+            document.getElementById("dash-journey-bar").style.width = overallPct + "%";
+            
+            document.getElementById("dash-overall-pct").innerText = overallPct + "%";
+            document.getElementById("dash-overall-bar").style.width = overallPct + "%";
 
-                document.getElementById('cd-days').innerText = String(days).padStart(3, '0');
-                document.getElementById('cd-hours').innerText = String(hours).padStart(2, '0');
-                document.getElementById('cd-mins').innerText = String(mins).padStart(2, '0');
-            }
+            // Readiness
+            const readiness = getReadinessScore();
+            document.getElementById("dash-readiness-num").textContent = readiness.score;
+            document.getElementById("dash-readiness-status").innerText = readiness.text;
+            document.getElementById("dash-readiness-sub").innerText = readiness.desc;
+            document.getElementById("dash-readiness-circle").setAttribute("stroke-dasharray", `${readiness.score}, 100`);
 
-            // Dynamic Greeting
-            const hr = new Date().getHours();
-            let greeting = "Good Day.";
-            if (hr < 12) greeting = "Good Morning.";
-            else if (hr < 17) greeting = "Good Afternoon.";
-            else if (hr < 22) greeting = "Good Evening.";
-            else greeting = "Good Night.";
-            document.getElementById('dynamic-greeting').innerText = greeting;
-        }
+            // Pending Cards (Visibility logic: ONLY FOR COMPLETED SUBJECTS)
+            const completedSubjects = Object.keys(appState.subjects).filter(s => appState.subjects[s].status === "Completed");
 
-        /* Calculate Overall Preparation Engine Progress */
-        function calculateOverallProgress() {
-            let totalWeightedScore = 0;
-            let totalSubjects = SYLLABUS_DATA.length;
-
-            SYLLABUS_DATA.forEach(sub => {
-                const subData = appState.syllabus[sub.id];
-                let subScore = 0;
-                
-                // Weights: Lectures 35%, Notes 20%, PYQs 20%, Revision 15%, Mock 10%
-                if (subData.lectures === "Completed") subScore += 35;
-                else if (subData.lectures === "In Progress") subScore += 15;
-
-                if (subData.notes === "Completed") subScore += 20;
-                else if (subData.notes === "In Progress") subScore += 10;
-
-                if (subData.pyqs === "Completed") subScore += 20;
-                else if (subData.pyqs === "In Progress") subScore += 10;
-
-                if (subData.revision === "Completed") subScore += 15;
-                else if (subData.revision === "In Progress") subScore += 7;
-
-                if (subData.mock === "Completed") subScore += 10;
-                else if (subData.mock === "In Progress") subScore += 5;
-
-                totalWeightedScore += subScore;
-            });
-
-            return Math.round(totalWeightedScore / totalSubjects);
-        }
-
-        /* Check if Subject is Fully Completed in Syllabus Tracker */
-        function isSubjectCompleted(subId) {
-            const data = appState.syllabus[subId];
-            return data && data.lectures === "Completed" && data.notes === "Completed" && 
-                   data.pyqs === "Completed" && data.revision === "Completed" && data.mock === "Completed";
-        }
-
-        /* Render Dashboard Cards */
-        function renderDashboard() {
-            const overallPct = calculateOverallProgress();
-            document.getElementById('overall-progress-bar').style.width = overallPct + "%";
-            document.getElementById('overall-progress-num').innerText = overallPct + "%";
-            document.getElementById('preparation-journey-pct').innerText = overallPct + "% Complete";
-
-            // Quick Notes restore
-            document.getElementById('dash-quick-notes').value = appState.quickNotes || "";
-
-            // Pending PYQs, Revisions, Mocks MUST ONLY show for COMPLETED subjects
-            const completedSubjects = SYLLABUS_DATA.filter(sub => isSubjectCompleted(sub.id));
-
-            // Render Pending PYQs Container
-            const pyqBox = document.getElementById('dash-pending-pyqs-container');
-            const revBox = document.getElementById('dash-pending-revision-container');
-            const mockBox = document.getElementById('dash-pending-mocks-container');
+            const pyqBox = document.getElementById("dash-pending-pyqs-box");
+            const revBox = document.getElementById("dash-pending-revision-box");
+            const mockBox = document.getElementById("dash-pending-mocks-box");
 
             if (completedSubjects.length === 0) {
-                pyqBox.innerHTML = '<div class="empty-state">No completed subjects yet</div>';
-                revBox.innerHTML = '<div class="empty-state">No completed subjects yet</div>';
-                mockBox.innerHTML = '<div class="empty-state">No completed subjects yet</div>';
-                document.getElementById('readiness-score-val').innerText = "--";
-                document.getElementById('readiness-score-status').innerText = "Complete first subject to calculate readiness.";
+                pyqBox.innerHTML = `<div style="font-size: 12px; color: var(--text-muted);">Visible once first subject is completed in Syllabus Tracker.</div>`;
+                revBox.innerHTML = `<div style="font-size: 12px; color: var(--text-muted);">Visible once first subject is completed in Syllabus Tracker.</div>`;
+                mockBox.innerHTML = `<div style="font-size: 12px; color: var(--text-muted);">Visible once first subject is completed in Syllabus Tracker.</div>`;
             } else {
-                pyqBox.innerHTML = completedSubjects.map(s => `<div style="padding:6px 0; font-size:0.85rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between;"><span>${s.name}</span> <span class="badge badge-completed">PYQs Complete</span></div>`).join('');
-                revBox.innerHTML = completedSubjects.map(s => `<div style="padding:6px 0; font-size:0.85rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between;"><span>${s.name}</span> <span class="badge badge-completed">Revision Ready</span></div>`).join('');
-                mockBox.innerHTML = completedSubjects.map(s => `<div style="padding:6px 0; font-size:0.85rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between;"><span>${s.name}</span> <span class="badge badge-completed">Mock Ready</span></div>`).join('');
-
-                // Readiness Score calculation
-                const readiness = Math.min(100, Math.round(overallPct * 1.2 + completedSubjects.length * 5));
-                document.getElementById('readiness-score-val').innerText = readiness;
-                document.getElementById('readiness-score-status').innerText = readiness > 75 ? "Excellent Preparation Pace" : "Good Progress - Keep Going";
+                pyqBox.innerHTML = `<div style="font-size: 1.5rem; font-weight: bold;">${completedSubjects.length} Subjects Ready</div><div style="font-size:11px; color:var(--text-secondary);">Practice PYQs now active</div>`;
+                revBox.innerHTML = `<div style="font-size: 1.5rem; font-weight: bold; color:var(--color-warning);">Queued</div><div style="font-size:11px; color:var(--text-secondary);">Revision Engine processing</div>`;
+                mockBox.innerHTML = `<div style="font-size: 1.5rem; font-weight: bold; color:var(--accent-primary);">1 Subject Mock Due</div>`;
             }
 
-            // Motivation Card (Data-Driven)
-            const totalChapters = SYLLABUS_DATA.reduce((acc, sub) => acc + sub.chapters.length, 0);
-            let completedChCount = 0;
-            Object.keys(appState.chapters).forEach(k => {
-                if (appState.chapters[k] === "Completed") completedChCount++;
+            // Goals List (Includes Yesterday's Goal for Next Day if set!)
+            const goalsList = document.getElementById("dash-today-goals-list");
+            goalsList.innerHTML = "";
+            
+            const todayStr = new Date().toISOString().split('T')[0];
+            const yesterdayDate = new Date();
+            yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+            const yestStr = yesterdayDate.toISOString().split('T')[0];
+
+            let autoGoal = null;
+            if (appState.journals[yestStr] && appState.journals[yestStr].nextGoal) {
+                autoGoal = appState.journals[yestStr].nextGoal;
+            }
+
+            const activeGoals = autoGoal ? [`Target from Yesterday: ${autoGoal}`, "Complete Scheduled Lectures"] : ["Complete Scheduled Lectures", "Solve Chapter PYQs"];
+            
+            activeGoals.forEach((gText, idx) => {
+                const item = document.createElement("div");
+                item.style.display = "flex";
+                item.style.alignItems = "center";
+                item.style.gap = "10px";
+                item.innerHTML = `<input type="checkbox" id="goal-${idx}"> <label for="goal-${idx}" style="font-size:13px; color:var(--text-primary);">${gText}</label>`;
+                goalsList.appendChild(item);
             });
 
-            const motiBox = document.getElementById('dash-motivation-text');
-            if (completedChCount === 0) {
-                motiBox.innerText = "Start your preparation journey today by marking your first chapter complete.";
-            } else {
-                motiBox.innerText = `You have completed ${completedChCount} of ${totalChapters} syllabus chapters. Maintain consistency for GATE 2027.`;
-            }
-
-            // Today's Goals from Daily Journal's "next day's goals"
-            const goalsBox = document.getElementById('dash-today-goals');
-            if (appState.journals && appState.journals.length > 0) {
-                const latestJ = appState.journals[appState.journals.length - 1];
-                if (latestJ.nextGoals && latestJ.nextGoals.trim() !== "") {
-                    goalsBox.innerHTML = `<div style="font-size:0.9rem; line-height:1.4; color:var(--text-primary);">${latestJ.nextGoals.replace(/\n/g, '<br>')}</div>`;
-                } else {
-                    goalsBox.innerHTML = '<div style="font-size:0.85rem; color:var(--text-muted);">No goals set from previous journal.</div>';
-                }
-            } else {
-                goalsBox.innerHTML = '<div style="font-size:0.85rem; color:var(--text-muted);">No goals set from previous journal.</div>';
-            }
+            // Quick Notes
+            const qNotes = document.getElementById("dash-quick-notes");
+            qNotes.value = appState.quickNotes || "";
         }
 
-        function saveQuickNotes() {
-            appState.quickNotes = document.getElementById('dash-quick-notes').value;
-            localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(appState));
-        }
-
-        /* 2. ROADMAP VIEW */
+        // ROADMAP RENDER
         function renderRoadmap() {
-            const container = document.getElementById('roadmap-phases-container');
-            container.innerHTML = ROADMAP_PHASES.map(p => {
-                const phaseSubs = SYLLABUS_DATA.filter(s => s.phase === p.phase);
-                return `
-                    <div class="card">
-                        <div class="card-header">
+            const container = document.getElementById("roadmap-phases-container");
+            container.innerHTML = "";
+
+            ROADMAP_PHASES.forEach((phase, idx) => {
+                let completedInPhase = 0;
+                phase.subjects.forEach(s => {
+                    if (appState.subjects[s] && appState.subjects[s].status === "Completed") completedInPhase++;
+                });
+
+                const phasePct = Math.round((completedInPhase / phase.subjects.length) * 100);
+                
+                const card = document.createElement("div");
+                card.className = "forge-card";
+                card.style.marginBottom = "16px";
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <div>
+                            <span class="badge ${phasePct === 100 ? 'badge-completed' : (phasePct > 0 ? 'badge-progress' : 'badge-pending')}">${phase.dates}</span>
+                            <h3 style="margin-top: 8px;">${phase.title}</h3>
+                            <p style="font-size: 12px; margin-top: 4px;">${phase.desc}</p>
+                        </div>
+                        <div style="font-weight: bold; font-size: 1.2rem; color: var(--accent-primary);">${phasePct}%</div>
+                    </div>
+                    <div class="progress-track" style="margin: 14px 0 16px 0;">
+                        <div class="progress-fill" style="width: ${phasePct}%;"></div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px;">
+                        ${phase.subjects.map(sName => {
+                            const sub = appState.subjects[sName];
+                            const sPct = getSubjectProgressPct(sName);
+                            return `
+                                <div style="background: var(--bg-elevated); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                                    <div style="font-weight: 600; font-size: 13px;">${sName}</div>
+                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Resource: ${sub ? sub.resource : 'N/A'}</div>
+                                    <div style="font-size: 11px; color: var(--accent-primary); margin-top: 6px;">Progress: ${sPct}%</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // SYLLABUS TRACKER RENDER
+        function renderSyllabusTracker() {
+            const container = document.getElementById("syllabus-cards-container");
+            container.innerHTML = "";
+
+            const filterVal = document.getElementById("syllabus-filter").value;
+            const searchVal = document.getElementById("syllabus-search").value.toLowerCase();
+
+            Object.keys(appState.subjects).forEach(subName => {
+                if (searchVal && !subName.toLowerCase().includes(searchVal)) return;
+
+                const sub = appState.subjects[subName];
+                const meta = SUBJECT_METADATA[subName] || { weight: "N/A", priority: "Medium" };
+                const pct = getSubjectProgressPct(subName);
+
+                if (filterVal === "completed" && sub.status !== "Completed") return;
+                if (filterVal === "progress" && sub.status !== "In Progress") return;
+                if (filterVal === "pending" && sub.status !== "Pending") return;
+
+                const card = document.createElement("div");
+                card.className = "accordion-item";
+                card.innerHTML = `
+                    <div class="accordion-header" onclick="this.parentElement.classList.toggle('open')">
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <span class="badge ${sub.status === 'Completed' ? 'badge-completed' : (sub.status === 'In Progress' ? 'badge-progress' : 'badge-pending')}">${sub.status}</span>
                             <div>
-                                <h3 style="font-size:1.05rem; font-weight:700; color:var(--accent-primary);">${p.title}</h3>
-                                <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">${p.dates} — ${p.desc}</div>
+                                <span style="font-weight: 700; font-size: 1rem;">${subName}</span>
+                                <span style="font-size: 12px; color: var(--text-muted); margin-left: 10px;">GATE Weightage: ${meta.weight}</span>
                             </div>
                         </div>
-                        <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;">
-                            ${phaseSubs.map(s => `
-                                <div style="background:var(--bg-elevated); padding:8px 12px; border-radius:var(--radius-sm); border:1px solid var(--border-color); font-size:0.85rem;">
-                                    <strong>${s.name}</strong> <span style="color:var(--text-muted); font-size:0.75rem;">(${s.weight})</span>
+                        <div style="display: flex; align-items: center; gap: 16px;">
+                            <span style="font-weight: bold; color: var(--accent-primary);">${pct}%</span>
+                            <span style="color: var(--text-muted);">▼</span>
+                        </div>
+                    </div>
+                    <div class="accordion-body">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                            <div>
+                                <label style="font-size: 11px; color: var(--text-muted);">Study Resource</label>
+                                <input type="text" class="forge-input" value="${sub.resource}" onchange="updateSubResource('${subName}', this.value)" style="margin-top: 4px;">
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; color: var(--text-muted);">Lectures Category</label>
+                                <select class="forge-select" style="margin-top: 4px;" onchange="updateSubCategory('${subName}', 'lectures', this.value)">
+                                    <option value="Pending" ${sub.categories.lectures==='Pending'?'selected':''}>Pending</option>
+                                    <option value="In Progress" ${sub.categories.lectures==='In Progress'?'selected':''}>In Progress</option>
+                                    <option value="Completed" ${sub.categories.lectures==='Completed'?'selected':''}>Completed</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; color: var(--text-muted);">Notes Category</label>
+                                <select class="forge-select" style="margin-top: 4px;" onchange="updateSubCategory('${subName}', 'notes', this.value)">
+                                    <option value="Pending" ${sub.categories.notes==='Pending'?'selected':''}>Pending</option>
+                                    <option value="In Progress" ${sub.categories.notes==='In Progress'?'selected':''}>In Progress</option>
+                                    <option value="Completed" ${sub.categories.notes==='Completed'?'selected':''}>Completed</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; color: var(--text-muted);">PYQs Category</label>
+                                <select class="forge-select" style="margin-top: 4px;" onchange="updateSubCategory('${subName}', 'pyqs', this.value)">
+                                    <option value="Pending" ${sub.categories.pyqs==='Pending'?'selected':''}>Pending</option>
+                                    <option value="In Progress" ${sub.categories.pyqs==='In Progress'?'selected':''}>In Progress</option>
+                                    <option value="Completed" ${sub.categories.pyqs==='Completed'?'selected':''}>Completed</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 11px; color: var(--text-muted);">Subject Mock Category</label>
+                                <select class="forge-select" style="margin-top: 4px;" onchange="updateSubCategory('${subName}', 'mock', this.value)">
+                                    <option value="Pending" ${sub.categories.mock==='Pending'?'selected':''}>Pending</option>
+                                    <option value="In Progress" ${sub.categories.mock==='In Progress'?'selected':''}>In Progress</option>
+                                    <option value="Completed" ${sub.categories.mock==='Completed'?'selected':''}>Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // LECTURE TRACKER RENDER (WITH MODERN STEPPERS & PERSISTENT DROPDOWNS)
+        function renderLectureTracker() {
+            const container = document.getElementById("lecture-hierarchy-container");
+            container.innerHTML = "";
+
+            Object.keys(appState.subjects).forEach(subName => {
+                const sub = appState.subjects[subName];
+                
+                let watchedTotal = 0;
+                let lecturesTotal = 0;
+                sub.chapters.forEach(c => {
+                    watchedTotal += (c.watchedLectures || 0);
+                    lecturesTotal += (c.totalLectures || 1);
+                });
+                const subLecPct = lecturesTotal > 0 ? Math.round((watchedTotal / lecturesTotal) * 100) : 0;
+
+                const accordion = document.createElement("div");
+                accordion.className = "accordion-item";
+                
+                accordion.innerHTML = `
+                    <div class="accordion-header" onclick="this.parentElement.classList.toggle('open')">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-weight: 700;">${subName}</span>
+                            <span style="font-size: 12px; color: var(--text-muted);">(${watchedTotal}/${lecturesTotal} Videos Watched)</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="progress-track" style="width: 100px;">
+                                <div class="progress-fill" style="width: ${subLecPct}%;"></div>
+                            </div>
+                            <span style="font-weight: bold; font-size: 12px;">${subLecPct}%</span>
+                        </div>
+                    </div>
+                    <div class="accordion-body">
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            ${sub.chapters.map((chap, cIdx) => `
+                                <div style="background: var(--bg-elevated); padding: 12px 16px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;" onclick="event.stopPropagation()">
+                                    <div style="font-weight: 600; font-size: 13px; max-width: 250px;">${chap.name}</div>
+                                    
+                                    <!-- MODERN STEPPERS FOR LECTURES -->
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <span style="font-size: 11px; color: var(--text-muted);">Watched:</span>
+                                        <div class="stepper-container">
+                                            <button class="stepper-btn" onclick="stepWatched('${subName}', ${cIdx}, -1)">-</button>
+                                            <input type="number" class="stepper-input" value="${chap.watchedLectures}" readonly>
+                                            <button class="stepper-btn" onclick="stepWatched('${subName}', ${cIdx}, 1)">+</button>
+                                        </div>
+                                        <span style="font-size: 11px; color: var(--text-muted);">Total:</span>
+                                        <div class="stepper-container">
+                                            <button class="stepper-btn" onclick="stepTotal('${subName}', ${cIdx}, -1)">-</button>
+                                            <input type="number" class="stepper-input" value="${chap.totalLectures}" readonly>
+                                            <button class="stepper-btn" onclick="stepTotal('${subName}', ${cIdx}, 1)">+</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- STATUS SELECTOR (DOES NOT CLOSE DROPDOWN) -->
+                                    <div>
+                                        <select class="forge-select" style="width: 130px; border-color: ${chap.status==='Completed'?'var(--color-success)':(chap.status==='In Progress'?'var(--color-warning)':'var(--color-danger)')};" onchange="updateChapterStatus('${subName}', ${cIdx}, this.value)" onclick="event.stopPropagation()">
+                                            <option value="Pending" ${chap.status==='Pending'?'selected':''}>Pending 🔴</option>
+                                            <option value="In Progress" ${chap.status==='In Progress'?'selected':''}>In Progress 🟡</option>
+                                            <option value="Completed" ${chap.status==='Completed'?'selected':''}>Completed 🟢</option>
+                                        </select>
+                                    </div>
                                 </div>
                             `).join('')}
                         </div>
                     </div>
                 `;
-            }).join('');
+                container.appendChild(accordion);
+            });
         }
 
-        /* 3. SYLLABUS TRACKER VIEW */
-        function renderSyllabusTracker() {
-            const tbody = document.getElementById('syllabus-table-body');
-            const search = document.getElementById('syllabus-search').value.toLowerCase();
+        // REVISION ENGINE RENDER
+        function renderRevisionEngine() {
+            const container = document.getElementById("revision-queue-list");
+            container.innerHTML = "";
 
-            const filtered = SYLLABUS_DATA.filter(s => s.name.toLowerCase().includes(search));
+            let eligibleChapters = [];
+            Object.keys(appState.subjects).forEach(sName => {
+                appState.subjects[sName].chapters.forEach(c => {
+                    if (c.status === "Completed") {
+                        eligibleChapters.push({ subject: sName, chapter: c });
+                    }
+                });
+            });
 
-            tbody.innerHTML = filtered.map(sub => {
-                const data = appState.syllabus[sub.id];
+            document.getElementById("rev-stat-total").innerText = eligibleChapters.length;
 
-                // Subject progress score
-                let subScore = 0;
-                if (data.lectures === "Completed") subScore += 35;
-                if (data.notes === "Completed") subScore += 20;
-                if (data.pyqs === "Completed") subScore += 20;
-                if (data.revision === "Completed") subScore += 15;
-                if (data.mock === "Completed") subScore += 10;
+            if (eligibleChapters.length === 0) {
+                container.innerHTML = `<div class="forge-card" style="text-align: center; color: var(--text-muted); padding: 40px;">No completed chapters available for revision yet. Finish your first chapter in Lecture Tracker!</div>`;
+                return;
+            }
 
-                return `
-                    <tr>
-                        <td><strong>${sub.name}</strong></td>
-                        <td><span style="color:var(--text-muted); font-size:0.8rem;">${sub.weight}</span></td>
-                        <td>
-                            <input type="text" value="${data.resource}" style="padding:4px 8px; font-size:0.8rem; width:140px;" onchange="updateSyllabusResource('${sub.id}', this.value)">
-                        </td>
-                        <td>${renderDropdownSelect(sub.id, 'lectures', data.lectures)}</td>
-                        <td>${renderDropdownSelect(sub.id, 'notes', data.notes)}</td>
-                        <td>${renderDropdownSelect(sub.id, 'pyqs', data.pyqs)}</td>
-                        <td>${renderDropdownSelect(sub.id, 'revision', data.revision)}</td>
-                        <td>${renderDropdownSelect(sub.id, 'mock', data.mock)}</td>
-                        <td>
-                            <div style="width:70px;">
-                                <div style="font-size:0.75rem; font-weight:700; text-align:right;">${subScore}%</div>
-                                <div class="progress-bar-bg" style="height:5px;">
-                                    <div class="progress-bar-fill" style="width:${subScore}%;"></div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
+            eligibleChapters.forEach(item => {
+                const card = document.createElement("div");
+                card.className = "forge-card";
+                card.style.marginBottom = "10px";
+                card.style.display = "flex";
+                card.style.justifySpaceBetween = "space-between";
+                card.style.alignItems = "center";
+                card.innerHTML = `
+                    <div>
+                        <span class="badge badge-progress">${item.subject}</span>
+                        <h4 style="margin-top: 4px;">${item.chapter.name}</h4>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Revision Count: ${item.chapter.revisionsCount || 0}</div>
+                    </div>
+                    <button class="btn-primary" onclick="markChapterRevised('${item.subject}', '${item.chapter.name}')">Mark Revised Today</button>
                 `;
-            }).join('');
+                container.appendChild(card);
+            });
         }
 
-        /* Custom Non-Closing Option Selector Component */
-        function renderDropdownSelect(subId, category, currentValue) {
-            return `
-                <div class="custom-select-wrapper">
-                    <div class="select-box" onclick="toggleSelectMenu(event, this)">
-                        <span>${currentValue}</span>
-                        <span style="font-size:0.7rem;">▼</span>
+        // MISTAKE REGISTER RENDER
+        function renderMistakes() {
+            const container = document.getElementById("mistakes-list-container");
+            container.innerHTML = "";
+
+            if (appState.mistakes.length === 0) {
+                container.innerHTML = `<div class="forge-card col-12" style="text-align: center; color: var(--text-muted); padding: 40px;">No mistakes recorded yet. Record your first error to begin building your knowledge base.</div>`;
+                return;
+            }
+
+            appState.mistakes.forEach((m, idx) => {
+                const card = document.createElement("div");
+                card.className = "forge-card col-6";
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="badge badge-pending">${m.severity} Severity</span>
+                        <span style="font-size: 11px; color: var(--text-muted);">${m.date}</span>
                     </div>
-                    <div class="select-options" onclick="event.stopPropagation();">
-                        <div class="option-item ${currentValue === 'Pending' ? 'selected' : ''}" onclick="setDropdownValue('${subId}', '${category}', 'Pending', this)">Pending</div>
-                        <div class="option-item ${currentValue === 'In Progress' ? 'selected' : ''}" onclick="setDropdownValue('${subId}', '${category}', 'In Progress', this)">In Progress</div>
-                        <div class="option-item ${currentValue === 'Completed' ? 'selected' : ''}" onclick="setDropdownValue('${subId}', '${category}', 'Completed', this)">Completed</div>
+                    <h4>${m.title}</h4>
+                    <div style="font-size: 11px; color: var(--accent-primary); margin: 4px 0;">${m.subject} • ${m.type}</div>
+                    <p style="font-size: 12px; margin-top: 8px;">${m.desc}</p>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // MOCK ANALYTICS RENDER
+        function renderMocks() {
+            const container = document.getElementById("mocks-list-container");
+            container.innerHTML = "";
+
+            // Render SVG Trend Chart
+            const svg = document.getElementById("mock-svg-chart");
+            if (appState.mocks.length === 0) {
+                svg.innerHTML = `<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#6b7280" font-size="12">Record your first mock test to see performance trends.</text>`;
+                container.innerHTML = `<div class="forge-card" style="text-align: center; color: var(--text-muted); padding: 40px;">No mock tests recorded yet.</div>`;
+                return;
+            }
+
+            // Draw line chart
+            let pts = [];
+            const width = svg.clientWidth || 600;
+            const height = 120;
+            const step = width / Math.max(1, appState.mocks.length - 1);
+
+            appState.mocks.forEach((m, i) => {
+                const pct = (m.score / m.total) * 100;
+                const x = i * step;
+                const y = height - (pct / 100 * height);
+                pts.push(`${x},${y}`);
+            });
+
+            svg.innerHTML = `<polyline fill="none" stroke="var(--accent-primary)" stroke-width="3" points="${pts.join(' ')}" />`;
+
+            appState.mocks.forEach(m => {
+                const card = document.createElement("div");
+                card.className = "forge-card";
+                card.style.marginBottom = "10px";
+                card.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span class="badge badge-completed">${m.type}</span>
+                            <h4 style="margin-top: 4px;">${m.title}</h4>
+                            <div style="font-size: 11px; color: var(--text-muted);">${m.subject} • ${m.date}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent-primary);">${m.score}/${m.total}</div>
+                            <div style="font-size: 11px; color: var(--color-success);">${Math.round((m.score/m.total)*100)}% Accuracy</div>
+                        </div>
                     </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // AI COACH RENDER
+        function renderAICoach() {
+            const box = document.getElementById("ai-insights-box");
+            const overall = getOverallProgressPct();
+            const readiness = getReadinessScore();
+
+            box.innerHTML = `
+                <div style="background: var(--bg-primary); padding: 10px; border-radius: var(--radius-sm);">
+                    <strong>Preparation Readiness:</strong> ${readiness.score}/100 (${readiness.text})
+                </div>
+                <div style="background: var(--bg-primary); padding: 10px; border-radius: var(--radius-sm);">
+                    <strong>Overall Completion:</strong> ${overall}%
+                </div>
+                <div style="background: var(--bg-primary); padding: 10px; border-radius: var(--radius-sm);">
+                    <strong>Active Focus:</strong> Phase 1 — Strength of Materials
                 </div>
             `;
         }
 
-        function toggleSelectMenu(event, el) {
-            event.stopPropagation();
-            const options = el.nextElementSibling;
-            // Close other options
-            document.querySelectorAll('.select-options').forEach(opt => {
-                if (opt !== options) opt.classList.remove('show');
+        // JOURNAL RENDER
+        function renderJournal() {
+            const list = document.getElementById("journal-timeline-list");
+            list.innerHTML = "";
+
+            const keys = Object.keys(appState.journals).sort().reverse();
+            if (keys.length === 0) {
+                list.innerHTML = `<div style="font-size: 12px; color: var(--text-muted);">No journal entries recorded yet.</div>`;
+                return;
+            }
+
+            keys.forEach(k => {
+                const j = appState.journals[k];
+                const item = document.createElement("div");
+                item.style.background = "var(--bg-elevated)";
+                item.style.padding = "10px 14px";
+                item.style.borderRadius = "var(--radius-md)";
+                item.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted);">
+                        <span>${k}</span>
+                        <span>Mood: ${j.mood}</span>
+                    </div>
+                    <div style="font-size: 13px; margin-top: 4px; color: var(--text-primary);">${j.content}</div>
+                    ${j.nextGoal ? `<div style="font-size: 11px; color: var(--accent-primary); margin-top: 4px;">Target: ${j.nextGoal}</div>` : ''}
+                `;
+                list.appendChild(item);
             });
-            options.classList.toggle('show');
         }
 
-        // Close dropdowns only when clicking outside
-        document.addEventListener('click', () => {
-            document.querySelectorAll('.select-options').forEach(opt => opt.classList.remove('show'));
+        /* ==========================================================================
+           5. INTERACTION MUTATORS & EVENT HANDLERS
+           ========================================================================== */
+        
+        // Navigation Handler
+        document.querySelectorAll(".nav-item").forEach(btn => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".nav-item").forEach(b => b.classList.remove("active"));
+                document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+                btn.classList.add("active");
+                const tab = btn.getAttribute("data-tab");
+                document.getElementById("pane-" + tab).classList.add("active");
+            });
         });
 
-        function setDropdownValue(subId, category, val, optionEl) {
-            appState.syllabus[subId][category] = val;
+        // Quick Notes Autosave
+        document.getElementById("dash-quick-notes").addEventListener("input", (e) => {
+            appState.quickNotes = e.target.value;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+        });
+
+        // Stepper Mutators for Lecture Tracker
+        function stepWatched(subName, cIdx, delta) {
+            const chap = appState.subjects[subName].chapters[cIdx];
+            chap.watchedLectures = Math.max(0, Math.min(chap.totalLectures, (chap.watchedLectures || 0) + delta));
+            if (chap.watchedLectures === chap.totalLectures && chap.totalLectures > 0) chap.status = "Completed";
+            else if (chap.watchedLectures > 0) chap.status = "In Progress";
+            saveState();
+        }
+
+        function stepTotal(subName, cIdx, delta) {
+            const chap = appState.subjects[subName].chapters[cIdx];
+            chap.totalLectures = Math.max(1, (chap.totalLectures || 1) + delta);
+            if (chap.watchedLectures > chap.totalLectures) chap.watchedLectures = chap.totalLectures;
+            saveState();
+        }
+
+        function updateChapterStatus(subName, cIdx, status) {
+            const chap = appState.subjects[subName].chapters[cIdx];
+            chap.status = status;
+            if (status === "Completed") chap.watchedLectures = chap.totalLectures;
+            saveState();
+        }
+
+        function updateSubResource(subName, val) {
+            appState.subjects[subName].resource = val;
+            saveState();
+        }
+
+        function updateSubCategory(subName, cat, val) {
+            appState.subjects[subName].categories[cat] = val;
+            saveState();
+        }
+
+        function markChapterRevised(subName, chapName) {
+            const chap = appState.subjects[subName].chapters.find(c => c.name === chapName);
+            if (chap) {
+                chap.revisionsCount = (chap.revisionsCount || 0) + 1;
+                chap.lastRevised = new Date().toISOString().split('T')[0];
+                saveState();
+            }
+        }
+
+        // Mistake Modal Handlers
+        document.getElementById("btn-open-add-mistake").addEventListener("click", () => {
+            const select = document.getElementById("mistake-select-subject");
+            select.innerHTML = Object.keys(appState.subjects).map(s => `<option value="${s}">${s}</option>`).join('');
+            document.getElementById("modal-mistake").classList.add("active");
+        });
+
+        document.getElementById("btn-close-mistake-modal").addEventListener("click", () => {
+            document.getElementById("modal-mistake").classList.remove("active");
+        });
+
+        document.getElementById("btn-save-mistake").addEventListener("click", () => {
+            const title = document.getElementById("mistake-input-title").value;
+            const subject = document.getElementById("mistake-select-subject").value;
+            const type = document.getElementById("mistake-select-type").value;
+            const severity = document.getElementById("mistake-select-severity").value;
+            const desc = document.getElementById("mistake-input-desc").value;
+
+            if (!title) return;
+            appState.mistakes.push({ title, subject, type, severity, desc, date: new Date().toISOString().split('T')[0] });
+            document.getElementById("modal-mistake").classList.remove("active");
+            saveState();
+        });
+
+        // Mock Modal Handlers
+        document.getElementById("btn-open-add-mock").addEventListener("click", () => {
+            const select = document.getElementById("mock-select-subject");
+            select.innerHTML = Object.keys(appState.subjects).map(s => `<option value="${s}">${s}</option>`).join('');
+            document.getElementById("modal-mock").classList.add("active");
+        });
+
+        document.getElementById("btn-close-mock-modal").addEventListener("click", () => {
+            document.getElementById("modal-mock").classList.remove("active");
+        });
+
+        document.getElementById("btn-save-mock").addEventListener("click", () => {
+            const title = document.getElementById("mock-input-title").value;
+            const type = document.getElementById("mock-select-type").value;
+            const subject = document.getElementById("mock-select-subject").value;
+            const score = parseFloat(document.getElementById("mock-input-score").value) || 0;
+            const total = parseFloat(document.getElementById("mock-input-total").value) || 100;
+
+            if (!title) return;
+            appState.mocks.push({ title, type, subject, score, total, date: new Date().toISOString().split('T')[0] });
+            document.getElementById("modal-mock").classList.remove("active");
+            saveState();
+        });
+
+        // Journal Save Handler
+        document.getElementById("btn-save-journal").addEventListener("click", () => {
+            const todayStr = new Date().toISOString().split('T')[0];
+            const mood = document.getElementById("journal-mood").value;
+            const hours = document.getElementById("journal-hours").value;
+            const content = document.getElementById("journal-content").value;
+            const nextGoal = document.getElementById("journal-next-goal").value;
+
+            appState.journals[todayStr] = { mood, hours, content, nextGoal };
+            saveState();
+            alert("Journal saved successfully!");
+        });
+
+        // Focus Mode Handlers
+        let focusTimer = null;
+        let focusSeconds = 25 * 60;
+        let isFocusRunning = false;
+
+        document.getElementById("btn-start-focus").addEventListener("click", () => {
+            document.getElementById("focus-screen").classList.add("active");
+            startFocusClock();
+        });
+
+        document.getElementById("btn-focus-end").addEventListener("click", () => {
+            clearInterval(focusTimer);
+            isFocusRunning = false;
+            document.getElementById("focus-screen").classList.remove("active");
+        });
+
+        function startFocusClock() {
+            if (isFocusRunning) return;
+            isFocusRunning = true;
+            focusTimer = setInterval(() => {
+                if (focusSeconds <= 0) {
+                    clearInterval(focusTimer);
+                    alert("Focus session completed!");
+                    return;
+                }
+                focusSeconds--;
+                const mins = Math.floor(focusSeconds / 60).toString().padStart(2, '0');
+                const secs = (focusSeconds % 60).toString().padStart(2, '0');
+                document.getElementById("focus-clock-display").innerText = `${mins}:${secs}`;
+            }, 1000);
+        }
+
+        // Resume Studying Action Button
+        document.getElementById("btn-resume-studying").addEventListener("click", () => {
+            document.querySelector('[data-tab="lectures"]').click();
+        });
+
+        // AI Chat Prompt Handler
+        document.getElementById("btn-ai-send").addEventListener("click", () => {
+            const input = document.getElementById("ai-chat-input");
+            const text = input.value;
+            if (!text) return;
+
+            const chat = document.getElementById("ai-chat-history");
+            chat.innerHTML += `<div style="background: var(--accent-primary); color: white; padding: 10px; border-radius: var(--radius-md); align-self: flex-end; max-width: 80%; margin-top: 6px;">${text}</div>`;
+            input.value = "";
+
+            setTimeout(() => {
+                const overall = getOverallProgressPct();
+                let reply = `Based on your current GATE 2027 progress (${overall}% completion), I recommend focusing on Strength of Materials: Torsion in Circular Shafts today. Keep up the consistent work!`;
+                chat.innerHTML += `<div style="background: var(--bg-elevated); padding: 10px; border-radius: var(--radius-md); align-self: flex-start; max-width: 80%; margin-top: 6px;">${reply}</div>`;
+                chat.scrollTop = chat.scrollHeight;
+            }, 600);
+        });
+
+        /* ==========================================================================
+           6. INITIALIZATION & LAUNCH
+           ========================================================================== */
+        window.addEventListener("DOMContentLoaded", () => {
+            // Display Date & Dynamic Greeting
+            const dateObj = new Date();
+            document.getElementById("current-date-display").innerText = dateObj.toLocaleDateString("en-US", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toUpperCase();
             
-            // Highlight selected option visually inside dropdown WITHOUT closing it automatically
-            const parent = optionEl.parentElement;
-            parent.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
-            optionEl.classList.add('selected');
-            
-            // Update display text
-            const selectBox = parent.previousElementSibling;
-            selectBox.querySelector('span').innerText = val;
+            const hour = dateObj.getHours();
+            let greeting = "Good Morning.";
+            if (hour >= 12 && hour < 17) greeting = "Good Afternoon.";
+            else if (hour >= 17 && hour < 22) greeting = "Good Evening.";
+            else if (hour >= 22 || hour < 5) greeting = "Good Night.";
+            document.getElementById("dynamic-greeting").innerText = greeting;
 
-            saveStore();
-        }
-
-        function updateSyllabusResource(subId, val) {
-            appState.syllabus[subId].resource = val;
-            saveStore();
-        }
-
-        /* 4. LECTURE TRACKER VIEW */
-        function renderLectureTrackerOptions() {
-            const phaseSelect = document.getElementById('lecture-phase-select');
-            if (phaseSelect.children.length === 0) {
-                phaseSelect.innerHTML = ROADMAP_PHASES.map(p => `<option value="${p.phase}">${p.title}</option>`).join('');
-            }
-            onLecturePhaseChange();
-        }
-
-        function onLecturePhaseChange() {
-            const phaseVal = parseInt(document.getElementById('lecture-phase-select').value) || 1;
-            const subSelect = document.getElementById('lecture-subject-select');
-
-            const filteredSubs = SYLLABUS_DATA.filter(s => s.phase === phaseVal);
-            subSelect.innerHTML = filteredSubs.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
-
-            renderLectureChapters();
-        }
-
-        function renderLectureChapters() {
-            const subId = document.getElementById('lecture-subject-select').value;
-            const sub = SYLLABUS_DATA.find(s => s.id === subId);
-            if (!sub) return;
-
-            const container = document.getElementById('lecture-chapters-list');
-            let completedCount = 0;
-
-            container.innerHTML = sub.chapters.map(ch => {
-                const chKey = `${sub.id}_${ch}`;
-                const status = appState.chapters[chKey] || "Pending";
-
-                if (status === "Completed") completedCount++;
-
-                let glowClass = "glow-pending";
-                if (status === "Completed") glowClass = "glow-completed";
-                else if (status === "In Progress") glowClass = "glow-progress";
-
-                return `
-                    <div class="chapter-row ${glowClass}">
-                        <div>
-                            <strong style="font-size:0.95rem;">${ch}</strong>
-                            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">${sub.name}</div>
-                        </div>
-                        <div>
-                            <div class="custom-select-wrapper">
-                                <div class="select-box" onclick="toggleSelectMenu(event, this)">
-                                    <span>${status}</span>
-                                    <span style="font-size:0.7rem;">▼</span>
-                                </div>
-                                <div class="select-options" onclick="event.stopPropagation();">
-                                    <div class="option-item ${status === 'Pending' ? 'selected' : ''}" onclick="setChapterStatus('${chKey}', 'Pending', this)">Pending</div>
-                                    <div class="option-item ${status === 'In Progress' ? 'selected' : ''}" onclick="setChapterStatus('${chKey}', 'In Progress', this)">In Progress</div>
-                                    <div class="option-item ${status === 'Completed' ? 'selected' : ''}" onclick="setChapterStatus('${chKey}', 'Completed', this)">Completed</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Calculate percentage
-            const pct = Math.round((completedCount / sub.chapters.length) * 100);
-            document.getElementById('lecture-subject-pct').innerText = pct + "%";
-            document.getElementById('lecture-watched-count').innerText = `${completedCount} / ${sub.chapters.length} Chapters`;
-
-            // Auto-update Syllabus Tracker Lecture Category if all chapters completed
-            if (pct === 100) {
-                appState.syllabus[sub.id].lectures = "Completed";
-            } else if (pct > 0) {
-                appState.syllabus[sub.id].lectures = "In Progress";
-            }
-        }
-
-        function setChapterStatus(chKey, status, optionEl) {
-            appState.chapters[chKey] = status;
-
-            // Highlight selected option without closing dropdown menu
-            const parent = optionEl.parentElement;
-            parent.querySelectorAll('.option-item').forEach(item => item.classList.remove('selected'));
-            optionEl.classList.add('selected');
-
-            const selectBox = parent.previousElementSibling;
-            selectBox.querySelector('span').innerText = status;
-
-            saveStore();
-        }
-
-        /* 5. MOCK TEST TRACKER */
-        function addMockTest() {
-            const name = document.getElementById('mock-input-name').value.trim();
-            const type = document.getElementById('mock-input-type').value;
-            const score = parseInt(document.getElementById('mock-input-score').value) || 0;
-            const total = parseInt(document.getElementById('mock-input-total').value) || 100;
-
-            if (!name) {
-                alert("Please enter mock test name");
-                return;
-            }
-
-            const newMock = {
-                id: Date.now(),
-                name: name,
-                type: type,
-                score: score,
-                total: total,
-                date: new Date().toLocaleDateString()
-            };
-
-            appState.mocks.push(newMock);
-            document.getElementById('mock-input-name').value = "";
-            saveStore();
-        }
-
-        function renderMockTracker() {
-            const container = document.getElementById('mock-history-list');
-            if (appState.mocks.length === 0) {
-                container.innerHTML = '<div class="empty-state">No mock tests added yet.</div>';
-                document.getElementById('mock-stat-total').innerText = "0";
-                document.getElementById('mock-stat-avg').innerText = "0";
-                document.getElementById('mock-stat-high').innerText = "0";
-                document.getElementById('mock-stat-acc').innerText = "0%";
-                return;
-            }
-
-            let totalScore = 0;
-            let highest = 0;
-            let totalPctSum = 0;
-
-            container.innerHTML = appState.mocks.map(m => {
-                const pct = Math.round((m.score / m.total) * 100);
-                totalScore += m.score;
-                totalPctSum += pct;
-                if (m.score > highest) highest = m.score;
-
-                return `
-                    <div class="card" style="margin-bottom:12px; padding:16px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <strong>${m.name}</strong>
-                                <div style="font-size:0.75rem; color:var(--text-muted);">${m.type} • ${m.date}</div>
-                            </div>
-                            <div style="text-align:right;">
-                                <div style="font-size:1.1rem; font-weight:800; color:var(--accent-primary);">${m.score} / ${m.total}</div>
-                                <div style="font-size:0.75rem; color:var(--success); font-weight:600;">${pct}% Accuracy</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            const avg = Math.round(totalScore / appState.mocks.length);
-            const avgAcc = Math.round(totalPctSum / appState.mocks.length);
-
-            document.getElementById('mock-stat-total').innerText = appState.mocks.length;
-            document.getElementById('mock-stat-avg').innerText = avg;
-            document.getElementById('mock-stat-high').innerText = highest;
-            document.getElementById('mock-stat-acc').innerText = avgAcc + "%";
-        }
-
-        /* 6. DAILY JOURNAL */
-        function saveJournalEntry() {
-            const nextGoals = document.getElementById('journal-next-goals').value.trim();
-            const reflection = document.getElementById('journal-reflection').value.trim();
-
-            if (!nextGoals && !reflection) {
-                alert("Please enter goal or reflection text.");
-                return;
-            }
-
-            const entry = {
-                id: Date.now(),
-                date: new Date().toLocaleDateString(),
-                nextGoals: nextGoals,
-                reflection: reflection
-            };
-
-            appState.journals.push(entry);
-            document.getElementById('journal-next-goals').value = "";
-            document.getElementById('journal-reflection').value = "";
-            saveStore();
-        }
-
-        function renderJournal() {
-            const history = document.getElementById('journal-history-list');
-            if (appState.journals.length === 0) {
-                history.innerHTML = '<div class="empty-state">No journal entries saved yet.</div>';
-                return;
-            }
-
-            history.innerHTML = appState.journals.map(j => `
-                <div class="card" style="margin-bottom:12px; padding:16px;">
-                    <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:6px;">${j.date}</div>
-                    ${j.nextGoals ? `<div style="font-size:0.85rem; color:var(--accent-primary); margin-bottom:6px;"><strong>Tomorrow's Goals:</strong> ${j.nextGoals}</div>` : ''}
-                    ${j.reflection ? `<div style="font-size:0.85rem; color:var(--text-secondary);">${j.reflection}</div>` : ''}
-                </div>
-            `).join('');
-        }
-
-        // Initialize Application
-        window.addEventListener('DOMContentLoaded', () => {
-            initStore();
-            setInterval(updateCountdown, 30000); // 30s timer pulse
+            // Initial Synchronized Render
+            syncAllEngines();
         });
     </script>
 </body>
