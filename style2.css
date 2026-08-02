@@ -1,0 +1,573 @@
+/* ===========================================================
+   ROADMAP
+   =========================================================== */
+
+.roadmap{
+
+    position:relative;
+
+    padding-left:60px;
+
+}
+
+.roadmap h2{
+
+    font-size:34px;
+
+    font-weight:800;
+
+    margin-bottom:50px;
+
+}
+
+/* Timeline */
+
+.roadmap::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:18px;
+
+    top:85px;
+
+    bottom:0;
+
+    width:3px;
+
+    background:linear-gradient(
+        to bottom,
+        var(--accent),
+        rgba(255,255,255,.08)
+    );
+
+    border-radius:10px;
+
+}
+
+/* ===========================================================
+   PHASE CARD
+   =========================================================== */
+
+.phase{
+
+    position:relative;
+
+    margin-bottom:40px;
+
+    background:rgba(23,28,37,.82);
+
+    border:1px solid var(--border);
+
+    border-radius:22px;
+
+    overflow:hidden;
+
+    transition:var(--transition);
+
+    backdrop-filter:blur(16px);
+
+}
+
+.phase:hover{
+
+    transform:translateY(-6px);
+
+    border-color:
+
+        rgba(78,163,255,.35);
+
+    box-shadow:
+
+        0 20px 45px
+
+        rgba(0,0,0,.35);
+
+}
+
+/* Timeline Dot */
+
+.phase::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:22px;
+
+    height:22px;
+
+    border-radius:50%;
+
+    background:#2D333D;
+
+    left:-53px;
+
+    top:36px;
+
+    border:4px solid var(--bg);
+
+    transition:var(--transition);
+
+}
+
+/* Active Phase */
+
+.phase.active::before{
+
+    background:var(--accent);
+
+    box-shadow:
+
+        0 0 25px
+
+        rgba(78,163,255,.8);
+
+}
+
+.phase.active{
+
+    border-color:
+
+        rgba(78,163,255,.3);
+
+}
+
+/* ===========================================================
+   HEADER
+   =========================================================== */
+
+.phase-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:30px;
+
+    cursor:pointer;
+
+}
+
+.phase-header h3{
+
+    font-size:26px;
+
+    margin-bottom:8px;
+
+}
+
+.phase-header p{
+
+    color:var(--muted);
+
+    font-size:15px;
+
+}
+
+.expand{
+
+    width:46px;
+
+    height:46px;
+
+    border:none;
+
+    border-radius:14px;
+
+    background:#202734;
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:var(--transition);
+
+}
+
+.expand:hover{
+
+    background:var(--accent);
+
+    transform:rotate(180deg);
+
+}
+
+/* ===========================================================
+   PHASE BODY
+   =========================================================== */
+
+.phase-body{
+
+    padding:0 30px 30px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+}
+
+/* ===========================================================
+   SUBJECT
+   =========================================================== */
+
+.subject{
+
+    background:#202734;
+
+    border-radius:18px;
+
+    padding:22px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    transition:var(--transition);
+
+}
+
+.subject:hover{
+
+    transform:translateX(10px);
+
+    background:#252F3E;
+
+}
+
+.subject h4{
+
+    font-size:20px;
+
+    margin-bottom:8px;
+
+}
+
+.subject span{
+
+    color:var(--muted);
+
+    font-size:14px;
+
+}
+
+.subject-progress{
+
+    width:240px;
+
+}
+
+.subject-progress small{
+
+    display:block;
+
+    margin-top:10px;
+
+    color:var(--muted);
+
+}
+
+/* ===========================================================
+   STATUS BADGES
+   =========================================================== */
+
+.badge{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:8px 16px;
+
+    border-radius:999px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+.badge.completed{
+
+    background:rgba(51,209,122,.18);
+
+    color:var(--success);
+
+}
+
+.badge.progress{
+
+    background:rgba(248,184,78,.18);
+
+    color:var(--warning);
+
+}
+
+.badge.pending{
+
+    background:rgba(246,97,81,.18);
+
+    color:var(--danger);
+
+}
+
+/* ===========================================================
+   HOVER GLOW
+   =========================================================== */
+
+.card:hover,
+.phase:hover{
+
+    box-shadow:
+
+        0 15px 45px rgba(0,0,0,.35),
+
+        0 0 0 1px rgba(78,163,255,.08);
+
+}
+
+/* ===========================================================
+   CUSTOM SCROLLBAR
+   =========================================================== */
+
+::-webkit-scrollbar{
+
+    width:10px;
+
+}
+
+::-webkit-scrollbar-track{
+
+    background:#10141B;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+    background:#2F3848;
+
+    border-radius:20px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+    background:#4EA3FF;
+
+}
+
+/* ===========================================================
+   FADE IN ANIMATION
+   =========================================================== */
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(30px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+.hero,
+.card,
+.phase{
+
+    animation:fadeUp .6s ease forwards;
+
+}
+
+.phase:nth-child(2){
+
+    animation-delay:.1s;
+
+}
+
+.phase:nth-child(3){
+
+    animation-delay:.2s;
+
+}
+
+.phase:nth-child(4){
+
+    animation-delay:.3s;
+
+}
+
+/* ===========================================================
+   RESPONSIVE
+   =========================================================== */
+
+@media(max-width:1200px){
+
+.dashboard-grid{
+
+grid-template-columns:1fr;
+
+}
+
+.card,
+.large,
+.wide{
+
+grid-column:span 1;
+
+}
+
+.subject{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+gap:18px;
+
+}
+
+.subject-progress{
+
+width:100%;
+
+}
+
+}
+
+@media(max-width:900px){
+
+.sidebar{
+
+width:90px;
+
+padding:20px;
+
+}
+
+.logo h2,
+.logo span{
+
+display:none;
+
+}
+
+.nav-item{
+
+text-align:center;
+
+padding:14px;
+
+font-size:13px;
+
+}
+
+.main{
+
+padding:24px;
+
+}
+
+.hero{
+
+flex-direction:column;
+
+align-items:flex-start;
+
+gap:25px;
+
+}
+
+.hero h1{
+
+font-size:34px;
+
+}
+
+.roadmap{
+
+padding-left:35px;
+
+}
+
+.phase::before{
+
+left:-31px;
+
+}
+
+.roadmap::before{
+
+left:7px;
+
+}
+
+}
+
+@media(max-width:600px){
+
+.hero{
+
+padding:28px;
+
+}
+
+.hero h1{
+
+font-size:28px;
+
+}
+
+.card{
+
+padding:22px;
+
+}
+
+#countdown{
+
+font-size:34px;
+
+}
+
+.circle{
+
+width:110px;
+
+height:110px;
+
+font-size:28px;
+
+}
+
+.phase-header{
+
+padding:22px;
+
+}
+
+.phase-header h3{
+
+font-size:22px;
+
+}
+
+}
