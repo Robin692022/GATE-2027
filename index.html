@@ -1528,7 +1528,6 @@
 
             ACADEMIC_SYLLABUS.filter(s => s.name.toLowerCase().includes(searchVal)).forEach(sub => {
                 const subData = appState.subjects[sub.name];
-                const subPct = getSubjectProgress(sub.name);
 
                 const div = document.createElement('div');
                 div.className = 'glass-panel card-padding';
