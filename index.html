@@ -1790,24 +1790,20 @@
    function updateChapterStatus(e, key, status) {
       e.preventDefault();
       e.stopPropagation();
-
+  
       ForgeState.chapterStates[key] = status;
       saveAppState();
 
-      // Remember the subject whose accordion is open
       const subjectId = key.split("_")[0];
 
-      // Re-render
       requestAnimationFrame(() => {
           renderLectureTracker();
-    
-          // Reopen the accordion
-          const accordion = document.getElementById(`accordion-${subjectId}`);
-          if (accordion) accordion.classList.add("open");
 
-          // Reopen THIS dropdown so you can continue updating chapters
-          const dropdown = document.getElementById(`dropdown-ch-${key}`);
-          if (dropdown) dropdown.classList.add("open");
+          // Keep only the accordion open
+          const accordion = document.getElementById(`accordion-${subjectId}`);
+          if (accordion) {
+              accordion.classList.add("open");
+          }
       });
     }
 
