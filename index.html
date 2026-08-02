@@ -3,46 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forge</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <title>Forge — GATE 2027 Preparation Operating System</title>
     <style>
+        /* ==========================================================================
+           FORGE DESIGN SYSTEM - GLASS MORPHISM DARK MODE
+           ========================================================================== */
         :root {
-            --bg-dark: #07090e;
-            --bg-card: #0d121d;
-            --bg-elevated: #151c2e;
-            --bg-hover: #1c263e;
-            --border: #1e293d;
-            --border-glow: #2d3e5e;
+            --bg-base: #07090e;
+            --bg-surface: rgba(18, 24, 38, 0.65);
+            --bg-surface-elevated: rgba(30, 41, 59, 0.7);
+            --bg-glass-card: rgba(255, 255, 255, 0.035);
+            --bg-glass-card-hover: rgba(255, 255, 255, 0.06);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glass-glow: rgba(99, 102, 241, 0.4);
             
-            --text-primary: #f1f5f9;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            
-            --accent-cyan: #06b6d4;
-            --accent-blue: #3b82f6;
+            --accent-primary: #6366f1;
+            --accent-primary-glow: rgba(99, 102, 241, 0.35);
             --accent-purple: #8b5cf6;
-            --accent-pink: #ec4899;
+            --accent-cyan: #06b6d4;
             
-            --success: #10b981;
-            --success-glow: rgba(16, 185, 129, 0.25);
-            --warning: #f59e0b;
-            --warning-glow: rgba(245, 158, 11, 0.25);
-            --danger: #ef4444;
-            --danger-glow: rgba(239, 68, 68, 0.25);
+            --status-success: #10b981;
+            --status-success-glow: rgba(16, 185, 129, 0.3);
+            --status-warning: #f59e0b;
+            --status-warning-glow: rgba(245, 158, 11, 0.3);
+            --status-danger: #ef4444;
+            --status-danger-glow: rgba(239, 68, 68, 0.3);
             
-            --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
             
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 18px;
-            --radius-xl: 24px;
-            
-            --transition-fast: 0.15s ease;
-            --transition-normal: 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --blur-radius: 18px;
+            --transition-speed: 0.22s;
+            --radius-main: 16px;
+            --radius-sm: 10px;
         }
 
         * {
@@ -53,99 +48,118 @@
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-primary);
-            font-family: var(--font-main);
-            height: 100vh;
-            overflow: hidden;
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 60%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: var(--font-family);
+            min-height: 100vh;
             display: flex;
+            overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Modern Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.3); }
+
+        /* Modern Glass Card */
+        .glass-panel {
+            background: var(--bg-glass-card);
+            backdrop-filter: blur(var(--blur-radius));
+            -webkit-backdrop-filter: blur(var(--blur-radius));
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-main);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: border-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
         }
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--border);
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--border-glow);
+
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.14);
         }
 
         /* Sidebar Navigation */
-        .sidebar {
+        #sidebar {
             width: 260px;
-            background: var(--bg-card);
-            border-right: 1px solid var(--border);
+            min-width: 260px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 14, 23, 0.75);
+            backdrop-filter: blur(25px);
+            border-right: 1px solid var(--border-glass);
             display: flex;
             flex-direction: column;
             padding: 24px 16px;
-            gap: 24px;
             z-index: 100;
         }
 
-        .brand {
+        .brand-logo {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 0 12px;
+            padding: 0 12px 24px 12px;
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: 20px;
         }
 
-        .brand-logo {
+        .brand-icon {
             width: 36px;
             height: 36px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+            box-shadow: 0 0 15px var(--accent-primary-glow);
         }
 
         .brand-title {
             font-size: 1.25rem;
-            font-weight: 800;
-            letter-spacing: 1px;
-            background: linear-gradient(to right, #fff, var(--text-secondary));
+            font-weight: 700;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ffffff, #a5b4fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .nav-list {
+            list-style: none;
             display: flex;
             flex-direction: column;
             gap: 6px;
-            list-style: none;
+            flex: 1;
+            overflow-y: auto;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 14px;
-            border-radius: var(--radius-md);
-            color: var(--text-secondary);
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            cursor: pointer;
             font-size: 0.9rem;
             font-weight: 500;
-            cursor: pointer;
-            transition: var(--transition-fast);
+            transition: all var(--transition-speed);
         }
 
         .nav-item:hover {
-            background: var(--bg-elevated);
-            color: var(--text-primary);
+            color: var(--text-main);
+            background: var(--bg-glass-card-hover);
         }
 
         .nav-item.active {
-            background: linear-gradient(90deg, rgba(6, 182, 212, 0.15), rgba(139, 92, 246, 0.05));
-            color: var(--accent-cyan);
-            border-left: 3px solid var(--accent-cyan);
+            color: var(--text-main);
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.2);
         }
 
         .nav-item svg {
@@ -155,370 +169,558 @@
         }
 
         /* Main Workspace */
-        .main-content {
+        #main-wrapper {
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
             height: 100vh;
             overflow-y: auto;
-            padding: 32px;
-            background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.05), transparent 40%),
-                        radial-gradient(circle at bottom left, rgba(6, 182, 212, 0.05), transparent 40%);
         }
 
-        .page {
+        /* Top Bar Header */
+        header.top-bar {
+            height: 70px;
+            padding: 0 36px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(10, 14, 23, 0.4);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-glass);
+            position: sticky;
+            top: 0;
+            z-index: 90;
+        }
+
+        .greeting-box h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+        }
+
+        .greeting-box p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .btn-focus {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid var(--accent-primary);
+            color: var(--text-main);
+            padding: 8px 18px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all var(--transition-speed);
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.25);
+        }
+
+        .btn-focus:hover {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-purple));
+            box-shadow: 0 0 20px var(--accent-primary-glow);
+            transform: translateY(-1px);
+        }
+
+        /* Section Container */
+        .content-section {
             display: none;
-            max-width: 1400px;
-            margin: 0 auto;
-            animation: fadeIn 0.3s ease;
+            padding: 32px 36px;
+            animation: fadeIn 0.3s ease-out forwards;
         }
 
-        .page.active {
+        .content-section.active {
             display: block;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Generic Header */
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 28px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid var(--border);
+        /* Section Titles */
+        .section-header {
+            margin-bottom: 24px;
         }
 
-        .page-title {
-            font-size: 1.8rem;
+        .section-title {
+            font-size: 1.6rem;
             font-weight: 700;
             letter-spacing: -0.5px;
+            margin-bottom: 6px;
         }
 
-        .page-subtitle {
-            color: var(--text-secondary);
+        .section-subtitle {
             font-size: 0.9rem;
-            margin-top: 4px;
+            color: var(--text-muted);
         }
 
-        /* UI Cards */
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 24px;
-            position: relative;
-            overflow: hidden;
-            transition: var(--transition-normal);
-        }
-
-        .card:hover {
-            border-color: var(--border-glow);
-            box-shadow: var(--shadow-glass);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
-
-        .card-title {
-            font-size: 1.05rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        /* Dashboard Asymmetrical Grid */
+        /* UI Grid Components */
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(12, 1fr);
             gap: 20px;
         }
 
+        /* Glass Cards Dimensions */
         .col-12 { grid-column: span 12; }
         .col-8 { grid-column: span 8; }
         .col-6 { grid-column: span 6; }
         .col-4 { grid-column: span 4; }
         .col-3 { grid-column: span 3; }
 
-        /* Modern Number Stepper */
-        .stepper {
-            display: inline-flex;
-            align-items: center;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            overflow: hidden;
+        @media (max-width: 1200px) {
+            .col-8, .col-6, .col-4, .col-3 { grid-column: span 12; }
         }
 
-        .stepper-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            width: 32px;
-            height: 36px;
+        .card-padding { padding: 22px; }
+
+        .card-header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: var(--transition-fast);
-            font-size: 1.1rem;
+            justify-content: space-between;
+            margin-bottom: 16px;
         }
 
-        .stepper-btn:hover {
-            background: var(--bg-hover);
-            color: var(--accent-cyan);
-        }
-
-        .stepper-input {
-            width: 50px;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            text-align: center;
-            font-family: var(--font-mono);
+        .card-title {
             font-size: 0.95rem;
             font-weight: 600;
-            outline: none;
-        }
-
-        /* Modern Input / Controls */
-        .input-field, .select-field, .textarea-field {
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 10px 14px;
-            color: var(--text-primary);
-            font-family: var(--font-main);
-            font-size: 0.9rem;
-            outline: none;
-            width: 100%;
-            transition: var(--transition-fast);
-        }
-
-        .input-field:focus, .select-field:focus, .textarea-field:focus {
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 10px rgba(6, 182, 212, 0.2);
-        }
-
-        /* Status Glow Badges */
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 0.5px;
             text-transform: uppercase;
-            display: inline-flex;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
-        .status-completed {
-            background: rgba(16, 185, 129, 0.15);
-            color: var(--success);
-            border: 1px solid var(--success);
-            box-shadow: 0 0 12px var(--success-glow);
-        }
-
-        .status-progress {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--warning);
-            border: 1px solid var(--warning);
-            box-shadow: 0 0 12px var(--warning-glow);
-        }
-
-        .status-pending {
-            background: rgba(239, 68, 68, 0.15);
-            color: var(--danger);
-            border: 1px solid var(--danger);
-            box-shadow: 0 0 12px var(--danger-glow);
-        }
-
-        /* Progress Bar */
+        /* Progress Bar Base */
         .progress-bar-container {
             width: 100%;
             height: 8px;
-            background: var(--bg-elevated);
-            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
             overflow: hidden;
             position: relative;
         }
 
         .progress-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
-            border-radius: 10px;
-            transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-cyan));
+            border-radius: 999px;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px var(--accent-primary-glow);
         }
 
-        /* Buttons */
-        .btn {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: #fff;
-            border: none;
-            padding: 10px 18px;
-            border-radius: var(--radius-md);
+        /* Status Glow Badges */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
             font-weight: 600;
-            font-size: 0.88rem;
-            cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: var(--transition-fast);
+            gap: 6px;
         }
 
-        .btn:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+        .badge-completed {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--status-success);
+            border: 1px solid var(--status-success);
+            box-shadow: 0 0 8px var(--status-success-glow);
         }
 
-        .btn-secondary {
-            background: var(--bg-elevated);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
+        .badge-in-progress {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--status-warning);
+            border: 1px solid var(--status-warning);
+            box-shadow: 0 0 8px var(--status-warning-glow);
         }
 
-        .btn-secondary:hover {
-            background: var(--bg-hover);
-            border-color: var(--border-glow);
-            box-shadow: none;
+        .badge-pending {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--status-danger);
+            border: 1px solid var(--status-danger);
+            box-shadow: 0 0 8px var(--status-danger-glow);
         }
 
-        .btn-danger {
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid var(--danger);
-            color: var(--danger);
-        }
-
-        .btn-danger:hover {
-            background: var(--danger);
-            color: #fff;
-        }
-
-        /* Custom Non-closing Dropdown Component */
-        .custom-dropdown {
+        /* ==========================================================================
+           MODERN NON-CLOSING GLASS DROPDOWNS
+           ========================================================================== */
+        .glass-dropdown-wrapper {
             position: relative;
-            margin-bottom: 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            background: var(--bg-card);
-            overflow: hidden;
+            display: inline-block;
+            width: 100%;
         }
 
-        .custom-dropdown-header {
-            padding: 14px 18px;
-            background: var(--bg-elevated);
-            cursor: pointer;
+        .dropdown-trigger {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-weight: 500;
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            font-weight: 600;
-            transition: var(--transition-fast);
+            justify-content: space-between;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all var(--transition-speed);
         }
 
-        .custom-dropdown-header:hover {
-            background: var(--bg-hover);
+        .dropdown-trigger:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
         }
 
-        .custom-dropdown-content {
+        /* Dropdown Overlay Container */
+        .glass-dropdown-menu {
             display: none;
-            padding: 16px;
-            border-top: 1px solid var(--border);
-            background: var(--bg-card);
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            width: 100%;
+            min-width: 180px;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: var(--radius-sm);
+            padding: 8px;
+            z-index: 500; /* Ensure overlay floats above all content */
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6);
+            animation: dropdownSlide 0.2s ease-out;
         }
 
-        .custom-dropdown.open .custom-dropdown-content {
+        .glass-dropdown-menu.show {
             display: block;
         }
 
-        /* Focus Mode Fullscreen */
-        #focus-fullscreen {
+        @keyframes dropdownSlide {
+            from { opacity: 0; transform: translateY(-6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-option {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.15s;
+            margin-bottom: 2px;
+        }
+
+        .dropdown-option:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+        }
+
+        .dropdown-option.selected {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* ==========================================================================
+           MODERN NUMBER STEPPERS
+           ========================================================================== */
+        .stepper-box {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            padding: 4px;
+            width: fit-content;
+        }
+
+        .stepper-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+
+        .stepper-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .stepper-input {
+            width: 60px;
+            background: transparent;
+            border: none;
+            text-align: center;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-weight: 600;
+            -moz-appearance: textfield;
+        }
+
+        .stepper-input::-webkit-outer-spin-button,
+        .stepper-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        /* Search Input */
+        .search-bar-box {
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 42px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            font-size: 0.9rem;
+            outline: none;
+            backdrop-filter: blur(10px);
+            transition: all var(--transition-speed);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 12px var(--accent-primary-glow);
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            stroke: var(--text-muted);
+        }
+
+        /* FULL SCREEN FOCUS MODE OVERLAY */
+        #focus-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: #030508;
+            background: rgba(4, 6, 12, 0.95);
+            backdrop-filter: blur(30px);
             z-index: 9999;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 40px;
+            animation: fadeIn 0.3s ease-out;
         }
 
-        #focus-fullscreen.active {
+        #focus-overlay.active {
             display: flex;
         }
 
-        .timer-display {
-            font-family: var(--font-mono);
+        .focus-clock {
             font-size: 6rem;
             font-weight: 800;
-            letter-spacing: -2px;
-            background: linear-gradient(135deg, #fff, var(--accent-cyan));
+            letter-spacing: 4px;
+            font-family: monospace;
+            background: linear-gradient(135deg, #ffffff, var(--accent-primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin: 20px 0;
+            text-shadow: 0 0 40px var(--accent-primary-glow);
         }
 
-        /* Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-body {
-            background: var(--bg-card);
-            border: 1px solid var(--border-glow);
-            border-radius: var(--radius-xl);
-            width: 100%;
-            max-width: 550px;
-            padding: 28px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        /* SVG Chart */
-        .chart-svg {
+        /* SVG Trend Line Chart */
+        .chart-container {
             width: 100%;
             height: 180px;
+            position: relative;
+        }
+
+        svg.trend-chart {
+            width: 100%;
+            height: 100%;
             overflow: visible;
+        }
+
+        /* Readiness Ring */
+        .ring-circle {
+            transition: stroke-dashoffset 0.8s ease-in-out;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            stroke: var(--text-dim);
+            margin-bottom: 12px;
+        }
+
+        /* Form Inputs */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .form-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-sm);
+            color: var(--text-main);
+            font-size: 0.88rem;
+            outline: none;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: var(--accent-primary);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-action {
+            padding: 10px 18px;
+            background: var(--accent-primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+        }
+
+        .btn-action:hover {
+            opacity: 0.9;
+            box-shadow: 0 0 15px var(--accent-primary-glow);
+        }
+
+        /* Roadmap Phase Details */
+        .phase-card {
+            margin-bottom: 16px;
+        }
+
+        .phase-header {
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .phase-content {
+            display: none;
+            padding: 0 22px 22px 22px;
+            border-top: 1px solid var(--border-glass);
+            margin-top: 12px;
+            padding-top: 16px;
+        }
+
+        .phase-content.open {
+            display: block;
+        }
+
+        /* Chat UI AI */
+        .chat-box {
+            display: flex;
+            flex-direction: column;
+            height: 420px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-right: 8px;
+            margin-bottom: 16px;
+        }
+
+        .msg {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            line-height: 1.45;
+        }
+
+        .msg-ai {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            align-self: flex-start;
+        }
+
+        .msg-user {
+            background: rgba(99, 102, 241, 0.25);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            align-self: flex-end;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 10px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="brand-logo">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+    <!-- SIDEBAR NAVIGATION -->
+    <aside id="sidebar">
+        <div class="brand-logo">
+            <div class="brand-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
             </div>
-            <div class="brand-title">FORGE</div>
+            <span class="brand-title">FORGE</span>
         </div>
 
         <ul class="nav-list">
             <li class="nav-item active" onclick="switchTab('dashboard')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
                 Dashboard
             </li>
             <li class="nav-item" onclick="switchTab('roadmap')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 19 21 12 17 5 21 12 2"/></svg>
                 Roadmap
             </li>
             <li class="nav-item" onclick="switchTab('syllabus')">
@@ -526,11 +728,11 @@
                 Syllabus Tracker
             </li>
             <li class="nav-item" onclick="switchTab('lectures')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
                 Lecture Tracker
             </li>
             <li class="nav-item" onclick="switchTab('revision')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                 Revision System
             </li>
             <li class="nav-item" onclick="switchTab('mistakes')">
@@ -538,790 +740,764 @@
                 Mistake Register
             </li>
             <li class="nav-item" onclick="switchTab('mock')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                Mock Tests
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                Mock Test Tracker
+            </li>
+            <li class="nav-item" onclick="switchTab('ai')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 2a10 10 0 1 0 10 10H12V2z"/><path d="M12 12L2.1 12a10 10 0 0 0 9.9 9.9V12z"/></svg>
+                AI Study Coach
             </li>
             <li class="nav-item" onclick="switchTab('journal')">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 Daily Journal
             </li>
         </ul>
-
-        <div style="margin-top: auto;">
-            <button class="btn btn-secondary" style="width: 100%; justify-content: center;" onclick="openFocusModal()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                Enter Focus Mode
-            </button>
-        </div>
     </aside>
 
-    <!-- Main Workspace Area -->
-    <main class="main-content">
+    <!-- MAIN WRAPPER -->
+    <div id="main-wrapper">
+        <header class="top-bar">
+            <div class="greeting-box">
+                <h2 id="dynamic-greeting">Good Morning</h2>
+                <p id="system-date">Sunday, August 2, 2026</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn-focus" onclick="openFocusMode()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    ⚡ Focus Mode
+                </button>
+            </div>
+        </header>
 
-        <!-- 1. DASHBOARD PAGE -->
-        <section id="page-dashboard" class="page active">
-            <div class="page-header">
-                <div>
-                    <div id="dash-greeting" style="font-size: 0.9rem; color: var(--accent-cyan); font-weight: 600; text-transform: uppercase;">Good Day</div>
-                    <h1 class="page-title">Mission Control</h1>
-                    <p class="page-subtitle">Ready to continue building today's progress?</p>
-                </div>
-                <div id="dash-date" style="font-family: var(--font-mono); color: var(--text-secondary); font-size: 0.9rem;"></div>
+        <!-- DASHBOARD SECTION -->
+        <section id="section-dashboard" class="content-section active">
+            <div class="section-header">
+                <h1 class="section-title">Mission Control</h1>
+                <p class="section-subtitle">Real-time telemetry and immediate study recommendations for GATE ME 2027.</p>
             </div>
 
             <div class="dashboard-grid">
-                <!-- GATE 2027 Countdown -->
-                <div class="card col-8">
-                    <div class="card-header">
-                        <span class="card-title">GATE 2027 Countdown</span>
-                        <span style="font-size: 0.8rem; color: var(--text-muted);">Target: Feb 2027</span>
+                <!-- Countdown Card -->
+                <div class="glass-panel card-padding col-4">
+                    <div class="card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        GATE 2027 Countdown
                     </div>
-                    <div style="display: flex; gap: 24px; align-items: center;">
-                        <div style="font-family: var(--font-mono); font-size: 2.8rem; font-weight: 800; color: var(--accent-cyan);" id="dash-countdown-days">---</div>
-                        <div style="color: var(--text-secondary); font-size: 0.95rem;">
-                            Days Remaining
-                            <div style="font-size: 0.8rem; color: var(--text-muted);" id="dash-countdown-sub">00h 00m</div>
+                    <div style="font-size: 2.2rem; font-weight: 800; margin: 12px 0 4px 0;" id="dash-countdown-days">183 Days</div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);" id="dash-countdown-detail">00 Hours : 00 Mins Remaining</p>
+                </div>
+
+                <!-- Overall Progress Card -->
+                <div class="glass-panel card-padding col-4">
+                    <div class="card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                        Overall Preparation
+                    </div>
+                    <div style="font-size: 2.2rem; font-weight: 800; margin: 12px 0 4px 0;" id="dash-overall-pct">0%</div>
+                    <div class="progress-bar-container" style="margin-top: 10px;">
+                        <div class="progress-bar-fill" id="dash-overall-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Readiness Score Card -->
+                <div class="glass-panel card-padding col-4" style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <div class="card-title">Readiness Index</div>
+                        <div style="font-size: 2rem; font-weight: 800; margin-top: 6px;" id="dash-readiness-score">0 / 100</div>
+                        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;" id="dash-readiness-desc">Complete subjects to calculate</p>
+                    </div>
+                    <svg width="70" height="70" viewBox="0 0 36 36">
+                        <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3.8"/>
+                        <path id="readiness-svg-ring" class="ring-circle" stroke-dasharray="0, 100" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--accent-primary)" stroke-width="3.8"/>
+                    </svg>
+                </div>
+
+                <!-- Today's Study Recommendation -->
+                <div class="glass-panel card-padding col-8">
+                    <div class="card-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                        Today's Recommended Study
+                    </div>
+                    <div id="dash-today-study-box" style="margin-top: 14px;">
+                        <!-- Generated Dynamically -->
+                    </div>
+                </div>
+
+                <!-- Motivation Card -->
+                <div class="glass-panel card-padding col-4">
+                    <div class="card-title">Telemetry Insight</div>
+                    <div style="margin-top: 14px; font-size: 0.95rem; line-height: 1.5; color: var(--text-main);" id="dash-motivation-text">
+                        Initialize your preparation by marking your first active chapter in Strength of Materials or Engineering Mechanics.
+                    </div>
+                </div>
+
+                <!-- Today's Goals (Auto Populated from Journal) -->
+                <div class="glass-panel card-padding col-4">
+                    <div class="card-title">Today's Objectives</div>
+                    <div id="dash-goals-list" style="margin-top: 12px; font-size: 0.88rem; color: var(--text-muted);">
+                        No explicit goal set for today. Add one in your Daily Journal.
+                    </div>
+                </div>
+
+                <!-- Pending Status Widgets (Visible ONLY for Completed Subjects or Active Queue) -->
+                <div class="glass-panel card-padding col-4">
+                    <div class="card-title">Pending Revisions</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; margin-top: 8px;" id="dash-pending-rev-count">0</div>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">For completed subjects only</p>
+                </div>
+
+                <div class="glass-panel card-padding col-4">
+                    <div class="card-title">Pending Subject Mocks</div>
+                    <div style="font-size: 1.8rem; font-weight: 700; margin-top: 8px;" id="dash-pending-mock-count">0</div>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Unlocked upon subject completion</p>
+                </div>
+
+                <!-- Quick Notes Scratchpad -->
+                <div class="glass-panel card-padding col-12">
+                    <div class="card-title">Temporary Scratchpad (Auto-saved)</div>
+                    <textarea class="form-textarea" id="dash-quick-notes" style="width: 100%; margin-top: 10px; height: 70px;" placeholder="Write any temporary formula or quick reminder..."></textarea>
+                </div>
+            </div>
+        </section>
+
+        <!-- ROADMAP SECTION -->
+        <section id="section-roadmap" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Master Roadmap</h1>
+                <p class="section-subtitle">Complete GATE 2027 Mechanical Engineering Master Strategy & Phase Telemetry.</p>
+            </div>
+
+            <div class="glass-panel card-padding" style="margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <span style="font-size: 1.1rem; font-weight: 700;">Global Journey Progress</span>
+                    <span style="font-size: 1.1rem; font-weight: 800; color: var(--accent-cyan);" id="roadmap-global-pct">0%</span>
+                </div>
+                <div class="progress-bar-container" style="height: 12px;">
+                    <div class="progress-bar-fill" id="roadmap-global-bar" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <div id="roadmap-phases-container">
+                <!-- Rendered dynamically from academic dataset -->
+            </div>
+        </section>
+
+        <!-- SYLLABUS PROGRESS TRACKER -->
+        <section id="section-syllabus" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Syllabus Progress Tracker</h1>
+                <p class="section-subtitle">Single source of truth for all 15 GATE Mechanical subjects. Status updates immediately reflect system-wide.</p>
+            </div>
+
+            <div class="search-bar-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="search-input" id="syllabus-search" placeholder="Search subject by name..." oninput="filterSyllabus()">
+            </div>
+
+            <div id="syllabus-cards-list" style="display: flex; flex-direction: column; gap: 16px;">
+                <!-- Rendered Dynamically -->
+            </div>
+        </section>
+
+        <!-- LECTURE TRACKER -->
+        <section id="section-lectures" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Lecture Progress Tracker</h1>
+                <p class="section-subtitle">Execution engine. Every subject contains individual progress bars and non-closing glass dropdowns.</p>
+            </div>
+
+            <div id="lecture-subjects-container" style="display: flex; flex-direction: column; gap: 18px;">
+                <!-- Rendered Dynamically -->
+            </div>
+        </section>
+
+        <!-- REVISION SYSTEM -->
+        <section id="section-revision" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Revision System</h1>
+                <p class="section-subtitle">Automated memory engine. Completed chapters enter the revision queue.</p>
+            </div>
+
+            <div class="search-bar-box">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" class="search-input" id="revision-search" placeholder="Search revision queue by subject or chapter..." oninput="renderRevision()">
+            </div>
+
+            <div id="revision-queue-list" style="display: flex; flex-direction: column; gap: 12px;">
+                <!-- Rendered Dynamically -->
+            </div>
+        </section>
+
+        <!-- MISTAKE REGISTER -->
+        <section id="section-mistakes" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Mistake Register</h1>
+                <p class="section-subtitle">Personal knowledge base of mistakes. Learn once, overcome forever.</p>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="glass-panel card-padding col-4">
+                    <h3 style="font-size: 1rem; margin-bottom: 14px;">Log New Mistake</h3>
+                    <div class="form-group">
+                        <label class="form-label">Subject</label>
+                        <select class="form-select" id="mistake-subject-select"></select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Title / Question Tag</label>
+                        <input type="text" class="form-input" id="mistake-title" placeholder="e.g. Incorrect Sign Convention in Torsion">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Severity</label>
+                        <select class="form-select" id="mistake-severity">
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Description & Solution Analysis</label>
+                        <textarea class="form-textarea" id="mistake-desc" placeholder="Write detailed conceptual error analysis..."></textarea>
+                    </div>
+                    <button class="btn-action" style="width: 100%;" onclick="addMistake()">Save Mistake Record</button>
+                </div>
+
+                <div class="glass-panel card-padding col-8">
+                    <h3 style="font-size: 1rem; margin-bottom: 14px;">Logged Mistakes</h3>
+                    <div id="mistakes-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- Rendered Dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MOCK TEST TRACKER -->
+        <section id="section-mock" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Mock Test Tracker</h1>
+                <p class="section-subtitle">Performance telemetry and score trends evaluation.</p>
+            </div>
+
+            <!-- Analytics Area at Top with Trend Graph -->
+            <div class="glass-panel card-padding" style="margin-bottom: 24px;">
+                <div class="card-title">Performance Score Trend</div>
+                <div class="chart-container" style="margin-top: 14px;">
+                    <svg class="trend-chart" id="mock-trend-svg">
+                        <!-- Rendered via JS -->
+                    </svg>
+                </div>
+            </div>
+
+            <div class="dashboard-grid">
+                <div class="glass-panel card-padding col-4">
+                    <h3 style="font-size: 1rem; margin-bottom: 14px;">Record Mock Result</h3>
+                    <div class="form-group">
+                        <label class="form-label">Mock Title</label>
+                        <input type="text" class="form-input" id="mock-name" placeholder="e.g. SOM Subject Test 01">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Marks Obtained</label>
+                        <input type="number" class="form-input" id="mock-score" placeholder="e.g. 42.5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Total Marks</label>
+                        <input type="number" class="form-input" id="mock-total" value="50">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Accuracy (%)</label>
+                        <input type="number" class="form-input" id="mock-accuracy" placeholder="e.g. 84">
+                    </div>
+                    <button class="btn-action" style="width: 100%;" onclick="addMockTest()">Save Mock Entry</button>
+                </div>
+
+                <div class="glass-panel card-padding col-8">
+                    <h3 style="font-size: 1rem; margin-bottom: 14px;">Attempt History</h3>
+                    <div id="mock-history-list" style="display: flex; flex-direction: column; gap: 12px;">
+                        <!-- Rendered Dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI STUDY COACH -->
+        <section id="section-ai" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">AI Study Coach</h1>
+                <p class="section-subtitle">Context-aware preparation mentor analyzing your live preparation telemetry.</p>
+            </div>
+
+            <div class="glass-panel card-padding">
+                <div class="chat-box">
+                    <div class="chat-messages" id="ai-chat-messages">
+                        <div class="msg msg-ai">
+                            Hello! I am your Forge AI Mentor. I am reading your real preparation data. Ask me what to study next or request an analysis of your current readiness!
                         </div>
                     </div>
-                    <div style="margin-top: 20px;">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 6px;">
-                            <span>Preparation Journey Elapsed</span>
-                            <span id="dash-journey-pct" style="font-weight: 700;">0%</span>
-                        </div>
-                        <div class="progress-bar-container"><div id="dash-journey-bar" class="progress-bar-fill" style="width: 0%;"></div></div>
-                    </div>
-                </div>
-
-                <!-- Overall Progress -->
-                <div class="card col-4">
-                    <div class="card-header">
-                        <span class="card-title">Overall Preparation</span>
-                    </div>
-                    <div style="font-size: 3rem; font-weight: 800; font-family: var(--font-mono);" id="dash-overall-pct">0%</div>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;" id="dash-overall-sub">Start your first subject task to calculate.</p>
-                </div>
-
-                <!-- Today's Goals (Integrated with Daily Journal) -->
-                <div class="card col-6">
-                    <div class="card-header">
-                        <span class="card-title">Today's Goals</span>
-                        <span class="status-badge status-progress">Active</span>
-                    </div>
-                    <div id="dash-today-goals-content" style="font-size: 0.95rem; color: var(--text-secondary); line-height: 1.6;">
-                        No goal set for today yet. Enter next day's goals in the Daily Journal section!
-                    </div>
-                </div>
-
-                <!-- Readiness Score -->
-                <div class="card col-6">
-                    <div class="card-header">
-                        <span class="card-title">Readiness Score</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 20px;">
-                        <div style="width: 70px; height: 70px; border-radius: 50%; border: 4px solid var(--accent-purple); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; font-family: var(--font-mono);" id="dash-readiness-val">0</div>
-                        <div>
-                            <div style="font-weight: 700;" id="dash-readiness-status">Unavailable</div>
-                            <div style="font-size: 0.85rem; color: var(--text-muted);" id="dash-readiness-desc">Complete your first subject to calculate score.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Pending Widgets (Only visible/active as data populates) -->
-                <div class="card col-4">
-                    <div class="card-header"><span class="card-title">Pending Revisions</span></div>
-                    <div style="font-size: 2rem; font-weight: 700;" id="dash-pending-rev-count">0</div>
-                </div>
-
-                <div class="card col-4">
-                    <div class="card-header"><span class="card-title">Pending PYQs</span></div>
-                    <div style="font-size: 2rem; font-weight: 700;" id="dash-pending-pyq-count">0</div>
-                </div>
-
-                <div class="card col-4">
-                    <div class="card-header"><span class="card-title">Pending Subject Mocks</span></div>
-                    <div style="font-size: 2rem; font-weight: 700;" id="dash-pending-mock-count">0</div>
-                </div>
-
-                <!-- Dynamic Motivation -->
-                <div class="card col-12">
-                    <div class="card-header"><span class="card-title">Preparation Insights</span></div>
-                    <div id="dash-motivation-text" style="color: var(--text-secondary); font-size: 0.95rem;">
-                        No activity detected yet. Begin your journey by completing chapters in the Lecture Tracker.
+                    <div class="chat-input-row">
+                        <input type="text" class="form-input" id="ai-input" style="flex: 1;" placeholder="Ask AI coach (e.g. 'What should I study today?' or 'Analyze my readiness')..." onkeypress="if(event.key==='Enter') sendAiMessage()">
+                        <button class="btn-action" onclick="sendAiMessage()">Send</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 2. ROADMAP PAGE -->
-        <section id="page-roadmap" class="page">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">GATE 2027 Master Roadmap</h1>
-                    <p class="page-subtitle">Your structured journey from Day 1 to Examination Day</p>
-                </div>
+        <!-- DAILY JOURNAL -->
+        <section id="section-journal" class="content-section">
+            <div class="section-header">
+                <h1 class="section-title">Daily Journal & Objective Setter</h1>
+                <p class="section-subtitle">Reflect on daily study sessions and set targets for upcoming days.</p>
             </div>
 
-            <div id="roadmap-phases-container" style="display: flex; flex-direction: column; gap: 20px;">
-                <!-- Dynamically Populated Phases -->
+            <div class="dashboard-grid">
+                <div class="glass-panel card-padding col-6">
+                    <h3 style="font-size: 1rem; margin-bottom: 14px;">Today's Reflection</h3>
+                    <div class="form-group">
+                        <label class="form-label">Journal Entry</label>
+                        <textarea class="form-textarea" id="journal-text" style="height: 120px;" placeholder="What went well today? What challenges did you encounter?"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Set Goal for Tomorrow (Transfers to Dashboard Goals)</label>
+                        <input type="text" class="form-input" id="journal-next-goal" placeholder="e.g. Complete Torsion in Shafts & Solve 20 PYQs">
+                    </div>
+                    <button class="btn-action" onclick="saveJournalEntry()">Save Reflection & Set Goal</button>
+                </div>
+
+                <div class="glass-panel card-padding col-6">
+                    <h3 style="font-size: 1rem; margin-bottom: 14px;">Timeline History</h3>
+                    <div id="journal-history-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 350px; overflow-y: auto;">
+                        <!-- Rendered Dynamically -->
+                    </div>
+                </div>
             </div>
         </section>
+    </div>
 
-        <!-- 3. SYLLABUS TRACKER PAGE -->
-        <section id="page-syllabus" class="page">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">Syllabus Progress Tracker</h1>
-                    <p class="page-subtitle">Sorted by Priority & ROI • Full Category Breakdown</p>
-                </div>
-            </div>
-
-            <div id="syllabus-container" style="display: flex; flex-direction: column; gap: 16px;">
-                <!-- Dynamic Subject Cards -->
-            </div>
-        </section>
-
-        <!-- 4. LECTURE TRACKER PAGE -->
-        <section id="page-lectures" class="page">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">Lecture Progress Tracker</h1>
-                    <p class="page-subtitle">Execution engine for daily lecture watching</p>
-                </div>
-            </div>
-
-            <div id="lectures-container" style="display: flex; flex-direction: column; gap: 16px;">
-                <!-- Subjects Dropdown without counters on chapter blocks -->
-            </div>
-        </section>
-
-        <!-- 5. REVISION SYSTEM PAGE -->
-        <section id="page-revision" class="page">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">Revision System</h1>
-                    <p class="page-subtitle">Automated memory engine for completed chapters</p>
-                </div>
-                <div style="width: 300px;">
-                    <input type="text" id="revision-search-input" class="input-field" placeholder="Search revision tasks..." oninput="renderRevision()">
-                </div>
-            </div>
-
-            <div id="revision-list-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
-                <!-- Dynamic Revision Items -->
-            </div>
-        </section>
-
-        <!-- 6. MISTAKE REGISTER PAGE -->
-        <section id="page-mistakes" class="page">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">Mistake Register</h1>
-                    <p class="page-subtitle">Personal repository of errors to avoid repeating</p>
-                </div>
-                <button class="btn" onclick="openMistakeModal()">+ Add New Mistake</button>
-            </div>
-
-            <div id="mistakes-container" style="display: flex; flex-direction: column; gap: 12px;">
-                <!-- Dynamic Mistake Cards -->
-            </div>
-        </section>
-
-        <!-- 7. MOCK TEST TRACKER PAGE -->
-        <section id="page-mock" class="page">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">Mock Test Tracker</h1>
-                    <p class="page-subtitle">Performance evaluation & analytics</p>
-                </div>
-                <button class="btn" onclick="openMockModal()">+ Record Mock Test</button>
-            </div>
-
-            <!-- Performance Trend Analytics SVG Header -->
-            <div class="card" style="margin-bottom: 24px;">
-                <div class="card-header"><span class="card-title">Performance Trend Analytics</span></div>
-                <svg id="mock-trend-svg" class="chart-svg" viewBox="0 0 600 150">
-                    <path id="mock-chart-line" d="M0,130 Q300,130 600,130" fill="none" stroke="var(--accent-cyan)" stroke-width="3"/>
-                </svg>
-            </div>
-
-            <div id="mock-list-container" style="display: flex; flex-direction: column; gap: 12px;">
-                <!-- Dynamic Mock entries -->
-            </div>
-        </section>
-
-    
-        <!-- 9. DAILY JOURNAL & FOCUS MODE PAGE -->
-        <section id="page-journal" class="page">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title">Daily Journal & Goal Setting</h1>
-                    <p class="page-subtitle">Reflect on today's study & set tomorrow's objectives</p>
-                </div>
-            </div>
-
-            <div class="card">
-                <div style="margin-bottom: 16px;">
-                    <label style="font-weight: 600; display: block; margin-bottom: 6px;">Today's Study Reflection</label>
-                    <textarea id="journal-text" class="textarea-field" rows="5" placeholder="Write today's thoughts, key wins, or challenges..."></textarea>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="font-weight: 600; display: block; margin-bottom: 6px; color: var(--accent-cyan);">Set Tomorrow's Goal(s)</label>
-                    <textarea id="journal-next-goal" class="textarea-field" rows="3" placeholder="e.g. Finish Torsion in Shafts Lecture 14, Solve 20 PYQs..."></textarea>
-                </div>
-
-                <button class="btn" onclick="saveJournal()">Save Journal & Goals</button>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- FULLSCREEN FOCUS MODE OVERLAY -->
-    <div id="focus-fullscreen">
-        <div style="color: var(--text-muted); font-size: 1rem; font-weight: 600; letter-spacing: 2px;">DEEP FOCUS MODE</div>
-        <div id="focus-task-title" style="font-size: 1.5rem; font-weight: 700; margin-top: 10px;">Strength of Materials — Torsion</div>
-        <div class="timer-display" id="focus-timer-text">25:00</div>
+    <!-- FULL SCREEN FOCUS MODE OVERLAY -->
+    <div id="focus-overlay">
+        <div style="font-size: 0.9rem; letter-spacing: 2px; color: var(--accent-cyan); font-weight: 700; text-transform: uppercase;">Deep Work Workspace</div>
+        <div id="focus-task-title" style="font-size: 1.4rem; font-weight: 600; margin-top: 8px; color: var(--text-main);">Strength of Materials Deep Focus</div>
         
-        <div style="display: flex; gap: 16px; margin-top: 20px;">
-            <button class="btn" id="focus-toggle-btn" onclick="toggleFocusTimer()">Pause</button>
-            <button class="btn btn-danger" onclick="exitFocusMode()">End Session</button>
+        <div class="focus-clock" id="focus-timer-display">25:00</div>
+
+        <!-- Modern Stepper for Setting Minutes -->
+        <div id="focus-setup-controls" style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+            <span style="font-size: 0.9rem; color: var(--text-muted);">Set Duration (Mins):</span>
+            <div class="stepper-box">
+                <button class="stepper-btn" onclick="adjustFocusMinutes(-5)">-</button>
+                <input type="number" class="stepper-input" id="focus-minutes-input" value="25" readonly>
+                <button class="stepper-btn" onclick="adjustFocusMinutes(5)">+</button>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 16px;">
+            <button class="btn-action" id="focus-start-btn" onclick="toggleFocusTimer()">Start Focus Session</button>
+            <button class="btn-action" style="background: rgba(255,255,255,0.1); color: #fff;" onclick="closeFocusMode()">Exit Full Screen</button>
         </div>
     </div>
 
-    <!-- FOCUS MODE SETUP MODAL -->
-    <div id="focus-setup-modal" class="modal-overlay">
-        <div class="modal-body">
-            <h2 style="font-size: 1.3rem; margin-bottom: 16px;">Configure Focus Session</h2>
-            <div style="margin-bottom: 14px;">
-                <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Current Study Task</label>
-                <input type="text" id="focus-input-task" class="input-field" value="GATE Preparation Session">
-            </div>
-            <div style="margin-bottom: 20px;">
-                <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 6px;">Focus Duration (Minutes)</label>
-                <div class="stepper">
-                    <button class="stepper-btn" onclick="adjustFocusMinutes(-5)">-</button>
-                    <input type="number" id="focus-input-mins" class="stepper-input" value="25" readonly>
-                    <button class="stepper-btn" onclick="adjustFocusMinutes(5)">+</button>
-                </div>
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button class="btn btn-secondary" onclick="closeFocusModal()">Cancel</button>
-                <button class="btn" onclick="startFocusMode()">Start Fullscreen Focus</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MISTAKE MODAL -->
-    <div id="mistake-modal" class="modal-overlay">
-        <div class="modal-body">
-            <h2 style="font-size: 1.3rem; margin-bottom: 16px;">Record New Mistake</h2>
-            <div style="margin-bottom: 12px;">
-                <label style="font-size: 0.85rem; color: var(--text-secondary);">Subject</label>
-                <select id="mistake-select-subject" class="select-field" style="margin-top: 4px;"></select>
-            </div>
-            <div style="margin-bottom: 12px;">
-                <label style="font-size: 0.85rem; color: var(--text-secondary);">Title</label>
-                <input type="text" id="mistake-input-title" class="input-field" placeholder="e.g. Calculation error in sign convention">
-            </div>
-            <div style="margin-bottom: 16px;">
-                <label style="font-size: 0.85rem; color: var(--text-secondary);">Details / Concept Correction</label>
-                <textarea id="mistake-input-desc" class="textarea-field" rows="4" placeholder="Explain what went wrong and how to fix it..."></textarea>
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 10px;">
-                <button class="btn btn-secondary" onclick="closeMistakeModal()">Cancel</button>
-                <button class="btn" onclick="saveMistake()">Save Mistake</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MOCK MODAL -->
-    <div id="mock-modal" class="modal-overlay">
-        <div class="modal-body">
-            <h2 style="font-size: 1.3rem; margin-bottom: 16px;">Record Mock Test</h2>
-            <div style="margin-bottom: 12px;">
-                <label style="font-size: 0.85rem; color: var(--text-secondary);">Mock Name / Subject</label>
-                <input type="text" id="mock-input-name" class="input-field" placeholder="e.g. SOM Subject Test 1">
-            </div>
-            <div style="display: flex; gap: 12px; margin-bottom: 12px;">
-                <div style="flex:1;">
-                    <label style="font-size: 0.85rem; color: var(--text-secondary);">Score Obtained</label>
-                    <input type="number" id="mock-input-score" class="input-field" value="50">
-                </div>
-                <div style="flex:1;">
-                    <label style="font-size: 0.85rem; color: var(--text-secondary);">Total Score</label>
-                    <input type="number" id="mock-input-total" class="input-field" value="100">
-                </div>
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-                <button class="btn btn-secondary" onclick="closeMockModal()">Cancel</button>
-                <button class="btn" onclick="saveMock()">Save Mock Record</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT APP ARCHITECTURE -->
+    <!-- GLOBAL APPLICATION LOGIC PERSISTENCE ENGINE -->
     <script>
-        /* GLOBAL DATA MODEL SPECIFICATION */
-        const APP_DATA_KEY = "FORGE_GATE_2027_DATA_V1";
-
-        const DEFAULT_SUBJECTS = [
+        /* ==========================================================================
+           1. ACADEMIC DATASET & INITIAL STATE MODEL
+           ========================================================================== */
+        const ACADEMIC_SYLLABUS = [
             {
                 name: "Strength of Materials",
                 weightage: "10-12 Marks",
                 resource: "PW Full Course",
                 priority: "High",
-                phase: 1,
-                chapters: ["Introduction and Properties of Materials", "Axially Loaded Members", "Torsion in Circular Shafts", "Shear Forces and Bending Moments", "Bending Stresses in Beams", "Shear Stresses in Beams", "Deflection of Beams", "Energy Methods", "Complex Stresses", "Complex Strains", "Combined Loadings", "Pressure Vessels", "Columns"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
-            },
-            {
-                name: "Basic Thermodynamics",
-                weightage: "8-10 Marks",
-                resource: "PW Full Course",
-                priority: "High",
-                phase: 1,
-                chapters: ["Basic Concepts", "Work and Heat", "First Law of Thermodynamics", "Second Law of Thermodynamics", "Entropy", "Exergy", "Properties of Substances", "Thermodynamic Relations"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
-            },
-            {
-                name: "Applied Thermodynamics",
-                weightage: "6-8 Marks",
-                resource: "PW Full Course",
-                priority: "High",
-                phase: 1,
-                chapters: ["VCRS", "Analysis of VCRS", "Vapor Absorption System", "Gas Refrigeration", "Psychrometry", "Thermodynamic Cycles", "Otto Cycle Analysis", "Diesel Cycle Analysis", "Dual Cycle Analysis", "Engine Tests and Analysis", "Brayton Cycle", "Rankine Cycle", "Centrifugal Air Compressors", "Axial Compressors", "Steam Turbine", "Powerplant Auxiliaries", "Compressible Flow"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
-            },
-            {
-                name: "Engineering Mathematics",
-                weightage: "13 Marks",
-                resource: "PW / YouTube",
-                priority: "High",
-                phase: 1,
-                chapters: ["Linear Algebra", "Calculus", "Vector Calculus", "Complex Analysis", "Differential Equations", "Numerical Methods", "Transform Theory and Fourier Series", "Probability and Statistics"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
+                chapters: ["Introduction and Properties of Materials", "Axially Loaded Members", "Torsion in Circular Shafts", "Shear Forces and Bending Moments", "Bending Stresses in Beams", "Shear Stresses in Beams", "Deflection of Beams", "Energy Methods", "Complex Stresses", "Complex Strains", "Combined Loadings", "Pressure Vessels", "Columns"]
             },
             {
                 name: "Engineering Mechanics",
                 weightage: "4-6 Marks",
-                resource: "YouTube Concise",
-                priority: "Medium",
-                phase: 2,
-                chapters: ["Basic Concepts", "Equilibrium", "Friction and It’s Applications", "Truss and Frames", "Centroid", "Moment of Inertia", "Kinematics of Particles", "Kinematics of Rigid Bodies", "Kinetics of Particles", "Kinetics of Rigid Bodies", "Lagrange’s Equation of Motion"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
+                resource: "YouTube GateWallah",
+                priority: "High",
+                chapters: ["Basic Concepts", "Equilibrium", "Friction and It’s Applications", "Truss and Frames", "Centroid", "Moment of Inertia", "Kinematics of Particles", "Kinematics of Rigid Bodies", "Kinetics of Particles", "Kinetics of Rigid Bodies", "Lagrange’s Equation of Motion"]
             },
             {
                 name: "Theory of Machines & Vibrations",
                 weightage: "8-10 Marks",
                 resource: "PW Full Course",
                 priority: "High",
-                phase: 2,
-                chapters: ["Simple Mechanism", "Velocity Analysis", "Acceleration Analysis", "Gear", "Gear Train", "Analysis of Slider Crank Mechanism", "Flywheel", "Balancing", "Vibration", "Gyroscope", "Cam and Follower", "Governor"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
+                chapters: ["Simple Mechanism", "Velocity Analysis", "Acceleration Analysis", "Gear", "Gear Train", "Analysis of Slider Crank Mechanism", "Flywheel", "Balancing", "Vibration", "Gyroscope", "Cam and Follower", "Governor"]
             },
             {
                 name: "Fluid Mechanics & Machinery",
                 weightage: "8-10 Marks",
                 resource: "PW Full Course",
                 priority: "High",
-                phase: 3,
-                chapters: ["Fluid and It’s Properties", "Pressure and It’s Measurement", "Hydrostatic Forces", "Buoyancy and Stability", "Fluid Kinematics", "Fluid Dynamics", "Laminar FLow", "Flow through Pipes", "Boundary Layer Theory", "Dimensional Analysis and Model Studies", "Turbulent Flow", "Drag and Lift", "Basic Principles of Turbomachinery", "Turbines", "Pumps", "Compressors", "Steam and Gas Turbines", "Theory of Jet Propulsion"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
+                chapters: ["Fluid and It’s Properties", "Pressure and It’s Measurement", "Hydrostatic Forces", "Buoyancy and Stability", "Fluid Kinematics", "Fluid Dynamics", "Laminar FLow", "Flow through Pipes", "Boundary Layer Theory", "Dimensional Analysis and Model Studies", "Turbulent Flow", "Drag and Lift", "Basic Principles of Turbomachinery", "Turbines", "Pumps", "Compressors", "Steam and Gas Turbines", "Theory of Jet Propulsion"]
             },
             {
-                name: "Manufacturing Process - I",
+                name: "Manufacturing Process-I",
                 weightage: "7-9 Marks",
-                resource: "PW / GateWallah",
+                resource: "PW Full Course",
                 priority: "High",
-                phase: 3,
-                chapters: ["Theory of Metal Cutting", "Tool Life", "Non Traditional Machining Method", "Welding", "(NC, CNC)", "Machine Tool", "Additive Manufacturing"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
+                chapters: ["Theory of Metal Cutting", "Tool Life", "Non Traditional Machining Method", "Welding", "(NC, CNC)", "Machine Tool", "Additive Manufacturing"]
             },
             {
-                name: "Manufacturing Process - II",
+                name: "Manufacturing Process-II",
                 weightage: "6-8 Marks",
-                resource: "PW / GateWallah",
+                resource: "PW Full Course",
                 priority: "High",
-                phase: 3,
-                chapters: ["Metal Forming", "Metrology", "Additional Topic", "Casting"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
+                chapters: ["Metal Forming", "Metrology", "Additional Topic", "Casting"]
             },
             {
                 name: "Machine Design",
                 weightage: "5-7 Marks",
                 resource: "PW Full Course",
                 priority: "Medium",
-                phase: 4,
-                chapters: ["Brakes", "Clutches", "Design against Static Loads", "Design against Fluctuating Loads", "(Welded, Riveted and Bolted Joints)", "Bearings", "Gears", "Springs", "(Shafts, Keys and Coupling)"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
+                chapters: ["Brakes", "Clutches", "Design against Static Loads", "Design against Fluctuating Loads", "(Welded, Riveted and Bolted Joints)", "Bearings", "Gears", "Springs", "(Shafts, Keys and Coupling)"]
             },
             {
                 name: "Industrial Engineering",
                 weightage: "6-8 Marks",
                 resource: "PW Full Course",
                 priority: "Medium",
-                phase: 4,
-                chapters: ["Forecasting", "Break Even Analysis", "Production Planning", "Linear Porgramming", "Simplex Method", "Assignment", "Transportation", "PERT & CPM", "Inventory Control", "Queuing Theory and Line Balancing", "(Work Study, MRP and Plant Layout)"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
+                chapters: ["Forecasting", "Break Even Analysis", "Production Planning", "Linear Porgramming", "Simplex Method", "Assignment", "Transportation", "PERT & CPM", "Inventory Control", "Queuing Theory and Line Balancing", "(Work Study, MRP and Plant Layout)"]
             },
             {
                 name: "Material Science",
                 weightage: "3-5 Marks",
                 resource: "YouTube Concise",
-                priority: "Low",
-                phase: 4,
-                chapters: ["Introduction to Material Science", "Phase Diagrams", "Dislocation Theory", "Additional Topic", "TTT Diagram", "Heat Treatment", "Crystallography", "Corrosion", "Nano Material and Polymer", "Ceramic and Composite"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
+                priority: "Medium",
+                chapters: ["Introduction to Material Science", "Phase Diagrams", "Dislocation Theory", "Additional Topic", "TTT Diagram", "Heat Treatment", "Crystallography", "Corrosion", "Nano Material and Polymer", "Ceramic and Composite"]
+            },
+            {
+                name: "Basic Thermodynamics",
+                weightage: "5-7 Marks",
+                resource: "PW Full Course",
+                priority: "High",
+                chapters: ["Basic Concepts", "Work and Heat", "First Law of Thermodynamics", "Second Law of Thermodynamics", "Entropy", "Exergy", "Properties of Substances", "Thermodynamic Relations"]
+            },
+            {
+                name: "Applied Thermodynamics",
+                weightage: "6-8 Marks",
+                resource: "PW Full Course",
+                priority: "Medium",
+                chapters: ["VCRS", "Analysis of VCRS", "Vapor Absorption System", "Gas Refrigeration", "Psychrometry", "Thermodynamic Cycles", "Otto Cycle Analysis", "Diesel Cycle Analysis", "Dual Cycle Analysis", "Engine Tests and Analysis", "Brayton Cycle", "Rankine Cycle", "Centrifugal Air Compressors", "Axial Compressors", "Steam Turbine", "Powerplant Auxiliaries", "Compressible Flow"]
             },
             {
                 name: "Heat Transfer",
-                weightage: "4-6 Marks",
-                resource: "Selective PW",
+                weightage: "5-7 Marks",
+                resource: "Selective Notes",
                 priority: "Medium",
-                phase: 4,
-                chapters: ["Introduction", "Steady Conduction Heat Transfer", "Critical Radius of Insulation", "Fins", "Unsteady –Transient Conduction Heat Transfer", "Convection Heat Transfer", "Radiation Heat Transfer", "Heat Exchanger"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
+                chapters: ["Introduction", "Steady Conduction Heat Transfer", "Critical Radius of Insulation", "Fins", "Unsteady –Transient Conduction Heat Transfer", "Convection Heat Transfer", "Radiation Heat Transfer", "Heat Exchanger"]
+            },
+            {
+                name: "Engineering Mathematics",
+                weightage: "13 Marks",
+                resource: "PW / Practice",
+                priority: "High",
+                chapters: ["Linear Algebra", "Calculus", "Vector Calculus", "Complex Analysis", "Differential Equations", "Numerical Methods", "Transform Theory and Fourier Series", "Probability and Statistics"]
             },
             {
                 name: "General Aptitude",
-                weightage: "15 Marks",
-                resource: "Practice / PYQs",
+                weightage: "10 Marks",
+                resource: "Practice PYQs",
                 priority: "High",
-                phase: 4,
-                chapters: ["Quantitative Aptitude", "Analytical Reasoning", "Spatial Aptitude"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
+                chapters: ["Quantitative Aptitude", "Analytical Reasoning", "Spatial Aptitude"]
             },
             {
                 name: "Verbal Aptitude",
-                weightage: "General Aptitude",
-                resource: "Practice / PYQs",
+                weightage: "5 Marks",
+                resource: "Practice PYQs",
                 priority: "Medium",
-                phase: 4,
-                chapters: ["Parts of Speech", "Vocabulary", "Reading Comprehension and Miscellaneous"],
-                categories: { lectures: "Pending", notes: "Pending", pyqs: "Pending", revision: "Pending", mock: "Pending" }
+                chapters: ["Parts of Speech", "Vocabulary", "Reading Comprehension and Miscellaneous"]
             }
         ];
 
-        let store = {
-            subjects: [],
-            chapterStatuses: {}, // subjectName -> { chapterName: 'Pending' | 'In Progress' | 'Completed' }
-            revisionsCompleted: [], // Array of chapter identifiers removed from due queue
+        const ROADMAP_PHASES = [
+            {
+                phase: "Phase 1",
+                title: "Momentum and SOM Completion",
+                dates: "25 July - 15 August",
+                desc: "Finish Strength of Materials properly and restart a stable study rhythm.",
+                subjects: ["Strength of Materials"]
+            },
+            {
+                phase: "Phase 2",
+                title: "Core Mechanics",
+                dates: "16 August - 30 September",
+                desc: "Build mechanics base: Engineering Mechanics & Theory of Machines & Vibrations.",
+                subjects: ["Engineering Mechanics", "Theory of Machines & Vibrations"]
+            },
+            {
+                phase: "Phase 3",
+                title: "Fluids and Manufacturing",
+                dates: "1 October - 10 November",
+                desc: "Complete major high-return areas: Fluid Mechanics, Manufacturing Process 1 & 2.",
+                subjects: ["Fluid Mechanics & Machinery", "Manufacturing Process-I", "Manufacturing Process-II"]
+            },
+            {
+                phase: "Phase 4",
+                title: "Design, Management, and Compressed Subjects",
+                dates: "11 November - 10 December",
+                desc: "Finish Machine Design, Industrial Engg, Material Science, Aptitude, Heat Transfer.",
+                subjects: ["Machine Design", "Industrial Engineering", "Material Science", "Heat Transfer", "General Aptitude", "Verbal Aptitude"]
+            }
+        ];
+
+        // Central State Engine initialized empty (First Launch Philosophy)
+        let appState = {
+            subjects: {},
             mistakes: [],
             mocks: [],
-            journal: { text: "", nextGoal: "" }
+            journals: [],
+            quickNotes: "",
+            nextGoal: ""
         };
 
-        // Initialize Store
-        function initStore() {
-            const saved = localStorage.getItem(APP_DATA_KEY);
+        function initDataStore() {
+            const saved = localStorage.getItem('forge_app_state_v1');
             if (saved) {
-                try {
-                    store = JSON.parse(saved);
-                } catch (e) {
-                    console.error("Failed to parse store", e);
-                    resetStore();
-                }
+                appState = JSON.parse(saved);
             } else {
-                resetStore();
+                // Pre-populate empty structure
+                ACADEMIC_SYLLABUS.forEach(sub => {
+                    appState.subjects[sub.name] = {
+                        categories: {
+                            lectures: "Pending",
+                            notes: "Pending",
+                            pyqs: "Pending",
+                            revision: "Pending",
+                            mock: "Pending"
+                        },
+                        chapters: {}
+                    };
+                    sub.chapters.forEach(ch => {
+                        appState.subjects[sub.name].chapters[ch] = {
+                            status: "Pending",
+                            revised: false
+                        };
+                    });
+                });
+                saveState();
             }
         }
 
-        function resetStore() {
-            store.subjects = JSON.parse(JSON.stringify(DEFAULT_SUBJECTS));
-            store.chapterStatuses = {};
-            store.subjects.forEach(s => {
-                store.chapterStatuses[s.name] = {};
-                s.chapters.forEach(c => {
-                    store.chapterStatuses[s.name][c] = "Pending";
-                });
-            });
-            store.revisionsCompleted = [];
-            store.mistakes = [];
-            store.mocks = [];
-            store.journal = { text: "", nextGoal: "" };
-            saveStore();
-        }
-
-        function saveStore() {
-            localStorage.setItem(APP_DATA_KEY, JSON.stringify(store));
+        function saveState() {
+            localStorage.setItem('forge_app_state_v1', JSON.stringify(appState));
             syncAllModules();
         }
 
-        /* NAVIGATION */
+        /* ==========================================================================
+           2. NAVIGATION & TAB SWITCHING
+           ========================================================================== */
         function switchTab(tabId) {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(el => el.classList.remove('active'));
 
-            const targetNav = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick').includes(tabId));
-            if(targetNav) targetNav.classList.add('active');
+            const navItem = Array.from(document.querySelectorAll('.nav-item')).find(el => el.getAttribute('onclick').includes(tabId));
+            if(navItem) navItem.classList.add('active');
 
-            const page = document.getElementById(`page-${tabId}`);
-            if(page) page.classList.add('active');
+            const section = document.getElementById(`section-${tabId}`);
+            if(section) section.classList.add('active');
         }
 
-        /* LIVE SYNCHRONIZATION ENGINE */
+        /* ==========================================================================
+           3. NON-CLOSING DROPDOWN TOGGLE ENGINE
+           ========================================================================== */
+        function toggleDropdown(event, id) {
+            event.stopPropagation();
+
+            // Close every dropdown
+            document.querySelectorAll(".glass-dropdown-menu")
+            .forEach(m => m.classList.remove("show"));
+
+            // Reset all cards
+            document.querySelectorAll(".glass-panel")
+            .forEach(c => c.style.zIndex = "1");
+
+            const menu = document.getElementById(id);
+            const card = menu.closest(".glass-panel");
+
+            card.style.position = "relative";
+            card.style.zIndex = "999";
+
+            menu.classList.add("show");
+        }
+
+        // Prevent document click from auto-closing dropdown if clicked inside dropdown
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.glass-dropdown-wrapper')) {
+                document.querySelectorAll('.glass-dropdown-menu').forEach(m => m.classList.remove('show'));
+            }
+        });
+
+        /* ==========================================================================
+           4. CALCULATIONS & SYNCHRONIZATION ENGINE
+           ========================================================================== */
+        function getSubjectProgress(subName) {
+            const subData = appState.subjects[subName];
+            if (!subData) return 0;
+
+            const chKeys = Object.keys(subData.chapters);
+            if (chKeys.length === 0) return 0;
+
+            let compCh = 0;
+            chKeys.forEach(ch => {
+                if (subData.chapters[ch].status === 'Completed') compCh++;
+            });
+
+            return Math.round((compCh / chKeys.length) * 100);
+        }
+
+        function getOverallProgress() {
+            let total = 0;
+            ACADEMIC_SYLLABUS.forEach(s => {
+                total += getSubjectProgress(s.name);
+            });
+            return Math.round(total / ACADEMIC_SYLLABUS.length);
+        }
+
+        function isSubjectCompleted(subName) {
+            const sub = appState.subjects[subName];
+            if (!sub) return false;
+            // A subject is complete if all chapters are marked completed
+            const chs = Object.values(sub.chapters);
+            return chs.length > 0 && chs.every(c => c.status === 'Completed');
+        }
+
         function syncAllModules() {
             renderDashboard();
             renderRoadmap();
             renderSyllabus();
             renderLectures();
             renderRevision();
-            renderMistakes();
-            renderMocks();
-            renderJournal();
+            renderMistakesList();
+            renderMockHistory();
         }
 
-        /* 1. DASHBOARD ENGINE */
+        /* ==========================================================================
+           5. DASHBOARD MODULE
+           ========================================================================== */
         function renderDashboard() {
-            // Greeting & Date
-            const hour = new Date().getHours();
-            let greeting = "Good Morning";
-            if(hour >= 12 && hour < 17) greeting = "Good Afternoon";
-            else if(hour >= 17 && hour < 22) greeting = "Good Evening";
-            else if(hour >= 22 || hour < 5) greeting = "Good Night";
-            document.getElementById('dash-greeting').innerText = greeting;
-            document.getElementById('dash-date').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
+            const overallPct = getOverallProgress();
+            document.getElementById('dash-overall-pct').innerText = overallPct + '%';
+            document.getElementById('dash-overall-bar').style.width = overallPct + '%';
 
-            // GATE 2027 Countdown
-            const gateDate = new Date("2027-02-06T09:00:00");
-            const now = new Date();
-            const diffMs = gateDate - now;
-            const diffDays = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
-            const diffHours = Math.max(0, Math.floor((diffMs / (1000 * 60 * 60)) % 24));
-            const diffMins = Math.max(0, Math.floor((diffMs / (1000 * 60)) % 60));
-
-            document.getElementById('dash-countdown-days').innerText = diffDays;
-            document.getElementById('dash-countdown-sub').innerText = `${diffHours}h ${diffMins}m remaining`;
-
-            // Journey Elapsed Percentage (Independent)
-            const startDate = new Date("2026-01-01");
-            const totalJourneyMs = gateDate - startDate;
-            const elapsedMs = now - startDate;
-            const journeyPct = Math.min(100, Math.max(0, Math.round((elapsedMs / totalJourneyMs) * 100)));
-            document.getElementById('dash-journey-pct').innerText = `${journeyPct}%`;
-            document.getElementById('dash-journey-bar').style.width = `${journeyPct}%`;
-
-            // Overall Preparation Percentage (Calculated from completed chapters count across all subjects)
-            let totalChaptersCount = 0;
-            let completedChaptersCount = 0;
-            Object.keys(store.chapterStatuses).forEach(sName => {
-                Object.keys(store.chapterStatuses[sName]).forEach(cName => {
-                    totalChaptersCount++;
-                    if(store.chapterStatuses[sName][cName] === 'Completed') completedChaptersCount++;
-                });
+            // Readiness Calculation
+            let completedSubjects = 0;
+            ACADEMIC_SYLLABUS.forEach(s => {
+                if (isSubjectCompleted(s.name)) completedSubjects++;
             });
-            const overallPct = totalChaptersCount > 0 ? Math.round((completedChaptersCount / totalChaptersCount) * 100) : 0;
-            document.getElementById('dash-overall-pct').innerText = `${overallPct}%`;
-            document.getElementById('dash-overall-sub').innerText = completedChaptersCount > 0 ? `${completedChaptersCount} of ${totalChaptersCount} chapters finished` : "Start your first subject task to calculate.";
+            const readiness = Math.round((completedSubjects / ACADEMIC_SYLLABUS.length) * 100);
+            document.getElementById('dash-readiness-score').innerText = `${readiness} / 100`;
+            document.getElementById('dash-readiness-desc').innerText = readiness > 0 ? "Based on completed subjects & test telemetry" : "Complete subjects to calculate";
+            document.getElementById('readiness-svg-ring').setAttribute('stroke-dasharray', `${readiness}, 100`);
 
-            // Today's Goals (From Daily Journal)
-            const goalsContent = document.getElementById('dash-today-goals-content');
-            if(store.journal && store.journal.nextGoal && store.journal.nextGoal.trim() !== "") {
-                goalsContent.innerHTML = `<div style="white-space: pre-wrap; color: var(--text-primary); font-weight: 500;">${store.journal.nextGoal}</div>`;
-            } else {
-                goalsContent.innerText = "No specific goals set yet. Enter next day's goals inside the Daily Journal tab!";
+            // Countdown to GATE 2027 (Feb 1, 2027)
+            const gateDate = new Date('2027-02-01T00:00:00');
+            const diffMs = gateDate - new Date();
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            document.getElementById('dash-countdown-days').innerText = `${diffDays} Days`;
+
+            // Dynamic Recommendation
+            let activeSub = null;
+            let activeCh = null;
+            for (let sub of ACADEMIC_SYLLABUS) {
+                const subObj = appState.subjects[sub.name];
+                for (let ch of sub.chapters) {
+                    if (subObj.chapters[ch].status !== 'Completed') {
+                        activeSub = sub.name;
+                        activeCh = ch;
+                        break;
+                    }
+                }
+                if (activeSub) break;
             }
 
-            // Readiness Score
-            let readiness = Math.min(100, Math.round(overallPct * 0.8 + (store.mocks.length * 5)));
-            document.getElementById('dash-readiness-val').innerText = readiness;
-            if(completedChaptersCount === 0) {
-                document.getElementById('dash-readiness-status').innerText = "Unavailable";
-                document.getElementById('dash-readiness-desc').innerText = "Complete your first subject chapter to calculate.";
+            const studyBox = document.getElementById('dash-today-study-box');
+            if (activeSub) {
+                studyBox.innerHTML = `
+                    <div style="font-size: 1.2rem; font-weight: 700; color: var(--accent-cyan);">${activeSub}</div>
+                    <div style="font-size: 0.95rem; margin-top: 4px; color: var(--text-main);">Current Focus: <strong>${activeCh}</strong></div>
+                    <div style="font-size: 0.8rem; margin-top: 8px; color: var(--text-muted);">Priority Level: High | Est. Session: 2.0 Hours</div>
+                `;
             } else {
-                document.getElementById('dash-readiness-status').innerText = readiness > 50 ? "On Track" : "Building Momentum";
-                document.getElementById('dash-readiness-desc').innerText = `Based on ${completedChaptersCount} chapters and ${store.mocks.length} mock tests.`;
+                studyBox.innerHTML = `<div style="color: var(--status-success);">🎉 All syllabus chapters marked completed! Fantastic job!</div>`;
             }
 
-            // Pending Widgets
-            let completedSubjects = store.subjects.filter(s => getSubjectCompletionStatus(s.name) === "Completed");
-            document.getElementById('dash-pending-rev-count').innerText = getPendingRevisionsList().length;
-            document.getElementById('dash-pending-pyq-count').innerText = store.subjects.filter(s => s.categories.pyqs !== 'Completed').length;
-            document.getElementById('dash-pending-mock-count').innerText = store.subjects.filter(s => s.categories.mock !== 'Completed').length;
+            // Pending Widgets Visible ONLY for Completed Subjects
+            let pendingRevCount = 0;
+            let pendingMockCount = 0;
+            ACADEMIC_SYLLABUS.forEach(s => {
+                if (isSubjectCompleted(s.name)) {
+                    if (appState.subjects[s.name].categories.revision !== 'Completed') pendingRevCount++;
+                    if (appState.subjects[s.name].categories.mock !== 'Completed') pendingMockCount++;
+                }
+            });
+            document.getElementById('dash-pending-rev-count').innerText = pendingRevCount;
+            document.getElementById('dash-pending-mock-count').innerText = pendingMockCount;
 
-            // Motivation text from real data
-            const motivationEl = document.getElementById('dash-motivation-text');
-            if(completedChaptersCount > 0) {
-                motivationEl.innerText = `Great discipline! You have completed ${completedChaptersCount} chapters so far. ${totalChaptersCount - completedChaptersCount} remaining until GATE 2027.`;
+            // Goals
+            const goalsBox = document.getElementById('dash-goals-list');
+            if (appState.nextGoal) {
+                goalsBox.innerHTML = `<div class="badge badge-in-progress" style="font-size:0.85rem;">🎯 Goal: ${appState.nextGoal}</div>`;
             } else {
-                motivationEl.innerText = "Welcome to Forge! Begin by marking completed lectures or chapters in the tracker.";
+                goalsBox.innerText = "No explicit goal set for today. Add one in your Daily Journal.";
             }
+
+            // Motivation text
+            const motText = document.getElementById('dash-motivation-text');
+            if (overallPct === 0) {
+                motText.innerText = "0% progress initialized. Complete your first lecture chapter in Strength of Materials to activate global progress telemetry!";
+            } else {
+                motText.innerText = `You have completed ${overallPct}% of your preparation journey. Maintain consistency without overexertion!`;
+            }
+
+            // Quick notes
+            const notesInput = document.getElementById('dash-quick-notes');
+            notesInput.value = appState.quickNotes || "";
+            notesInput.oninput = function() {
+                appState.quickNotes = notesInput.value;
+                localStorage.setItem('forge_app_state_v1', JSON.stringify(appState));
+            };
         }
 
-        /* Helper to check if subject is completed */
-        function getSubjectCompletionStatus(subjectName) {
-            const sub = store.subjects.find(s => s.name === subjectName);
-            if(!sub) return "Pending";
-            const cats = sub.categories;
-            if(cats.lectures === "Completed" && cats.notes === "Completed" && cats.pyqs === "Completed" && cats.revision === "Completed" && cats.mock === "Completed") {
-                return "Completed";
-            }
-            if(cats.lectures !== "Pending" || cats.notes !== "Pending" || cats.pyqs !== "Pending" || cats.revision !== "Pending" || cats.mock !== "Pending") {
-                return "In Progress";
-            }
-            return "Pending";
-        }
-
-        /* 2. ROADMAP ENGINE */
+        /* ==========================================================================
+           6. ROADMAP MODULE
+           ========================================================================== */
         function renderRoadmap() {
+            const globalPct = getOverallProgress();
+            document.getElementById('roadmap-global-pct').innerText = globalPct + '%';
+            document.getElementById('roadmap-global-bar').style.width = globalPct + '%';
+
             const container = document.getElementById('roadmap-phases-container');
-            container.innerHTML = "";
+            container.innerHTML = '';
 
-            const phases = [
-                { id: 1, title: "Phase 1 - Momentum and SOM Completion", date: "25 July - 15 August", desc: "Main objective: finish Strength of Materials, Math, Basic & Applied Thermo." },
-                { id: 2, title: "Phase 2 - Core Mechanics", date: "16 August - 30 September", desc: "Build mechanics base: Engineering Mechanics & Theory of Machines." },
-                { id: 3, title: "Phase 3 - Fluids and Manufacturing", date: "1 October - 10 November", desc: "Complete high-return areas: Fluid Mechanics, Manufacturing 1 & 2." },
-                { id: 4, title: "Phase 4 - Design, Management & Aptitude", date: "11 November - 10 December", desc: "Machine Design, Industrial Engg, Material Science, Heat Transfer, Aptitude." }
-            ];
+            ROADMAP_PHASES.forEach((p, idx) => {
+                let pPctSum = 0;
+                p.subjects.forEach(s => pPctSum += getSubjectProgress(s));
+                const pPct = Math.round(pPctSum / p.subjects.length);
 
-            phases.forEach(ph => {
-                const phaseSubjects = store.subjects.filter(s => s.phase === ph.id);
-                
-                // Calculate phase progress (Independent calculation)
-                let totalCh = 0;
-                let doneCh = 0;
-                phaseSubjects.forEach(s => {
-                    s.chapters.forEach(c => {
-                        totalCh++;
-                        if(store.chapterStatuses[s.name][c] === 'Completed') doneCh++;
-                    });
-                });
-                const pct = totalCh > 0 ? Math.round((doneCh / totalCh) * 100) : 0;
-
-                const card = document.createElement('div');
-                card.className = "card";
-                card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                const div = document.createElement('div');
+                div.className = 'glass-panel phase-card';
+                div.innerHTML = `
+                    <div class="phase-header" onclick="document.getElementById('phase-body-${idx}').classList.toggle('open')">
                         <div>
-                            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--accent-cyan);">${ph.title}</h3>
-                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px;">${ph.date} | ${ph.desc}</div>
+                            <span class="badge badge-in-progress">${p.phase}</span>
+                            <span style="font-size: 1.1rem; font-weight: 700; margin-left: 10px;">${p.title}</span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); margin-left: 12px;">(${p.dates})</span>
                         </div>
-                        <span class="status-badge ${pct === 100 ? 'status-completed' : (pct > 0 ? 'status-progress' : 'status-pending')}">${pct === 100 ? 'Completed' : (pct > 0 ? 'In Progress' : 'Pending')}</span>
-                    </div>
-                    
-                    <div style="margin-top: 16px;">
-                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 6px; color: var(--text-muted);">
-                            <span>Phase Completion</span>
-                            <span>${pct}%</span>
-                        </div>
-                        <div class="progress-bar-container"><div class="progress-bar-fill" style="width: ${pct}%;"></div></div>
-                    </div>
-
-                    <div style="margin-top: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;">
-                        ${phaseSubjects.map(s => `
-                            <div style="background: var(--bg-elevated); padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border);">
-                                <div style="font-weight: 600; font-size: 0.9rem;">${s.name}</div>
-                                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">Resource: ${s.resource}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        /* 3. SYLLABUS TRACKER ENGINE */
-        function renderSyllabus() {
-            const container = document.getElementById('syllabus-container');
-            container.innerHTML = "";
-
-            store.subjects.forEach((sub, sIdx) => {
-                // Calculate dynamic subject progress based on categories selected
-                const catWeights = { lectures: 35, notes: 20, pyqs: 20, revision: 15, mock: 10 };
-                let currentProgress = 0;
-
-                Object.keys(sub.categories).forEach(cat => {
-                    const status = sub.categories[cat];
-                    if(status === 'Completed') currentProgress += catWeights[cat];
-                    else if(status === 'In Progress') currentProgress += (catWeights[cat] / 2);
-                });
-                currentProgress = Math.round(currentProgress);
-
-                const overallStatus = currentProgress === 100 ? "Completed" : (currentProgress > 0 ? "In Progress" : "Pending");
-
-                const card = document.createElement('div');
-                card.className = "card";
-                card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
-                        <div>
-                            <div style="display: flex; align-items: center; gap: 12px;">
-                                <h3 style="font-size: 1.1rem; font-weight: 700;">${sub.name}</h3>
-                                <span class="status-badge ${overallStatus === 'Completed' ? 'status-completed' : (overallStatus === 'In Progress' ? 'status-progress' : 'status-pending')}">${overallStatus}</span>
-                            </div>
-                            <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 6px;">
-                                Weightage: <strong style="color: var(--text-secondary);">${sub.weightage}</strong> • Resource: 
-                                <input type="text" value="${sub.resource}" class="input-field" style="display: inline-block; width: 180px; padding: 2px 8px; font-size: 0.8rem;" onchange="updateSubjectResource(${sIdx}, this.value)">
-                            </div>
-                        </div>
-                        <div style="width: 200px; text-align: right;">
-                            <div style="font-size: 1.2rem; font-weight: 800; font-family: var(--font-mono); color: var(--accent-cyan);">${currentProgress}%</div>
-                            <div class="progress-bar-container" style="margin-top: 6px;"><div class="progress-bar-fill" style="width: ${currentProgress}%;"></div></div>
+                        <div style="display: flex; align-items: center; gap: 14px;">
+                            <span style="font-weight: 700; font-size: 1rem; color: var(--accent-cyan);">${pPct}%</span>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                         </div>
                     </div>
-
-                    <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; background: var(--bg-elevated); padding: 14px; border-radius: var(--radius-md);">
-                        ${['lectures', 'notes', 'pyqs', 'revision', 'mock'].map(cat => `
-                            <div>
-                                <label style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); display: block; margin-bottom: 4px;">${cat}</label>
-                                <select class="select-field" style="padding: 6px 10px; font-size: 0.82rem;" onchange="updateSubjectCategory(${sIdx}, '${cat}', this.value)">
-                                    <option value="Pending" ${sub.categories[cat] === 'Pending' ? 'selected' : ''}>Pending</option>
-                                    <option value="In Progress" ${sub.categories[cat] === 'In Progress' ? 'selected' : ''}>In Progress</option>
-                                    <option value="Completed" ${sub.categories[cat] === 'Completed' ? 'selected' : ''}>Completed</option>
-                                </select>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function updateSubjectCategory(sIdx, category, value) {
-            store.subjects[sIdx].categories[category] = value;
-            saveStore();
-        }
-
-        function updateSubjectResource(sIdx, value) {
-            store.subjects[sIdx].resource = value;
-            saveStore();
-        }
-
-        /* 4. LECTURE TRACKER ENGINE (WITH PERSISTENT OPEN DROPDOWNS & NO CHAPTER BLOCKS COUNTERS) */
-        function renderLectures() {
-            const container = document.getElementById('lectures-container');
-            
-            // Keep existing dropdown open states
-            const openDropdowns = new Set();
-            document.querySelectorAll('.custom-dropdown.open').forEach(el => {
-                if(el.dataset.subject) openDropdowns.add(el.dataset.subject);
-            });
-
-            container.innerHTML = "";
-
-            store.subjects.forEach(sub => {
-                const subChapters = sub.chapters;
-                const dropdown = document.createElement('div');
-                dropdown.className = `custom-dropdown ${openDropdowns.has(sub.name) ? 'open' : ''}`;
-                dropdown.dataset.subject = sub.name;
-
-                dropdown.innerHTML = `
-                    <div class="custom-dropdown-header" onclick="toggleDropdown(this, event)">
-                        <span>${sub.name}</span>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="6 9 12 15 18 9"/></svg>
-                    </div>
-                    <div class="custom-dropdown-content" onclick="event.stopPropagation()">
-                        <div style="display: flex; flex-direction: column; gap: 10px;">
-                            ${subChapters.map(chap => {
-                                const status = store.chapterStatuses[sub.name][chap] || "Pending";
+                    <div class="phase-content" id="phase-body-${idx}">
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">${p.desc}</p>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            ${p.subjects.map(subName => {
+                                const sp = getSubjectProgress(subName);
                                 return `
-                                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--bg-elevated); border-radius: var(--radius-md); border: 1px solid var(--border);">
-                                        <div style="font-size: 0.9rem; font-weight: 500;">${chap}</div>
-                                        <div>
-                                            <select class="select-field" style="padding: 4px 10px; font-size: 0.8rem; width: 130px;" onchange="updateChapterStatus('${sub.name}', '${chap}', this.value)">
-                                                <option value="Pending" ${status === 'Pending' ? 'selected' : ''}>Pending</option>
-                                                <option value="In Progress" ${status === 'In Progress' ? 'selected' : ''}>In Progress</option>
-                                                <option value="Completed" ${status === 'Completed' ? 'selected' : ''}>Completed</option>
-                                            </select>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 6px;">
+                                        <span style="font-size: 0.88rem;">${subName}</span>
+                                        <div style="display: flex; align-items: center; gap: 10px; width: 180px;">
+                                            <div class="progress-bar-container"><div class="progress-bar-fill" style="width: ${sp}%;"></div></div>
+                                            <span style="font-size: 0.8rem; font-weight: 600;">${sp}%</span>
                                         </div>
                                     </div>
                                 `;
@@ -1329,307 +1505,516 @@
                         </div>
                     </div>
                 `;
-                container.appendChild(dropdown);
+                container.appendChild(div);
             });
         }
 
-        /* Non-closing dropdown toggle handler */
-        function toggleDropdown(headerEl, event) {
-            event.stopPropagation();
-            const parent = headerEl.closest('.custom-dropdown');
-            parent.classList.toggle('open');
+        /* ==========================================================================
+           7. SYLLABUS TRACKER MODULE (ENHANCED OVERLAY DROPDOWNS)
+           ========================================================================== */
+        function filterSyllabus() {
+            renderSyllabus();
         }
 
-        function updateChapterStatus(subjectName, chapterName, newStatus) {
-            store.chapterStatuses[subjectName][chapterName] = newStatus;
-            saveStore();
+        function setCategoryStatus(subName, category, status) {
+            appState.subjects[subName].categories[category] = status;
+            saveState();
         }
 
-        /* 5. REVISION SYSTEM ENGINE (WITH SEARCH & REMOVAL ON COMPLETION) */
-        function getPendingRevisionsList() {
-            let pendingList = [];
-            store.subjects.forEach(sub => {
-                sub.chapters.forEach(chap => {
-                    const isCompletedInLectures = store.chapterStatuses[sub.name][chap] === 'Completed';
-                    const key = `${sub.name}___${chap}`;
-                    const isRevisedAndRemoved = store.revisionsCompleted.includes(key);
+        function renderSyllabus() {
+            const searchVal = (document.getElementById('syllabus-search').value || '').toLowerCase();
+            const container = document.getElementById('syllabus-cards-list');
+            container.innerHTML = '';
 
-                    if(isCompletedInLectures && !isRevisedAndRemoved) {
-                        pendingList.push({ subject: sub.name, chapter: chap, key: key });
-                    }
-                });
+            ACADEMIC_SYLLABUS.filter(s => s.name.toLowerCase().includes(searchVal)).forEach(sub => {
+                const subData = appState.subjects[sub.name];
+                const subPct = getSubjectProgress(sub.name);
+
+                const div = document.createElement('div');
+                div.className = 'glass-panel card-padding';
+                div.style.position = 'relative'; // Ensure proper layering
+
+                const categories = [
+                    { id: 'lectures', label: 'Lectures' },
+                    { id: 'notes', label: 'Notes' },
+                    { id: 'pyqs', label: 'PYQs' },
+                    { id: 'revision', label: 'Revision' },
+                    { id: 'mock', label: 'Subject Mock' }
+                ];
+
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <span class="badge badge-completed">${sub.priority} Priority</span>
+                            <h3 style="font-size: 1.2rem; font-weight: 700; margin-top: 6px;">${sub.name}</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Weightage: ${sub.weightage} | Resource: ${sub.resource}</p>
+                        </div>
+                        <div style="text-align: right; min-width: 140px;">
+                            <span style="font-size: 1.4rem; font-weight: 800; color: var(--accent-cyan);">${subPct}%</span>
+                            <div class="progress-bar-container" style="width: 140px; margin-top: 6px;">
+                                <div class="progress-bar-fill" style="width: ${subPct}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Status Dropdowns (Glassmorphic Overlaying) -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 18px;">
+                        ${categories.map(cat => {
+                            const currentStatus = subData.categories[cat.id] || "Pending";
+                            const dropdownId = `syl-drop-${sub.name.replace(/\s+/g, '')}-${cat.id}`;
+                            const badgeClass = currentStatus === 'Completed' ? 'badge-completed' : (currentStatus === 'In Progress' ? 'badge-in-progress' : 'badge-pending');
+
+                            return `
+                                <div class="glass-dropdown-wrapper">
+                                    <span style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">${cat.label}</span>
+                                    <div class="dropdown-trigger" style="margin-top: 4px;" onclick="toggleDropdown(event, '${dropdownId}')">
+                                        <span class="badge ${badgeClass}">${currentStatus}</span>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                    </div>
+                                    <!-- OVERLAY MENU (Does NOT close automatically on option click) -->
+                                    <div class="glass-dropdown-menu" id="${dropdownId}">
+                                        <div class="dropdown-option ${currentStatus==='Pending'?'selected':''}" onclick="setCategoryStatus('${sub.name}', '${cat.id}', 'Pending')">
+                                            <span class="badge badge-pending">Pending</span>
+                                        </div>
+                                        <div class="dropdown-option ${currentStatus==='In Progress'?'selected':''}" onclick="setCategoryStatus('${sub.name}', '${cat.id}', 'In Progress')">
+                                            <span class="badge badge-in-progress">In Progress</span>
+                                        </div>
+                                        <div class="dropdown-option ${currentStatus==='Completed'?'selected':''}" onclick="setCategoryStatus('${sub.name}', '${cat.id}', 'Completed')">
+                                            <span class="badge badge-completed">Completed</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                container.appendChild(div);
             });
-            return pendingList;
+        }
+
+        /* ==========================================================================
+           8. LECTURE TRACKER MODULE (PROGRESS BARS & NON-CLOSING DROPDOWNS)
+           ========================================================================== */
+        function setChapterStatus(subName, chName, status) {
+            appState.subjects[subName].chapters[chName].status = status;
+            saveState();
+        }
+
+        function renderLectures() {
+            const container = document.getElementById('lecture-subjects-container');
+            container.innerHTML = '';
+
+            ACADEMIC_SYLLABUS.forEach((sub, subIdx) => {
+                const subPct = getSubjectProgress(sub.name);
+                const subObj = appState.subjects[sub.name];
+
+                const div = document.createElement('div');
+                div.className = 'glass-panel card-padding';
+
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="document.getElementById('lec-ch-box-${subIdx}').classList.toggle('open')">
+                        <div style="flex: 1;">
+                            <h3 style="font-size: 1.1rem; font-weight: 700;">${sub.name}</h3>
+                            <!-- Progress bar on ALL subjects in Lecture Tracker -->
+                            <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px; max-width: 400px;">
+                                <div class="progress-bar-container"><div class="progress-bar-fill" style="width: ${subPct}%;"></div></div>
+                                <span style="font-size: 0.82rem; font-weight: 700; color: var(--accent-cyan);">${subPct}%</span>
+                            </div>
+                        </div>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+
+                    <div class="phase-content" id="lec-ch-box-${subIdx}" style="margin-top: 16px;">
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            ${sub.chapters.map((ch, chIdx) => {
+                                const status = subObj.chapters[ch].status || "Pending";
+                                const dropdownId = `lec-drop-${subIdx}-${chIdx}`;
+                                const badgeClass = status === 'Completed' ? 'badge-completed' : (status === 'In Progress' ? 'badge-in-progress' : 'badge-pending');
+
+                                return `
+                                    <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-glass);">
+                                        <span style="font-size: 0.88rem; font-weight: 500;">${ch}</span>
+                                        <div style="width: 160px;">
+                                            <div class="glass-dropdown-wrapper">
+                                                <div class="dropdown-trigger" onclick="toggleDropdown(event, '${dropdownId}')">
+                                                    <span class="badge ${badgeClass}">${status}</span>
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+                                                </div>
+                                                <!-- DROPDOWN REMAINS OPEN WHEN SELECTING AN OPTION -->
+                                                <div class="glass-dropdown-menu" id="${dropdownId}">
+                                                    <div class="dropdown-option ${status==='Pending'?'selected':''}" onclick="setChapterStatus('${sub.name}', '${ch}', 'Pending')">
+                                                        <span class="badge badge-pending">Pending</span>
+                                                    </div>
+                                                    <div class="dropdown-option ${status==='In Progress'?'selected':''}" onclick="setChapterStatus('${sub.name}', '${ch}', 'In Progress')">
+                                                        <span class="badge badge-in-progress">In Progress</span>
+                                                    </div>
+                                                    <div class="dropdown-option ${status==='Completed'?'selected':''}" onclick="setChapterStatus('${sub.name}', '${ch}', 'Completed')">
+                                                        <span class="badge badge-completed">Completed</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        /* ==========================================================================
+           9. REVISION SYSTEM MODULE (WITH SEARCH & CHAPTER REMOVAL)
+           ========================================================================== */
+        function markRevisionComplete(subName, chName) {
+            appState.subjects[subName].chapters[chName].revised = true;
+            saveState();
         }
 
         function renderRevision() {
-            const container = document.getElementById('revision-list-container');
-            const searchQuery = (document.getElementById('revision-search-input')?.value || "").toLowerCase();
-            container.innerHTML = "";
+            const query = (document.getElementById('revision-search').value || '').toLowerCase();
+            const container = document.getElementById('revision-queue-list');
+            container.innerHTML = '';
 
-            const pendingRevisions = getPendingRevisionsList().filter(item => 
-                item.subject.toLowerCase().includes(searchQuery) || item.chapter.toLowerCase().includes(searchQuery)
-            );
-
-            if(pendingRevisions.length === 0) {
-                container.innerHTML = `<div style="grid-column: 1 / -1; color: var(--text-muted); padding: 30px; text-align: center; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border);">No active revisions due matching criteria. Complete chapters in Lecture Tracker to populate queue.</div>`;
-                return;
-            }
-
-            pendingRevisions.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "card";
-                card.innerHTML = `
-                    <div style="font-size: 0.78rem; color: var(--accent-cyan); text-transform: uppercase; font-weight: 700;">${item.subject}</div>
-                    <h4 style="font-size: 1rem; font-weight: 600; margin-top: 4px;">${item.chapter}</h4>
-                    <div style="margin-top: 16px; display: flex; justify-content: space-between; align-items: center;">
-                        <span class="status-badge status-progress">Due for Revision</span>
-                        <button class="btn" style="padding: 6px 12px; font-size: 0.8rem;" onclick="markRevisionCompleted('${item.key}')">Mark Completed</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function markRevisionCompleted(key) {
-            if(!store.revisionsCompleted.includes(key)) {
-                store.revisionsCompleted.push(key);
-                saveStore();
-            }
-        }
-
-        /* 6. MISTAKE REGISTER ENGINE */
-        function renderMistakes() {
-            const container = document.getElementById('mistakes-container');
-            container.innerHTML = "";
-
-            if(store.mistakes.length === 0) {
-                container.innerHTML = `<div style="color: var(--text-muted); padding: 30px; text-align: center; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border);">No mistakes recorded yet. Learn once, remember forever.</div>`;
-                return;
-            }
-
-            store.mistakes.forEach((m, idx) => {
-                const card = document.createElement('div');
-                card.className = "card";
-                card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div>
-                            <span class="status-badge status-pending">${m.subject}</span>
-                            <h4 style="font-size: 1.05rem; font-weight: 700; margin-top: 8px;">${m.title}</h4>
-                            <p style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 6px; white-space: pre-wrap;">${m.desc}</p>
-                        </div>
-                        <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="deleteMistake(${idx})">Delete</button>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function openMistakeModal() {
-            const select = document.getElementById('mistake-select-subject');
-            select.innerHTML = store.subjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
-            document.getElementById('mistake-modal').classList.add('active');
-        }
-
-        function closeMistakeModal() {
-            document.getElementById('mistake-modal').classList.remove('active');
-        }
-
-        function saveMistake() {
-            const subject = document.getElementById('mistake-select-subject').value;
-            const title = document.getElementById('mistake-input-title').value.trim();
-            const desc = document.getElementById('mistake-input-desc').value.trim();
-
-            if(!title) return;
-
-            store.mistakes.push({ subject, title, desc, date: new Date().toISOString() });
-            saveStore();
-            closeMistakeModal();
-
-            document.getElementById('mistake-input-title').value = "";
-            document.getElementById('mistake-input-desc').value = "";
-        }
-
-        function deleteMistake(idx) {
-            store.mistakes.splice(idx, 1);
-            saveStore();
-        }
-
-        /* 7. MOCK TEST TRACKER ENGINE */
-        function renderMocks() {
-            const container = document.getElementById('mock-list-container');
-            container.innerHTML = "";
-
-            // Render SVG Trend
-            const path = document.getElementById('mock-chart-line');
-            if(store.mocks.length > 1) {
-                const points = store.mocks.map((m, i) => {
-                    const x = (i / (store.mocks.length - 1)) * 600;
-                    const pct = (m.score / m.total) * 100;
-                    const y = 140 - (pct / 100) * 120;
-                    return `${x},${y}`;
+            let queueItems = [];
+            ACADEMIC_SYLLABUS.forEach(sub => {
+                const subObj = appState.subjects[sub.name];
+                sub.chapters.forEach(ch => {
+                    // Eligible only if Chapter is completed AND NOT YET REVISED (removes after completed)
+                    if (subObj.chapters[ch].status === 'Completed' && !subObj.chapters[ch].revised) {
+                        if (sub.name.toLowerCase().includes(query) || ch.toLowerCase().includes(query)) {
+                            queueItems.push({ subject: sub.name, chapter: ch });
+                        }
+                    }
                 });
-                path.setAttribute('d', `M ${points.join(' L ')}`);
-            } else {
-                path.setAttribute('d', 'M0,130 Q300,130 600,130');
-            }
+            });
 
-            if(store.mocks.length === 0) {
-                container.innerHTML = `<div style="color: var(--text-muted); padding: 30px; text-align: center; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border);">No mock test records found. Take your first test and record results.</div>`;
+            if (queueItems.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <p>No active revisions pending in queue matching query!</p>
+                        <span style="font-size: 0.8rem;">Complete chapters in Lecture Tracker to populate revision queue.</span>
+                    </div>
+                `;
                 return;
             }
 
-            store.mocks.forEach((m, idx) => {
-                const pct = Math.round((m.score / m.total) * 100);
-                const card = document.createElement('div');
-                card.className = "card";
-                card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h4 style="font-size: 1.05rem; font-weight: 700;">${m.name}</h4>
-                            <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">Score: ${m.score} / ${m.total}</div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 16px;">
-                            <div style="font-size: 1.4rem; font-weight: 800; font-family: var(--font-mono); color: var(--accent-cyan);">${pct}%</div>
-                            <button class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="deleteMock(${idx})">Delete</button>
-                        </div>
+            queueItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'glass-panel card-padding';
+                div.style.display = 'flex';
+                div.style.justifyContent = 'space-between';
+                div.style.alignItems = 'center';
+
+                div.innerHTML = `
+                    <div>
+                        <span class="badge badge-in-progress">${item.subject}</span>
+                        <h4 style="font-size: 1rem; margin-top: 6px;">${item.chapter}</h4>
                     </div>
+                    <button class="btn-action" style="font-size: 0.8rem; padding: 6px 14px;" onclick="markRevisionComplete('${item.subject}', '${item.chapter}')">Mark Revision Complete</button>
                 `;
-                container.appendChild(card);
+                container.appendChild(div);
             });
         }
 
-        function openMockModal() {
-            document.getElementById('mock-modal').classList.add('active');
+        /* ==========================================================================
+           10. MISTAKE REGISTER MODULE
+           ========================================================================== */
+        function initMistakeSubjectSelect() {
+            const sel = document.getElementById('mistake-subject-select');
+            sel.innerHTML = ACADEMIC_SYLLABUS.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
         }
 
-        function closeMockModal() {
-            document.getElementById('mock-modal').classList.remove('active');
+        function addMistake() {
+            const sub = document.getElementById('mistake-subject-select').value;
+            const title = document.getElementById('mistake-title').value.trim();
+            const sev = document.getElementById('mistake-severity').value;
+            const desc = document.getElementById('mistake-desc').value.trim();
+
+            if (!title) return alert("Please specify mistake title");
+
+            appState.mistakes.push({
+                id: Date.now(),
+                subject: sub,
+                title: title,
+                severity: sev,
+                desc: desc,
+                date: new Date().toLocaleDateString()
+            });
+
+            document.getElementById('mistake-title').value = '';
+            document.getElementById('mistake-desc').value = '';
+
+            saveState();
         }
 
-        function saveMock() {
-            const name = document.getElementById('mock-input-name').value.trim();
-            const score = parseFloat(document.getElementById('mock-input-score').value);
-            const total = parseFloat(document.getElementById('mock-input-total').value);
+        function renderMistakesList() {
+            const container = document.getElementById('mistakes-list');
+            container.innerHTML = '';
 
-            if(!name || isNaN(score) || isNaN(total)) return;
-
-            store.mocks.push({ name, score, total, date: new Date().toISOString() });
-            saveStore();
-            closeMockModal();
-
-            document.getElementById('mock-input-name').value = "";
-        }
-
-        function deleteMock(idx) {
-            store.mocks.splice(idx, 1);
-            saveStore();
-        }
-
-    
-        /* 9. DAILY JOURNAL & GOALS ENGINE */
-        function renderJournal() {
-            if(store.journal) {
-                document.getElementById('journal-text').value = store.journal.text || "";
-                document.getElementById('journal-next-goal').value = store.journal.nextGoal || "";
+            if (appState.mistakes.length === 0) {
+                container.innerHTML = `<div class="empty-state"><p>No mistakes logged yet. Learn once, remember forever!</p></div>`;
+                return;
             }
+
+            appState.mistakes.slice().reverse().forEach(m => {
+                const div = document.createElement('div');
+                div.className = 'glass-panel card-padding';
+                div.innerHTML = `
+                    <div style="display: flex; justify-content: space-between;">
+                        <span class="badge badge-pending">${m.severity} Severity</span>
+                        <span style="font-size: 0.75rem; color: var(--text-muted);">${m.date}</span>
+                    </div>
+                    <h4 style="font-size: 0.95rem; margin-top: 6px;">${m.title}</h4>
+                    <span style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 600;">${m.subject}</span>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 8px;">${m.desc}</p>
+                `;
+                container.appendChild(div);
+            });
         }
 
-        function saveJournal() {
-            store.journal = {
-                text: document.getElementById('journal-text').value,
-                nextGoal: document.getElementById('journal-next-goal').value
-            };
-            saveStore();
-            alert("Journal and Next Day's Goals saved successfully!");
+        /* ==========================================================================
+           11. MOCK TEST TRACKER MODULE & TREND CHART
+           ========================================================================== */
+        function addMockTest() {
+            const name = document.getElementById('mock-name').value.trim();
+            const score = parseFloat(document.getElementById('mock-score').value);
+            const total = parseFloat(document.getElementById('mock-total').value);
+            const accuracy = parseFloat(document.getElementById('mock-accuracy').value);
+
+            if (!name || isNaN(score)) return alert("Please enter mock details correctly");
+
+            appState.mocks.push({
+                id: Date.now(),
+                name: name,
+                score: score,
+                total: total || 50,
+                accuracy: accuracy || 0,
+                date: new Date().toLocaleDateString()
+            });
+
+            document.getElementById('mock-name').value = '';
+            document.getElementById('mock-score').value = '';
+            document.getElementById('mock-accuracy').value = '';
+
+            saveState();
         }
 
-        /* FULLSCREEN FOCUS MODE CONTROLLER */
+        function renderMockHistory() {
+            const container = document.getElementById('mock-history-list');
+            container.innerHTML = '';
+
+            if (appState.mocks.length === 0) {
+                container.innerHTML = `<div class="empty-state"><p>No mock test entries recorded yet.</p></div>`;
+            } else {
+                appState.mocks.slice().reverse().forEach(mk => {
+                    const div = document.createElement('div');
+                    div.className = 'glass-panel card-padding';
+                    div.style.display = 'flex';
+                    div.style.justifyContent = 'space-between';
+                    div.style.alignItems = 'center';
+                    div.innerHTML = `
+                        <div>
+                            <h4 style="font-size: 0.95rem;">${mk.name}</h4>
+                            <span style="font-size: 0.78rem; color: var(--text-muted);">${mk.date} | Accuracy: ${mk.accuracy}%</span>
+                        </div>
+                        <div style="font-size: 1.3rem; font-weight: 800; color: var(--status-success);">${mk.score} / ${mk.total}</div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            renderMockChart();
+        }
+
+        function renderMockChart() {
+            const svg = document.getElementById('mock-trend-svg');
+            svg.innerHTML = '';
+
+            if (appState.mocks.length < 2) {
+                svg.innerHTML = `<text x="50%" y="50%" fill="#64748b" dominant-baseline="middle" text-anchor="middle" font-size="12">Record at least 2 mock tests to display performance trend line</text>`;
+                return;
+            }
+
+            const points = appState.mocks.map((m, idx) => {
+                const x = (idx / (appState.mocks.length - 1)) * 500 + 20;
+                const pct = (m.score / m.total);
+                const y = 150 - (pct * 120);
+                return `${x},${y}`;
+            }).join(' ');
+
+            svg.innerHTML = `
+                <polyline points="${points}" fill="none" stroke="var(--accent-primary)" stroke-width="3" stroke-linecap="round" />
+            `;
+        }
+
+        /* ==========================================================================
+           12. AI STUDY COACH MODULE
+           ========================================================================== */
+        function sendAiMessage() {
+            const input = document.getElementById('ai-input');
+            const txt = input.value.trim();
+            if (!txt) return;
+
+            const chat = document.getElementById('ai-chat-messages');
+
+            // Append User Msg
+            const uMsg = document.createElement('div');
+            uMsg.className = 'msg msg-user';
+            uMsg.innerText = txt;
+            chat.appendChild(uMsg);
+
+            input.value = '';
+
+            // Generate AI Context Response based on live telemetry
+            setTimeout(() => {
+                const overallPct = getOverallProgress();
+                let resp = `Analyzing your telemetry... You are currently at ${overallPct}% overall preparation. `;
+                
+                if (txt.toLowerCase().includes('study') || txt.toLowerCase().includes('today')) {
+                    resp += `I recommend prioritizing Strength of Materials or Theory of Machines chapters today to maximize your Phase 1/2 momentum.`;
+                } else if (txt.toLowerCase().includes('readiness')) {
+                    resp += `Your readiness score is calculated from subject completion. Focus on finishing all chapters of one subject to see a boost!`;
+                } else {
+                    resp += `Keep up consistent study sessions! Avoid skipping scheduled revisions for completed subjects.`;
+                }
+
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'msg msg-ai';
+                aiMsg.innerText = resp;
+                chat.appendChild(aiMsg);
+                chat.scrollTop = chat.scrollHeight;
+            }, 500);
+        }
+
+        /* ==========================================================================
+           13. DAILY JOURNAL & OBJECTIVE SETTER
+           ========================================================================== */
+        function saveJournalEntry() {
+            const text = document.getElementById('journal-text').value.trim();
+            const goal = document.getElementById('journal-next-goal').value.trim();
+
+            if (!text && !goal) return alert("Please enter reflection text or goal");
+
+            if (goal) {
+                appState.nextGoal = goal;
+            }
+
+            if (text) {
+                appState.journals.push({
+                    id: Date.now(),
+                    date: new Date().toLocaleDateString(),
+                    text: text
+                });
+            }
+
+            document.getElementById('journal-text').value = '';
+            document.getElementById('journal-next-goal').value = '';
+
+            saveState();
+            renderJournalHistory();
+        }
+
+        function renderJournalHistory() {
+            const container = document.getElementById('journal-history-list');
+            container.innerHTML = '';
+
+            if (appState.journals.length === 0) {
+                container.innerHTML = `<div class="empty-state"><p>No journal reflections recorded yet.</p></div>`;
+                return;
+            }
+
+            appState.journals.slice().reverse().forEach(j => {
+                const div = document.createElement('div');
+                div.className = 'glass-panel card-padding';
+                div.innerHTML = `
+                    <div style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 600;">${j.date}</div>
+                    <p style="font-size: 0.85rem; margin-top: 4px; color: var(--text-main);">${j.text}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        /* ==========================================================================
+           14. FULL SCREEN FOCUS MODE MODULE
+           ========================================================================== */
         let focusTimer = null;
-        let focusSecondsLeft = 0;
+        let focusSeconds = 25 * 60;
+        let isFocusRunning = false;
 
-        function openFocusModal() {
-            document.getElementById('focus-setup-modal').classList.add('active');
+        function openFocusMode() {
+            document.getElementById('focus-overlay').classList.add('active');
         }
 
-        function closeFocusModal() {
-            document.getElementById('focus-setup-modal').classList.remove('active');
+        function closeFocusMode() {
+            document.getElementById('focus-overlay').classList.remove('active');
+            if (isFocusRunning) toggleFocusTimer();
         }
 
         function adjustFocusMinutes(delta) {
-            const input = document.getElementById('focus-input-mins');
+            const input = document.getElementById('focus-minutes-input');
             let val = parseInt(input.value) + delta;
-            if(val < 5) val = 5;
-            if(val > 180) val = 180;
+            if (val < 5) val = 5;
+            if (val > 180) val = 180;
             input.value = val;
-        }
-
-        function startFocusMode() {
-            const task = document.getElementById('focus-input-task').value.trim() || "GATE Study Session";
-            const mins = parseInt(document.getElementById('focus-input-mins').value) || 25;
-
-            closeFocusModal();
-
-            document.getElementById('focus-task-title').innerText = task;
-            focusSecondsLeft = mins * 60;
-            updateFocusDisplay();
-
-            const fullEl = document.getElementById('focus-fullscreen');
-            fullEl.classList.add('active');
-
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(e => console.log(e));
-            }
-
-            if(focusTimer) clearInterval(focusTimer);
-            focusTimer = setInterval(tickFocusTimer, 1000);
-            document.getElementById('focus-toggle-btn').innerText = "Pause";
-        }
-
-        function tickFocusTimer() {
-            if(focusSecondsLeft > 0) {
-                focusSecondsLeft--;
+            if (!isFocusRunning) {
+                focusSeconds = val * 60;
                 updateFocusDisplay();
-            } else {
-                clearInterval(focusTimer);
-                alert("Focus session completed!");
-                exitFocusMode();
             }
         }
 
         function updateFocusDisplay() {
-            const m = Math.floor(focusSecondsLeft / 60);
-            const s = focusSecondsLeft % 60;
-            document.getElementById('focus-timer-text').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            const mins = Math.floor(focusSeconds / 60);
+            const secs = focusSeconds % 60;
+            document.getElementById('focus-timer-display').innerText = 
+                `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
         function toggleFocusTimer() {
-            const btn = document.getElementById('focus-toggle-btn');
-            if(focusTimer) {
-                clearInterval(focusTimer);
-                focusTimer = null;
-                btn.innerText = "Resume";
+            const btn = document.getElementById('focus-start-btn');
+            if (!isFocusRunning) {
+                isFocusRunning = true;
+                btn.innerText = "Pause Session";
+                btn.style.background = "var(--status-warning)";
+                focusTimer = setInterval(() => {
+                    if (focusSeconds > 0) {
+                        focusSeconds--;
+                        updateFocusDisplay();
+                    } else {
+                        clearInterval(focusTimer);
+                        alert("Focus session complete! Take a break.");
+                        isFocusRunning = false;
+                        btn.innerText = "Start Focus Session";
+                        btn.style.background = "var(--accent-primary)";
+                    }
+                }, 1000);
             } else {
-                focusTimer = setInterval(tickFocusTimer, 1000);
-                btn.innerText = "Pause";
+                isFocusRunning = false;
+                clearInterval(focusTimer);
+                btn.innerText = "Resume Session";
+                btn.style.background = "var(--accent-primary)";
             }
         }
 
-        function exitFocusMode() {
-            if(focusTimer) clearInterval(focusTimer);
-            document.getElementById('focus-fullscreen').classList.remove('active');
-            if (document.exitFullscreen && document.fullscreenElement) {
-                document.exitFullscreen().catch(e => console.log(e));
-            }
-        }
-
-        /* INITIALIZATION ENTRY POINT */
-        window.addEventListener('DOMContentLoaded', () => {
-            initStore();
+        /* ==========================================================================
+           INITIALIZATION TRIGGER
+           ========================================================================== */
+        window.onload = function() {
+            initDataStore();
+            initMistakeSubjectSelect();
+            renderJournalHistory();
             syncAllModules();
-            // Start interval to keep countdown fresh
-            setInterval(renderDashboard, 60000);
-        });
+
+            // Set greeting based on current system time
+            const hour = new Date().getHours();
+            let greeting = "Good Morning";
+            if (hour >= 12 && hour < 17) greeting = "Good Afternoon";
+            else if (hour >= 17 && hour < 22) greeting = "Good Evening";
+            else if (hour >= 22 || hour < 5) greeting = "Good Night";
+            document.getElementById('dynamic-greeting').innerText = greeting;
+        };
     </script>
 </body>
 </html>
