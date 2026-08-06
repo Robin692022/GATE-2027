@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FORGE — GATE 2027 Operating System</title>
+  <title>FORGE - GATE 2027</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -669,6 +669,15 @@
         </button>
       </li>
       <li class="nav-item">
+        <button onclick="switchTab('practice')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+        <path d="M9 11l3 3L22 4"/>
+        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        </svg>
+        <span class="nav-text">Question Practice</span>
+        </button>
+      </li>
+      <li class="nav-item">
         <button onclick="switchTab('revision')">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
           <span class="nav-text">Revision Queue</span>
@@ -840,6 +849,21 @@
       </div>
       <div id="lecture-accordion-list">
         <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- QUESTION PRACTICE TRACKER -->
+    
+    <section id="view-practice" class="app-section">
+      <div class="section-header">
+        <div>
+          <h1>Question Practice Tracker</h1>
+          <p class="subtitle">
+          Track chapter-wise question solving progress.
+          </p>
+        </div>
+      </div>
+      <div id="practice-accordion-list">
       </div>
     </section>
 
@@ -1300,6 +1324,7 @@
     let ForgeState = {
       subjectStates: {}, // subjectId -> { resource, lecturesStatus: 'Pending', notesStatus: 'Pending', pyqStatus: 'Pending', revisionStatus: 'Pending', mockStatus: 'Pending' }
       chapterStates: {}, // subjectId_chapterIndex -> 'Pending' | 'In Progress' | 'Completed'
+      questionPracticeStates: {},
       mistakes: [],
       mocks: [],
       journals: [],
@@ -1311,6 +1336,10 @@
       const saved = localStorage.getItem("FORGE_GATE_STATE_2027");
       if (saved) {
         try { ForgeState = JSON.parse(saved); } catch(e) {}
+      }
+
+      if (!ForgeState.questionPracticeStates) {
+          ForgeState.questionPracticeStates = {};
       }
       
       // Seed missing default structures
@@ -1329,6 +1358,13 @@
           const key = `${sub.id}_${idx}`;
           if (!ForgeState.chapterStates[key]) {
             ForgeState.chapterStates[key] = 'Pending';
+          }
+        });
+
+        sub.chapters.forEach((ch, idx) => {
+          const key = `practice_${sub.id}_${idx}`;
+          if (!ForgeState.questionPracticeStates[key]) {
+            ForgeState.questionPracticeStates[key] = "Pending";
           }
         });
       });
@@ -1469,6 +1505,7 @@
       if (viewId === 'roadmap') renderRoadmap();
       if (viewId === 'syllabus') renderSyllabusTracker();
       if (viewId === 'lectures') renderLectureTracker();
+      if (viewId === 'practice') renderQuestionPracticeTracker();
       if (viewId === 'revision') renderRevisionQueue();
       if (viewId === 'mistakes') renderMistakesList();
       if (viewId === 'mock') renderMockTracker();
@@ -1786,8 +1823,16 @@
       const el = document.getElementById(`accordion-${subId}`);
       if (el) el.classList.toggle("open");
     }
-
-   function updateChapterStatus(e, key, status) {
+    
+    function togglePracticeAccordion(subId) {
+      const el = document.getElementById(`practice-accordion-${subId}`);
+      if (el) {
+        el.classList.toggle("open");
+      }
+    }
+    
+    
+    function updateChapterStatus(e, key, status) {
       e.preventDefault();
       e.stopPropagation();
   
@@ -1805,6 +1850,151 @@
               accordion.classList.add("open");
           }
       });
+    }
+
+
+    //------------------------
+
+    function renderQuestionPracticeTracker() {
+      const container = document.getElementById("practice-accordion-list");
+      if (!container) return;
+      container.innerHTML = SYLLABUS_DATA.map(sub => {
+
+          // Calculate subject progress
+          let totalChapters = sub.chapters.length;
+          let completedChapters = 0;
+
+          sub.chapters.forEach((chapter, index) => {
+            if (
+              ForgeState.questionPracticeStates[`practice_${sub.id}_${index}`] === "Completed"
+            ) {
+            completedChapters++;
+            }
+          });
+
+          const progress = Math.round((completedChapters / totalChapters) * 100);
+
+          return `
+            <div class="subject-accordion" id="practice-accordion-${sub.id}">
+
+              <div class="subject-header" onclick="togglePracticeAccordion('${sub.id}')">
+                <div style="display:flex;align-items:center;gap:1rem;">
+                  <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+
+                  <h3 style="font-size:1rem;">
+                    ${sub.name}
+                  </h3>
+                </div>
+
+                <div style="display:flex;align-items:center;gap:1rem;">
+                  <div class="progress-bar-container" style="width:120px;">
+                    <div class="progress-bar-fill" style="width:${progress}%"></div>
+                  </div>
+
+                  <span style="font-family:var(--font-mono);font-weight:600;font-size:0.88rem;">
+                    ${progress}%
+                  </span>
+                </div>
+              </div>
+
+              <div class="subject-body">
+
+                  ${sub.chapters.map((chapter, index) => {
+
+                    const key = `practice_${sub.id}_${index}`;
+                    const status = ForgeState.questionPracticeStates[key] || "Pending";
+
+                    return `
+                      <div class="chapter-row">
+
+                        <span style="font-size:0.88rem;font-weight:500;">
+                          ${chapter}
+                        </span>
+
+                        <div style="width:160px;">
+
+                          <div class="custom-dropdown-container" id="practice-dropdown-${key}">
+
+                            <button
+                              class="custom-dropdown-btn"
+                              onclick="toggleCustomDropdown(event, 'practice-dropdown-${key}')">
+
+                              <span>
+                                ${getGlowBadgeHTML(status)}
+                              </span>
+
+                              <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"/>
+                              </svg>
+
+                            </button>
+
+                            <div class="dropdown-menu-list">
+
+                              <div
+                                class="dropdown-item"
+                                onclick="updatePracticeStatus(event, '${key}', 'Pending')">
+ 
+                                <span class="glow-badge glow-badge-pending">
+                                  Pending
+                                </span>
+
+                              </div>
+
+                              <div
+                                class="dropdown-item"
+                                onclick="updatePracticeStatus(event, '${key}', 'In Progress')">
+
+                                <span class="glow-badge glow-badge-progress">
+                                  In Progress
+                                </span>
+
+                              </div>
+
+                              <div
+                                class="dropdown-item"
+                                onclick="updatePracticeStatus(event, '${key}', 'Completed')">
+
+                                <span class="glow-badge glow-badge-completed">
+                                  Completed
+                                </span>
+
+                              </div>
+
+                            </div>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+                    `;
+
+                  }).join("")}
+
+              </div>
+
+            </div>
+          `;
+
+      }).join("");
+    }
+
+    function updatePracticeStatus(event, key, status) {
+      event.preventDefault();
+      event.stopPropagation();
+      ForgeState.questionPracticeStates[key] = status;
+      saveAppState();
+      const subjectId = key.split("_")[1];
+      requestAnimationFrame(() => {
+        renderQuestionPracticeTracker();
+        document
+          .getElementById(`practice-accordion-${subjectId}`)
+          ?.classList.add("open");
+      });  
+
     }
 
     /* --------------------------------------------------------------------------
