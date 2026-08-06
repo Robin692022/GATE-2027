@@ -1909,37 +1909,37 @@
                           ${chapter}
                         </span>
 
-                      <div style="width:160px;">
+                        <div style="width:160px;">
 
-                        <div class="custom-dropdown-container" id="practice-dropdown-${key}">
+                          <div class="custom-dropdown-container" id="practice-dropdown-${key}">
 
-                          <button
-                            class="custom-dropdown-btn"
-                            onclick="toggleCustomDropdown(event, 'practice-dropdown-${key}')">
+                            <button
+                              class="custom-dropdown-btn"
+                              onclick="toggleCustomDropdown(event, 'practice-dropdown-${key}')">
 
-                            <span>
+                              <span>
                                 ${getGlowBadgeHTML(status)}
-                            </span>
+                              </span>
 
-                            <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                              <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <polyline points="6 9 12 15 18 9"/>
-                            </svg>
+                              </svg>
 
-                          </button>
+                            </button>
 
-                          <div class="dropdown-menu-list">
+                            <div class="dropdown-menu-list">
 
-                            <div
+                              <div
                                 class="dropdown-item"
                                 onclick="updatePracticeStatus(event, '${key}', 'Pending')">
-
+ 
                                 <span class="glow-badge glow-badge-pending">
                                   Pending
                                 </span>
 
-                            </div>
+                              </div>
 
-                            <div
+                              <div
                                 class="dropdown-item"
                                 onclick="updatePracticeStatus(event, '${key}', 'In Progress')">
 
@@ -1947,15 +1947,17 @@
                                   In Progress
                                 </span>
 
-                            </div>
+                              </div>
 
-                            <div
+                              <div
                                 class="dropdown-item"
                                 onclick="updatePracticeStatus(event, '${key}', 'Completed')">
 
                                 <span class="glow-badge glow-badge-completed">
                                   Completed
                                 </span>
+
+                              </div>
 
                             </div>
 
@@ -1964,16 +1966,14 @@
                         </div>
 
                       </div>
+                    `;
 
-                    </div>
-                  `;
+                  }).join("")}
 
-                }).join("")}
+              </div>
 
             </div>
-
-          </div>
-        `;
+          `;
 
       }).join("");
     }
