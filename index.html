@@ -669,15 +669,6 @@
         </button>
       </li>
       <li class="nav-item">
-        <button onclick="switchTab('practice')">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
-            <path d="M9 11l3 3L22 4"/>
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-          </svg>
-          <span class="nav-text">Question Practice</span>
-        </button>
-      </li>
-      <li class="nav-item">
         <button onclick="switchTab('revision')">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
           <span class="nav-text">Revision Queue</span>
@@ -851,21 +842,7 @@
         <!-- Rendered via JS -->
       </div>
     </section>
-    
-    <section id="view-practice" class="app-section">
-      <div class="section-header">
-        <div>
-          <h1>Question Practice Tracker</h1>
-          <p class="subtitle">
-          Track chapter-wise question solving progress.
-          </p>
-        </div>
-      </div>
-      
-      <div id="practice-accordion-list">
-      </div>
-    </section>
-    
+
     <!-- 5. REVISION QUEUE VIEW -->
     <section id="view-revision" class="app-section">
       <div class="section-header">
@@ -1478,7 +1455,7 @@
     function switchTab(viewId) {
       document.querySelectorAll(".app-section").forEach(sec => sec.classList.remove("active"));
       document.querySelectorAll(".nav-item button").forEach(btn => btn.classList.remove("active"));
-      
+
       const target = document.getElementById(`view-${viewId}`);
       if (target) target.classList.add("active");
 
@@ -1497,7 +1474,6 @@
       if (viewId === 'mock') renderMockTracker();
       if (viewId === 'ai') renderAICoach();
       if (viewId === 'journal') renderJournalHistory();
-      if(viewId==="practice") renderQuestionPracticeTracker();
     }
 
     /* --------------------------------------------------------------------------
@@ -1831,251 +1807,6 @@
       });
     }
 
-    sub.chapters.forEach((ch,idx)=>{
-      const key=`practice_${sub.id}_${idx}`;
-      if(!ForgeState.questionPracticeStates[key]){
-        ForgeState.questionPracticeStates[key]="Pending";
-      }
-    });
-
-    //----------------------------------------
-    
-    function renderQuestionPracticeTracker(){
-      const container=document.getElementById("practice-accordion-list");
-      if(!container) return;
-          container.innerHTML=SYLLABUS_DATA.map(sub=>{
-          let completed=0;
-          sub.chapters.forEach((c,i)=>{
-            if(
-                ForgeState.questionPracticeStates[
-                    `practice_${sub.id}_${i}`
-                ]==="Completed"
-            ){
-                completed++;
-            }
-          });
-          const percent=Math.round(
-            completed/sub.chapters.length*100
-          );
-          return `
-      <div class="subject-accordion" id="practice-accordion-${sub.id}">
-      <div class="subject-header"
-      onclick="togglePracticeAccordion('${sub.id}')">
-      <div style="display:flex;align-items:center;gap:1rem;">
-      <svg class="dropdown-arrow"
-      viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="2">
-
-<polyline points="6 9 12 15 18 9"/>
-
-</svg>
-
-<h3>${sub.name}</h3>
-
-</div>
-
-<div style="display:flex;align-items:center;gap:1rem;">
-
-<div class="progress-bar-container"
-style="width:120px;">
-
-<div class="progress-bar-fill"
-style="width:${percent}%">
-
-</div>
-
-</div>
-
-<span style="font-family:var(--font-mono);">
-${percent}%
-</span>
-
-</div>
-
-</div>
-
-<div class="subject-body">
-
-${sub.chapters.map((chapter,index)=>{
-
-const key=`practice_${sub.id}_${index}`;
-
-const status=
-ForgeState.questionPracticeStates[key];
-
-return `
-
-<div class="chapter-row">
-
-<span>${chapter}</span>
-
-<div style="width:170px;">
-
-<div class="custom-dropdown-container"
-id="practice-dropdown-${key}">
-
-<button
-class="custom-dropdown-btn"
-onclick="toggleCustomDropdown(event,'practice-dropdown-${key}')">
-
-<span>
-
-${getGlowBadgeHTML(status)}
-
-</span>
-
-<svg class="dropdown-arrow"
-viewBox="0 0 24 24"
-fill="none"
-stroke="currentColor"
-stroke-width="2">
-
-<polyline points="6 9 12 15 18 9"/>
-
-</svg>
-
-</button>
-
-<div class="dropdown-menu-list">
-
-<div class="dropdown-item"
-
-onclick="updatePracticeStatus(event,'${key}','Pending')">
-
-<span class="glow-badge glow-badge-pending">
-
-Pending
-
-</span>
-
-</div>
-
-<div class="dropdown-item"
-
-onclick="updatePracticeStatus(event,'${key}','In Progress')">
-
-<span class="glow-badge glow-badge-progress">
-
-In Progress
-
-</span>
-
-</div>
-
-<div class="dropdown-item"
-
-onclick="updatePracticeStatus(event,'${key}','Completed')">
-
-<span class="glow-badge glow-badge-completed">
-
-Completed
-
-</span>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-`;
-
-}).join("")}
-
-</div>
-
-</div>
-
-`;
-
-    }).join("");
-
-}
-
-    function togglePracticeAccordion(id){
-        document
-        .getElementById(`practice-accordion-${id}`)
-        .classList
-        .toggle("open");
-    }
-
-    function updatePracticeStatus(event,key,status){
-
-    event.preventDefault();
-
-    event.stopPropagation();
-
-    ForgeState.questionPracticeStates[key]=status;
-
-    saveAppState();
-
-    const subjectId=key.split("_")[1];
-
-    requestAnimationFrame(()=>{
-
-        renderQuestionPracticeTracker();
-
-        document
-            .getElementById(`practice-accordion-${subjectId}`)
-            ?.classList
-            .add("open");
-
-    });
-
-}
-
-    sub.chapters.forEach((ch,idx)=>{
-
-    const key=`practice_${sub.id}_${idx}`;
-
-    if(!ForgeState.questionPracticeStates[key]){
-
-        ForgeState.questionPracticeStates[key]="Pending";
-
-    }
-
-});let ForgeState = {
-  subjectStates: {},
-
-  chapterStates: {},
-
-  // NEW: Chapter-wise Question Practice Tracker
-  questionPracticeStates: {},
-
-  mistakes: [],
-
-  mocks: [],
-
-  journals: [],
-
-  quickNotes: "",
-
-  journalMoodToday: "Good"
-};
-
-    sub.chapters.forEach((ch, idx) => {
-  const key = `${sub.id}_${idx}`;
-  if (!ForgeState.chapterStates[key]) {
-    ForgeState.chapterStates[key] = 'Pending';
-  }
-});
-    // Initialize Question Practice Tracker
-sub.chapters.forEach((ch, idx) => {
-  const key = `practice_${sub.id}_${idx}`;
-
-  if (!ForgeState.questionPracticeStates[key]) {
-    ForgeState.questionPracticeStates[key] = 'Pending';
-  }
-});
-
-    
-    
     /* --------------------------------------------------------------------------
        9. REVISION QUEUE RENDERER
        -------------------------------------------------------------------------- */
