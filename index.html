@@ -1828,7 +1828,7 @@
     }
     
     
-   function updateChapterStatus(e, key, status) {
+    function updateChapterStatus(e, key, status) {
       e.preventDefault();
       e.stopPropagation();
   
@@ -1979,24 +1979,16 @@
     }
 
     function updatePracticeStatus(event, key, status) {
-
       event.preventDefault();
       event.stopPropagation();
-
       ForgeState.questionPracticeStates[key] = status;
-
       saveAppState();
-
       const subjectId = key.split("_")[1];
-
       requestAnimationFrame(() => {
-
         renderQuestionPracticeTracker();
-
         document
           .getElementById(`practice-accordion-${subjectId}`)
           ?.classList.add("open");
-
       });  
 
     }
