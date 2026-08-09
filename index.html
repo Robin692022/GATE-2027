@@ -1791,6 +1791,123 @@
       renderCompletedSubjectsPendingCards();
     }
     /* --------------------------------------------------------------------------
+       DASHBOARD POST-COMPLETION CARDS
+       -------------------------------------------------------------------------- */
+
+    function renderCompletedSubjectsPendingCards() {
+      const container = document.getElementById("completed-subjects-pending-grid");
+      if (!container) return;
+
+      const completedSubs = SYLLABUS_DATA.filter(sub => {
+        const st = ForgeState.subjectStates[sub.id];
+
+        return (
+          st &&
+          st.lecturesStatus === "Completed" &&
+          st.notesStatus === "Completed"
+        );
+      });
+
+      if (completedSubs.length === 0) {
+        container.innerHTML = `
+          <div
+            style="
+              text-align: center;
+              color: var(--text-muted);
+              grid-column: span 3;
+              padding: 1rem;
+            "
+          >
+            No completed subjects yet. Finish lectures and notes for a subject
+            to activate post-completion tracking.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = completedSubs
+        .map(sub => {
+          const st = ForgeState.subjectStates[sub.id];
+
+          return `
+            <div
+              style="
+                background: rgba(0,0,0,0.3);
+                border: 1px solid var(--border-color);
+                padding: 1rem;
+                border-radius: 12px;
+              "
+            >
+              <div
+                style="
+                  font-weight: 700;
+                  font-size: 0.9rem;
+                  margin-bottom: 0.5rem;
+                "
+              >
+                ${sub.name}
+              </div>
+
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: 0.4rem;
+                  font-size: 0.8rem;
+                "
+              >
+                <div class="flex-between">
+                  <span>PYQs:</span>
+                  ${getGlowBadgeHTML(st.pyqStatus)}
+                </div>
+
+                <div class="flex-between">
+                  <span>Revision:</span>
+                  ${getGlowBadgeHTML(st.revisionStatus)}
+                </div>
+
+                <div class="flex-between">
+                  <span>Subject Mock:</span>
+                  ${getGlowBadgeHTML(st.mockStatus)}
+                </div>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+
+    /* --------------------------------------------------------------------------
+       GLOW BADGE HELPER
+       -------------------------------------------------------------------------- */
+
+    function getGlowBadgeHTML(status) {
+      if (status === "Completed") {
+        return `
+          <span class="glow-badge glow-badge-completed">
+            Completed
+          </span>
+        `;
+      }
+
+      if (status === "In Progress") {
+        return `
+          <span class="glow-badge glow-badge-progress">
+            In Progress
+          </span>
+        `;
+      }
+
+      return `
+        <span class="glow-badge glow-badge-pending">
+          Pending
+        </span>
+      `;
+    }
+
+    
+    /* --------------------------------------------------------------------------
        4. NAVIGATION & TAB SWITCHING
        -------------------------------------------------------------------------- */
     function switchTab(viewId) {
