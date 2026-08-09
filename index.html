@@ -113,26 +113,23 @@
     }
 
     /* Glass Cards */
-        .glass-card{
-        background:var(--bg-surface);
-        backdrop-filter:blur(16px);
-        -webkit-backdrop-filter:blur(16px);
-    
-        border:1px solid var(--border-color);
-        border-radius:16px;
-        padding:1.5rem;
-    
-        position:relative;
-        z-index:1;
-        isolation:isolate;
-    
-        overflow:visible;
-    
-        transition:
-            border-color var(--transition-fast),
-            box-shadow var(--transition-normal);
+    .glass-card {
+      background: var(--bg-surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 1.5rem;
+      position: relative;
+
+      z-index: 1;              /* ADD */
+      isolation: isolate;      /* ADD */
+
+      transition: border-color var(--transition-fast),
+                  box-shadow var(--transition-normal);
+
+      overflow: visible;
     }
-    
     .glass-card:hover {
       border-color: var(--border-glow);
     }
@@ -348,79 +345,83 @@
       margin: 0;
     }
 
-    .custom-dropdown-container{
-        position:relative;
-        width:100%;
+    /* Dropdown Menus */
+    .custom-dropdown-container {
+      position: relative;
+      display: inline-block;
+      width: 100%;
     }
-    
-    .custom-dropdown-btn{
-    
-        width:100%;
-    
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-    
-        padding:.65rem .9rem;
-    
-        background:#111116;
-    
-        border:1px solid var(--border-color);
-    
-        border-radius:10px;
-    
-        color:white;
-    
-        cursor:pointer;
+    .custom-dropdown-btn {
+      width: 100%;
+      background: rgba(12, 12, 16, 0.8);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 0.6rem 0.9rem;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: border-color var(--transition-fast);
     }
-    
-    .custom-dropdown-container.open{
-    
-        z-index:999999;
-    
+    .custom-dropdown-btn:hover {
+      border-color: var(--border-glow);
     }
-    
-    .dropdown-menu-list{
-    
-        position:absolute;
-    
-        top:calc(100% + 6px);
-    
-        left:0;
-        right:0;
-    
-        background:#15151b;
-    
-        border:1px solid rgba(255,255,255,.08);
-    
-        border-radius:12px;
-    
-        display:none;
-    
-        overflow:hidden;
-    
-        box-shadow:0 20px 50px rgba(0,0,0,.7);
-    
+    .dropdown-arrow {
+      width: 14px;
+      height: 14px;
+      transition: transform var(--transition-fast);
+      stroke: var(--text-secondary);
     }
-    
-    .custom-dropdown-container.open .dropdown-menu-list{
-    
-        display:block;
-    
+    .custom-dropdown-container.open .dropdown-arrow {
+      transform: rotate(180deg);
     }
-    
-    .dropdown-item{
-    
-        padding:.75rem .9rem;
-    
-        cursor:pointer;
-    
+
+    .dropdown-menu-list {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+
+      background: #121217;
+
+      border: 1px solid var(--border-glow);
+      border-radius: 12px;
+
+      padding: 0.4rem;
+
+      display: none;
+      flex-direction: column;
+      gap: 0.2rem;
+
+      z-index: 99999;
+
+      box-shadow: 0 18px 45px rgba(0,0,0,.7);
+
+      animation: dropDownAnim .18s ease forwards;
     }
-    
-    .dropdown-item:hover{
-    
-        background:rgba(255,255,255,.06);
-    
+    .custom-dropdown-container.open .dropdown-menu-list {
+      display: flex;
+    }
+    @keyframes dropDownAnim {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dropdown-item {
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background var(--transition-fast);
+    }
+    .dropdown-item:hover {
+      background: rgba(255, 255, 255, 0.08);
     }
 
     /* Standard Button Styles */
@@ -530,13 +531,10 @@
     }
 
     /* Lecture Tracker Accordion */
-    .subject-accordion{
-        margin-bottom:1rem;
-        border-radius:14px;
-    
-        overflow:visible;
-        position:relative;
-        z-index:1;
+    .subject-accordion {
+      margin-bottom: 1rem;
+      border-radius: 14px;
+      overflow: visible; /* Prevents menu clipping */
     }
     .subject-header {
       padding: 1.25rem;
@@ -552,30 +550,23 @@
     .subject-header:hover {
       background: rgba(30, 30, 40, 0.8);
     }
-    .subject-body{
-        display:none;
-        padding:1rem 0.5rem;
-        flex-direction:column;
-        gap:.6rem;
-    
-        overflow:visible;
-        position:relative;
+    .subject-body {
+      display: none;
+      padding: 1rem 0.5rem;
+      flex-direction: column;
+      gap: 0.6rem;
     }
     .subject-accordion.open .subject-body {
       display: flex;
     }
-    .chapter-row{
-        background: rgba(14,14,18,.8);
-        border:1px solid var(--border-color);
-        border-radius:10px;
-        padding:.85rem 1rem;
-    
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-    
-        overflow:visible;
-        position:relative;
+    .chapter-row {
+      background: rgba(14, 14, 18, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
     /* Input Controls */
@@ -689,7 +680,7 @@
       <li class="nav-item">
         <button onclick="switchTab('revision')">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-          <span class="nav-text">Revision Tracker</span>
+          <span class="nav-text">Revision Queue</span>
         </button>
       </li>
       <li class="nav-item">
@@ -870,20 +861,22 @@
       </div>
     </section>
 
-    <!-- 5. REVISION TRACKER VIEW -->
+    <!-- 5. REVISION QUEUE VIEW -->
     <section id="view-revision" class="app-section">
-        <div class="section-header">
-            <div>
-                <h1>Automated Revision Queue</h1>
-                <p class="subtitle">
-                    Completed chapters automatically enter this priority list.
-                </p>
-            </div>
+      <div class="section-header">
+        <div>
+          <h1>Automated Revision Queue</h1>
+          <p class="subtitle">Completed chapters automatically enter this priority list.</p>
         </div>
-    
-        <div id="revision-queue-list">
-            <!-- Rendered via JS -->
+      </div>
+      <div class="glass-card" style="margin-bottom: 1.5rem;">
+        <div class="grid-4" id="revision-stats-summary">
+          <!-- Rendered via JS -->
         </div>
+      </div>
+      <div id="revision-queue-list" class="grid-2">
+        <!-- Rendered via JS -->
+      </div>
     </section>
 
     <!-- 6. MISTAKE REGISTER VIEW -->
@@ -1288,15 +1281,12 @@
       subjectStates: {}, // subjectId -> { resource, lecturesStatus: 'Pending', notesStatus: 'Pending', pyqStatus: 'Pending', revisionStatus: 'Pending', mockStatus: 'Pending' }
       chapterStates: {}, // subjectId_chapterIndex -> 'Pending' | 'In Progress' | 'Completed'
       questionPracticeStates: {},
-      revisionStates: {},
       mistakes: [],
       mocks: [],
       journals: [],
       quickNotes: "",
       journalMoodToday: "Good"
     };
-    let openRevisionSubject=null;
-    let openRevisionChapter=null;
 
     function initAppState() {
       const saved = localStorage.getItem("FORGE_GATE_STATE_2027");
@@ -1306,10 +1296,6 @@
 
       if (!ForgeState.questionPracticeStates) {
           ForgeState.questionPracticeStates = {};
-      }
-
-      if (!ForgeState.revisionStates) {
-          ForgeState.revisionStates = {};
       }
       
       // Seed missing default structures
@@ -1337,30 +1323,14 @@
             ForgeState.questionPracticeStates[key] = "Pending";
           }
         });
-
-        sub.chapters.forEach((ch, idx) => {
-          for(let r=1;r<=3;r++){
-             const key=`revision_${r}_${sub.id}_${idx}`;
-            if(!ForgeState.revisionStates[key]){
-               ForgeState.revisionStates[key]="Pending";
-            }
-          }
-
-        });
       });
 
       saveAppState();
     }
 
-    function saveAppState(){
-
-        localStorage.setItem(
-            "FORGE_GATE_STATE_2027",
-            JSON.stringify(ForgeState)
-        );
-    
-        syncCalculations();
-    
+    function saveAppState() {
+      localStorage.setItem("FORGE_GATE_STATE_2027", JSON.stringify(ForgeState));
+      syncCalculations();
     }
 
     /* --------------------------------------------------------------------------
@@ -1381,43 +1351,12 @@
         });
 
         // Add chapters
-
-        sub.chapters.forEach((ch, idx)=>{
-            
-            // Lecture
-            totalItems++;
-            const lecture=ForgeState.chapterStates[`${sub.id}_${idx}`];
-            if(lecture==="Completed") completedItems++;
-            else if(lecture==="In Progress") completedItems+=0.5;
-            
-            // Practice
-            totalItems++;
-            const practice=ForgeState.questionPracticeStates[`practice_${sub.id}_${idx}`];
-            if(practice==="Completed") completedItems++;
-            else if(practice==="In Progress") completedItems+=0.5;
-            
-            // Revision 1
-            totalItems++;
-            if(
-              ForgeState.revisionStates[`revision_1_${sub.id}_${idx}`]
-              ==="Completed"
-            ) completedItems++;
-            
-            // Revision 2
-            totalItems++;
-            if(
-              ForgeState.revisionStates[`revision_2_${sub.id}_${idx}`]
-              ==="Completed"
-            ) completedItems++;
-            
-            // Revision 3
-            totalItems++;
-            if(
-              ForgeState.revisionStates[`revision_3_${sub.id}_${idx}`]
-              ==="Completed"
-            ) completedItems++;
+        sub.chapters.forEach((ch, idx) => {
+          totalItems += 1;
+          const chSt = ForgeState.chapterStates[`${sub.id}_${idx}`];
+          if (chSt === 'Completed') completedItems += 1;
+          else if (chSt === 'In Progress') completedItems += 0.5;
         });
-        
       });
 
       const overallPct = totalItems > 0 ? ((completedItems / totalItems) * 100).toFixed(1) : "0.0";
@@ -1588,33 +1527,16 @@
         // Calculate Phase Progress
         let total = 0;
         let completed = 0;
-        phase.subjectIds.forEach(subId=>{
-            const sub=SYLLABUS_DATA.find(s=>s.id===subId);
-            sub.chapters.forEach((ch,idx)=>{
-                let score=0;
-                if(
-                  ForgeState.chapterStates[`${subId}_${idx}`]
-                  ==="Completed"
-                ) score++;
-                if(
-                  ForgeState.questionPracticeStates[`practice_${subId}_${idx}`]
-                  ==="Completed"
-                ) score++;
-                if(
-                  ForgeState.revisionStates[`revision_1_${subId}_${idx}`]
-                  ==="Completed"
-                ) score++;
-                if(
-                  ForgeState.revisionStates[`revision_2_${subId}_${idx}`]
-                  ==="Completed"
-                ) score++;
-                if(
-                  ForgeState.revisionStates[`revision_3_${subId}_${idx}`]
-                  ==="Completed"
-                ) score++;
-                completed+=score;
-                total+=5;
+        phase.subjectIds.forEach(subId => {
+          const sub = SYLLABUS_DATA.find(s => s.id === subId);
+          if (sub) {
+            sub.chapters.forEach((ch, idx) => {
+              total += 1;
+              const st = ForgeState.chapterStates[`${subId}_${idx}`];
+              if (st === 'Completed') completed += 1;
+              else if (st === 'In Progress') completed += 0.5;
             });
+          }
         });
         const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
         const statusBadge = pct === 100 ? getGlowBadgeHTML('Completed') : pct > 0 ? getGlowBadgeHTML('In Progress') : getGlowBadgeHTML('Pending');
@@ -1709,7 +1631,7 @@
         <div>
           <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">${label}</label>
           <div class="custom-dropdown-container" id="dropdown-${subId}-${key}">
-            <button class="custom-dropdown-btn" onclick="toggleDropdown(event, 'dropdown-${subId}-${key}')">
+            <button class="custom-dropdown-btn" onclick="toggleCustomDropdown(event, 'dropdown-${subId}-${key}')">
               <span>${getGlowBadgeHTML(currentVal)}</span>
               <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
@@ -1729,26 +1651,64 @@
       `;
     }
 
-    
-    
-    function updateCategoryStatus(e,subId,key,newVal,containerId){
-
+    /* Custom Dropdown Toggle */
+    function toggleCustomDropdown(e, containerId) {
         e.preventDefault();
         e.stopPropagation();
-    
-        ForgeState.subjectStates[subId][key]=newVal;
-    
-        saveAppState();
-        refreshForgeUI();
-    
-        const dropdown=document.getElementById(containerId);
-    
-        dropdown.querySelector("button span").innerHTML=
-            getGlowBadgeHTML(newVal);
-    
+
+        // Reset every card
+        document.querySelectorAll(".glass-card").forEach(card => {
+            card.style.zIndex = 1;
+        });
+
+        // Close every dropdown
+        document.querySelectorAll(".custom-dropdown-container").forEach(drop => {
+          if (drop.id !== containerId)
+            drop.classList.remove("open");
+        });
+
+        const container = document.getElementById(containerId);
+
+        // Bring this card above others
+        const card = container.closest(".glass-card");
+        if (card) card.style.zIndex = 999;
+
+        container.classList.toggle("open");
+
+        // Reset z-index after closing
+        if (!container.classList.contains("open") && card) {
+            card.style.zIndex = 1;
+        }
     }
-    
-    
+
+    function updateCategoryStatus(e, subId, key, newVal, containerId) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      ForgeState.subjectStates[subId][key] = newVal;
+      saveAppState();
+
+      document.getElementById(containerId)?.classList.remove("open");
+
+      requestAnimationFrame(() => {
+        renderSyllabusTracker();
+      });
+    }
+
+    // Close dropdowns on outside click
+    document.addEventListener("click", function(e){
+
+        if(!e.target.closest(".custom-dropdown-container")){
+
+          document.querySelectorAll(".custom-dropdown-container")
+              .forEach(drop=>drop.classList.remove("open"));
+
+          document.querySelectorAll(".glass-card")
+              .forEach(card=>card.style.zIndex=1);
+        }
+
+    });
+
     /* --------------------------------------------------------------------------
        8. LECTURE PROGRESS TRACKER RENDERER (NO LECTURE COUNTERS)
        -------------------------------------------------------------------------- */
@@ -1789,7 +1749,7 @@
                     <span style="font-size: 0.88rem; font-weight: 500;">${chName}</span>
                     <div style="width: 160px;">
                       <div class="custom-dropdown-container" id="dropdown-ch-${key}">
-                        <button class="custom-dropdown-btn" onclick="toggleDropdown(event, 'dropdown-ch-${key}')">
+                        <button class="custom-dropdown-btn" onclick="toggleCustomDropdown(event, 'dropdown-ch-${key}')">
                           <span>${getGlowBadgeHTML(chStatus)}</span>
                           <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                         </button>
@@ -1828,27 +1788,29 @@
     }
     
     
-    function updateChapterStatus(event,key,status){
+    function updateChapterStatus(e, key, status) {
+      e.preventDefault();
+      e.stopPropagation();
+  
+      ForgeState.chapterStates[key] = status;
+      saveAppState();
 
-        event.preventDefault();
-        event.stopPropagation();
-    
-        ForgeState.chapterStates[key]=status;
-    
-        saveAppState();
-        refreshForgeUI();
-    
-        const dropdown=document.getElementById(`dropdown-ch-${key}`);
-    
-        dropdown.querySelector("button span").innerHTML=
-            getGlowBadgeHTML(status);
-    
+      const subjectId = key.split("_")[0];
+
+      requestAnimationFrame(() => {
+          renderLectureTracker();
+
+          // Keep only the accordion open
+          const accordion = document.getElementById(`accordion-${subjectId}`);
+          if (accordion) {
+              accordion.classList.add("open");
+          }
+      });
     }
 
 
-    /* --------------------------------------------------------------------------
-       9. QUESTION PRACTICE TRACKER  
-       -------------------------------------------------------------------------- */
+    // Question Practice Renderer //
+
     
     function renderQuestionPracticeTracker() {
       const container = document.getElementById("practice-accordion-list");
@@ -1914,7 +1876,7 @@
 
                             <button
                               class="custom-dropdown-btn"
-                              onclick="toggleDropdown(event, 'practice-dropdown-${key}')">
+                              onclick="toggleCustomDropdown(event, 'practice-dropdown-${key}')">
 
                               <span>
                                 ${getGlowBadgeHTML(status)}
@@ -1977,338 +1939,71 @@
       }).join("");
     }
 
-    function updatePracticeStatus(event,key,status){
+    function updatePracticeStatus(event, key, status) {
+      event.preventDefault();
+      event.stopPropagation();
+      ForgeState.questionPracticeStates[key] = status;
+      saveAppState();
+      const subjectId = key.split("_")[1];
+      requestAnimationFrame(() => {
+        renderQuestionPracticeTracker();
+        document
+          .getElementById(`practice-accordion-${subjectId}`)
+          ?.classList.add("open");
+      });  
 
-        event.preventDefault();
-        event.stopPropagation();
-    
-        ForgeState.questionPracticeStates[key]=status;
-    
-        saveAppState();
-        refreshForgeUI();
-    
-        const dropdown=document.getElementById(`practice-dropdown-${key}`);
-    
-        dropdown.querySelector("button span").innerHTML=
-            getGlowBadgeHTML(status);
-    
     }
 
     /* --------------------------------------------------------------------------
-       10. REVISION QUEUE RENDERER
+       9. REVISION QUEUE RENDERER
        -------------------------------------------------------------------------- */
     function renderRevisionQueue() {
+      const container = document.getElementById("revision-queue-list");
+      const summaryContainer = document.getElementById("revision-stats-summary");
+      if (!container) return;
 
-        const container = document.getElementById("revision-queue-list");
-        if (!container) return;
-    
-        container.className = "";
-        container.style.display = "flex";
-        container.style.flexDirection = "column";
-        container.style.gap = "1rem";
-    
-        container.innerHTML = SYLLABUS_DATA.map(sub => {
-    
-            let total = sub.chapters.length * 3;
-            let completed = 0;
-    
-            sub.chapters.forEach((ch,index)=>{
-    
-                for(let r=1;r<=3;r++){
-    
-                    if(
-                        ForgeState.revisionStates[
-                            `revision_${r}_${sub.id}_${index}`
-                        ]==="Completed"
-                    ){
-                        completed++;
-                    }
-    
-                }
-    
-            });
-    
-            const progress=Math.round((completed/total)*100);
-    
-            return `
-    
-            <div class="subject-accordion"
-                 id="revision-accordion-${sub.id}">
-    
-                <div class="subject-header"
-                     onclick="toggleRevisionAccordion('${sub.id}')">
-    
-                    <div style="display:flex;align-items:center;gap:1rem;">
-    
-                        <svg class="dropdown-arrow"
-                             viewBox="0 0 24 24"
-                             fill="none"
-                             stroke="currentColor"
-                             stroke-width="2">
-    
-                            <polyline points="6 9 12 15 18 9"/>
-    
-                        </svg>
-    
-                        <h3>${sub.name}</h3>
-    
-                    </div>
-    
-                    <div style="display:flex;align-items:center;gap:1rem;">
-    
-                        <div class="progress-bar-container"
-                             style="width:120px;">
-    
-                            <div class="progress-bar-fill"
-                                 style="width:${progress}%;">
-                            </div>
-    
-                        </div>
-    
-                        <span>${progress}%</span>
-    
-                    </div>
-    
-                </div>
-    
-                <div class="subject-body">
-    
-                    ${sub.chapters.map((chapter,index)=>`
-    
-                        <div class="subject-accordion"
-                             id="chapter-${sub.id}-${index}">
-    
-                            <div class="subject-header"
-                                 style="padding:.9rem 1rem;background:rgba(255,255,255,.03);"
-                                 onclick="toggleRevisionChapter('${sub.id}',${index})">
-    
-                                <div style="display:flex;align-items:center;gap:.8rem;">
-    
-                                    <svg class="dropdown-arrow"
-                                         viewBox="0 0 24 24"
-                                         fill="none"
-                                         stroke="currentColor"
-                                         stroke-width="2">
-    
-                                        <polyline points="6 9 12 15 18 9"/>
-    
-                                    </svg>
-    
-                                    <span>${chapter}</span>
-    
-                                </div>
-    
-                            </div>
-    
-                            <div class="subject-body">
-    
-                                <div style="
-                                    display:grid;
-                                    grid-template-columns:repeat(3,1fr);
-                                    gap:12px;
-                                    padding:10px 0;
-                                ">
-    
-                                    ${[1,2,3].map(rev=>{
-    
-                                        const key=`revision_${rev}_${sub.id}_${index}`;
-                                        const status=
-                                        ForgeState.revisionStates[key] ||
-                                        "Pending";
-    
-                                        return `
-    
-                                        <div>
-    
-                                            <div style="
-                                                font-size:.78rem;
-                                                margin-bottom:6px;
-                                                color:var(--text-muted);
-                                            ">
-                                                Revision ${rev}
-                                            </div>
-    
-                                            <div class="custom-dropdown-container"
-                                                 id="revision-dropdown-${key}">
-    
-                                                <button
-                                                class="custom-dropdown-btn"
-                                                onclick="toggleDropdown(event,'revision-dropdown-${key}')">
-    
-                                                    <span>
-    
-                                                        ${getGlowBadgeHTML(status)}
-    
-                                                    </span>
-    
-                                                    <svg class="dropdown-arrow"
-                                                         viewBox="0 0 24 24"
-                                                         fill="none"
-                                                         stroke="currentColor"
-                                                         stroke-width="2">
-    
-                                                        <polyline points="6 9 12 15 18 9"/>
-    
-                                                    </svg>
-    
-                                                </button>
-    
-                                                <div class="dropdown-menu-list">
-    
-                                                    <div class="dropdown-item"
-                                                    onclick="updateRevisionStatus(event,'${key}','Pending')">
-    
-                                                        <span class="glow-badge glow-badge-pending">
-                                                            Pending
-                                                        </span>
-    
-                                                    </div>
-    
-                                                    <div class="dropdown-item"
-                                                    onclick="updateRevisionStatus(event,'${key}','Completed')">
-    
-                                                        <span class="glow-badge glow-badge-completed">
-                                                            Completed
-                                                        </span>
-    
-                                                    </div>
-    
-                                                </div>
-    
-                                            </div>
-    
-                                        </div>
-    
-                                        `;
-    
-                                    }).join("")}
-    
-                                </div>
-    
-                            </div>
-    
-                        </div>
-    
-                    `).join("")}
-    
-                </div>
-    
-            </div>
-    
-            `;
-    
-        }).join("");
-
-        if(openRevisionSubject){
-
-            document
-            .getElementById(`revision-accordion-${openRevisionSubject}`)
-            ?.classList.add("open");
-        
-        }
-        
-        if(openRevisionChapter){
-        
-            document
-            .getElementById(openRevisionChapter)
-            ?.classList.add("open");
-        
-        }
-    
-    }
-
-    function updateRevisionSummary(){
-
-        SYLLABUS_DATA.forEach(sub=>{
-    
-            let total=sub.chapters.length*3;
-            let completed=0;
-    
-            sub.chapters.forEach((c,index)=>{
-    
-                for(let r=1;r<=3;r++){
-    
-                    if(
-                        ForgeState.revisionStates[
-                            `revision_${r}_${sub.id}_${index}`
-                        ]==="Completed"
-                    ){
-                        completed++;
-                    }
-    
-                }
-    
-            });
-    
-            const progress=Math.round((completed/total)*100);
-    
-            const accordion=document.getElementById(
-                `revision-accordion-${sub.id}`
-            );
-    
-            if(!accordion) return;
-    
-            const bar=
-                accordion.querySelector(".progress-bar-fill");
-    
-            const text=
-                accordion.querySelector(".subject-header span:last-child");
-    
-            if(bar) bar.style.width=progress+"%";
-            if(text) text.textContent=progress+"%";
-    
+      // Collect completed chapters
+      let completedChapters = [];
+      SYLLABUS_DATA.forEach(sub => {
+        sub.chapters.forEach((chName, idx) => {
+          if (ForgeState.chapterStates[`${sub.id}_${idx}`] === 'Completed') {
+            completedChapters.push({ subName: sub.name, chapterName: chName });
+          }
         });
-    
+      });
+
+      if (summaryContainer) {
+        summaryContainer.innerHTML = `
+          <div><div style="font-size: 0.75rem; color: var(--text-muted);">Eligible Chapters</div><div style="font-size: 1.4rem; font-weight: 700;">${completedChapters.length}</div></div>
+          <div><div style="font-size: 0.75rem; color: var(--text-muted);">Due Today</div><div style="font-size: 1.4rem; font-weight: 700; color: var(--accent-gold);">${Math.min(3, completedChapters.length)}</div></div>
+          <div><div style="font-size: 0.75rem; color: var(--text-muted);">Overdue</div><div style="font-size: 1.4rem; font-weight: 700; color: #f43f5e;">0</div></div>
+          <div><div style="font-size: 0.75rem; color: var(--text-muted);">Completed Revisions</div><div style="font-size: 1.4rem; font-weight: 700; color: #34d399;">0</div></div>
+        `;
+      }
+
+      if (completedChapters.length === 0) {
+        container.innerHTML = `
+          <div class="glass-card" style="grid-column: span 2; text-align: center; color: var(--text-muted); padding: 2rem;">
+            No chapters ready for revision yet. Complete your first chapter in Lecture Tracker to build your queue.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = completedChapters.map((item, i) => `
+        <div class="glass-card flex-between">
+          <div>
+            <span class="glow-badge glow-badge-progress" style="margin-bottom: 0.35rem;">Due Today</span>
+            <h3 style="font-size: 0.95rem; margin-top: 0.2rem;">${item.chapterName}</h3>
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">${item.subName}</p>
+          </div>
+          <button class="btn-secondary" onclick="this.innerText='Revised ✔'; this.disabled=true;">Mark Revised</button>
+        </div>
+      `).join('');
     }
-    
-    function toggleRevisionChapter(subjectId,index){
 
-        const id=`chapter-${subjectId}-${index}`;
-    
-        const chapter=document.getElementById(id);
-    
-        chapter.classList.toggle("open");
-    
-        openRevisionChapter=
-            chapter.classList.contains("open")
-            ? id
-            : null;
-    
-    }
-
-    function toggleRevisionAccordion(subjectId){
-
-        const accordion=document.getElementById(
-            `revision-accordion-${subjectId}`
-        );
-    
-        accordion.classList.toggle("open");
-    
-        openRevisionSubject=
-            accordion.classList.contains("open")
-            ? subjectId
-            : null;
-    
-    }
-
-    function updateRevisionStatus(event,key,status){
-
-        event.preventDefault();
-        event.stopPropagation();
-    
-        ForgeState.revisionStates[key]=status;
-    
-        saveAppState();
-        refreshForgeUI();
-    
-        const dropdown=document.getElementById(`revision-dropdown-${key}`);
-    
-        dropdown.querySelector("button span").innerHTML=
-            getGlowBadgeHTML(status);
-    
-    }
     /* --------------------------------------------------------------------------
-       11. MISTAKE REGISTER
+       10. MISTAKE REGISTER
        -------------------------------------------------------------------------- */
     function renderMistakesList() {
       const container = document.getElementById("mistakes-list");
@@ -2356,7 +2051,7 @@
     }
 
     /* --------------------------------------------------------------------------
-       12. MOCK TEST TRACKER & ANALYTICS
+       11. MOCK TEST TRACKER & ANALYTICS
        -------------------------------------------------------------------------- */
     function renderMockTracker() {
       const container = document.getElementById("mock-tests-list");
@@ -2425,7 +2120,7 @@
 
 
     /* --------------------------------------------------------------------------
-       13. DAILY JOURNAL
+       12. DAILY JOURNAL
        -------------------------------------------------------------------------- */
     function setJournalMood(mood) {
       ForgeState.journalMoodToday = mood;
@@ -2551,74 +2246,6 @@
     /* --------------------------------------------------------------------------
        15. INITIALIZATION ON PAGE LOAD
        -------------------------------------------------------------------------- */
-    let activeDropdown = null;
-
-    function toggleDropdown(event,id){
-    
-        event.stopPropagation();
-    
-        const dropdown=document.getElementById(id);
-    
-        if(activeDropdown && activeDropdown!==dropdown){
-            activeDropdown.classList.remove("open");
-        }
-    
-        dropdown.classList.toggle("open");
-    
-        activeDropdown=dropdown.classList.contains("open")
-            ? dropdown
-            : null;
-    }
-    
-    function closeDropdown(id){
-        document.getElementById(id)?.classList.remove("open");
-    
-        if(activeDropdown?.id===id)
-            activeDropdown=null;
-    }
-    
-    document.addEventListener("click",()=>{
-    
-        if(activeDropdown){
-    
-            activeDropdown.classList.remove("open");
-            activeDropdown=null;
-    
-        }
-    
-    });  
-    
-    function refreshForgeUI(){
-
-        syncCalculations();
-    
-        const active=document.querySelector(".app-section.active");
-    
-        if(!active) return;
-    
-        if(active.id==="view-roadmap"){
-            renderRoadmap();
-        }
-    
-        else if(active.id==="view-syllabus"){
-            renderSyllabusTracker();
-        }
-    
-        else if(active.id==="view-lectures"){
-            renderLectureTracker();
-        }
-    
-        else if(active.id==="view-practice"){
-            renderQuestionPracticeTracker();
-        }
-    
-        else if(active.id==="view-revision"){
-            renderRevisionQueue();
-        }
-    
-    }
-
-    
     window.addEventListener("DOMContentLoaded", () => {
       initAppState();
       initCountdown();
