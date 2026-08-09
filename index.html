@@ -574,12 +574,18 @@
        ========================================================================== */
     
     .revision-chapter-row {
+      position: relative;
+      z-index: 1;
       background: rgba(14, 14, 18, 0.8);
       border: 1px solid var(--border-color);
       border-radius: 10px;
-      overflow: hidden;
+      overflow: visible;
       transition: border-color var(--transition-fast),
                   background var(--transition-fast);
+    }
+
+    .revision-chapter-row:has(.custom-dropdown-container.open) {
+      z-index: 1000;
     }
     
     .revision-chapter-row:hover {
