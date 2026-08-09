@@ -569,6 +569,106 @@
       justify-content: space-between;
     }
 
+    /* ==========================================================================
+       REVISION TRACKER
+       ========================================================================== */
+    
+    .revision-chapter-row {
+      background: rgba(14, 14, 18, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      overflow: hidden;
+      transition: border-color var(--transition-fast),
+                  background var(--transition-fast);
+    }
+    
+    .revision-chapter-row:hover {
+      border-color: var(--border-glow);
+    }
+    
+    .revision-chapter-header {
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      cursor: pointer;
+    }
+    
+    .revision-chapter-header:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+    
+    .revision-chapter-title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 0;
+    }
+    
+    .revision-chapter-title span {
+      font-size: 0.88rem;
+      font-weight: 500;
+    }
+    
+    .revision-chapter-body {
+      display: none;
+      padding: 0.75rem 1rem 1rem 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .revision-chapter-row.open .revision-chapter-body {
+      display: block;
+    }
+    
+    .revision-controls-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+    
+    .revision-control-card {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.75rem;
+    }
+    
+    .revision-control-label {
+      display: block;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    
+    .revision-chapter-progress {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      min-width: 150px;
+    }
+    
+    .revision-chapter-progress .progress-bar-container {
+      width: 90px;
+    }
+    
+    @media (max-width: 768px) {
+      .revision-controls-grid {
+        grid-template-columns: 1fr;
+      }
+    
+      .revision-chapter-progress {
+        min-width: 100px;
+      }
+    
+      .revision-chapter-progress .progress-bar-container {
+        width: 60px;
+      }
+    }
+
     /* Input Controls */
     .form-group {
       margin-bottom: 1.25rem;
@@ -861,20 +961,24 @@
       </div>
     </section>
 
-    <!-- 5. REVISION QUEUE VIEW -->
+    <!-- 5. REVISION TRACKER VIEW -->
     <section id="view-revision" class="app-section">
       <div class="section-header">
         <div>
-          <h1>Automated Revision Queue</h1>
-          <p class="subtitle">Completed chapters automatically enter this priority list.</p>
+          <h1>Revision Tracker</h1>
+          <p class="subtitle">Track three structured revisions for every chapter.</p>
         </div>
       </div>
+    
+      <!-- Revision Summary -->
       <div class="glass-card" style="margin-bottom: 1.5rem;">
         <div class="grid-4" id="revision-stats-summary">
           <!-- Rendered via JS -->
         </div>
       </div>
-      <div id="revision-queue-list" class="grid-2">
+    
+      <!-- Revision Accordion -->
+      <div id="revision-accordion-list">
         <!-- Rendered via JS -->
       </div>
     </section>
@@ -1278,53 +1382,134 @@
        2. APP STATE MANAGEMENT & LOCAL STORAGE
        -------------------------------------------------------------------------- */
     let ForgeState = {
-      subjectStates: {}, // subjectId -> { resource, lecturesStatus: 'Pending', notesStatus: 'Pending', pyqStatus: 'Pending', revisionStatus: 'Pending', mockStatus: 'Pending' }
-      chapterStates: {}, // subjectId_chapterIndex -> 'Pending' | 'In Progress' | 'Completed'
+      subjectStates: {},
+      chapterStates: {},
       questionPracticeStates: {},
+      revisionStates: {},
       mistakes: [],
       mocks: [],
       journals: [],
       quickNotes: "",
       journalMoodToday: "Good"
     };
-
+    
     function initAppState() {
       const saved = localStorage.getItem("FORGE_GATE_STATE_2027");
+    
       if (saved) {
-        try { ForgeState = JSON.parse(saved); } catch(e) {}
+        try {
+          ForgeState = JSON.parse(saved);
+        } catch (e) {
+          console.warn("Forge state could not be parsed. Using fresh state.");
+        }
       }
-
-      if (!ForgeState.questionPracticeStates) {
-          ForgeState.questionPracticeStates = {};
+    
+      // ------------------------------------------------------------
+      // State migration / safety
+      // ------------------------------------------------------------
+    
+      if (!ForgeState || typeof ForgeState !== "object") {
+        ForgeState = {};
       }
-      
-      // Seed missing default structures
+    
+      if (!ForgeState.subjectStates || typeof ForgeState.subjectStates !== "object") {
+        ForgeState.subjectStates = {};
+      }
+    
+      if (!ForgeState.chapterStates || typeof ForgeState.chapterStates !== "object") {
+        ForgeState.chapterStates = {};
+      }
+    
+      if (
+        !ForgeState.questionPracticeStates ||
+        typeof ForgeState.questionPracticeStates !== "object"
+      ) {
+        ForgeState.questionPracticeStates = {};
+      }
+    
+      if (
+        !ForgeState.revisionStates ||
+        typeof ForgeState.revisionStates !== "object"
+      ) {
+        ForgeState.revisionStates = {};
+      }
+    
+      if (!Array.isArray(ForgeState.mistakes)) {
+        ForgeState.mistakes = [];
+      }
+    
+      if (!Array.isArray(ForgeState.mocks)) {
+        ForgeState.mocks = [];
+      }
+    
+      if (!Array.isArray(ForgeState.journals)) {
+        ForgeState.journals = [];
+      }
+    
+      if (typeof ForgeState.quickNotes !== "string") {
+        ForgeState.quickNotes = "";
+      }
+    
+      if (!ForgeState.journalMoodToday) {
+        ForgeState.journalMoodToday = "Good";
+      }
+    
+      // ------------------------------------------------------------
+      // Seed all subjects and chapters
+      // ------------------------------------------------------------
+    
       SYLLABUS_DATA.forEach(sub => {
+    
         if (!ForgeState.subjectStates[sub.id]) {
           ForgeState.subjectStates[sub.id] = {
             resource: sub.resource,
-            lecturesStatus: 'Pending',
-            notesStatus: 'Pending',
-            pyqStatus: 'Pending',
-            revisionStatus: 'Pending',
-            mockStatus: 'Pending'
+            lecturesStatus: "Pending",
+            notesStatus: "Pending",
+            pyqStatus: "Pending",
+            revisionStatus: "Pending",
+            mockStatus: "Pending"
           };
         }
+    
         sub.chapters.forEach((ch, idx) => {
-          const key = `${sub.id}_${idx}`;
-          if (!ForgeState.chapterStates[key]) {
-            ForgeState.chapterStates[key] = 'Pending';
+    
+          // Lecture state
+          const chapterKey = `${sub.id}_${idx}`;
+    
+          if (!ForgeState.chapterStates[chapterKey]) {
+            ForgeState.chapterStates[chapterKey] = "Pending";
           }
-        });
-
-        sub.chapters.forEach((ch, idx) => {
-          const key = `practice_${sub.id}_${idx}`;
-          if (!ForgeState.questionPracticeStates[key]) {
-            ForgeState.questionPracticeStates[key] = "Pending";
+    
+          // Question Practice state
+          const practiceKey = `practice_${sub.id}_${idx}`;
+    
+          if (!ForgeState.questionPracticeStates[practiceKey]) {
+            ForgeState.questionPracticeStates[practiceKey] = "Pending";
+          }
+    
+          // Revision state
+          const revisionKey = `revision_${sub.id}_${idx}`;
+    
+          if (!ForgeState.revisionStates[revisionKey]) {
+            ForgeState.revisionStates[revisionKey] = {
+              revision1: "Pending",
+              revision2: "Pending",
+              revision3: "Pending"
+            };
+          } else {
+            // Migration safety for partially-created revision objects
+            ForgeState.revisionStates[revisionKey].revision1 =
+              ForgeState.revisionStates[revisionKey].revision1 || "Pending";
+    
+            ForgeState.revisionStates[revisionKey].revision2 =
+              ForgeState.revisionStates[revisionKey].revision2 || "Pending";
+    
+            ForgeState.revisionStates[revisionKey].revision3 =
+              ForgeState.revisionStates[revisionKey].revision3 || "Pending";
           }
         });
       });
-
+    
       saveAppState();
     }
 
@@ -1334,113 +1519,277 @@
     }
 
     /* --------------------------------------------------------------------------
-       3. CALCULATIONS ENGINE (OVERALL PROGRESS, READINESS, CURRENT FOCUS)
+       3. CENTRAL PROGRESS CALCULATION ENGINE
        -------------------------------------------------------------------------- */
-    function syncCalculations() {
-      // 1. Calculate overall progress
-      let totalItems = 0;
-      let completedItems = 0;
-
+    
+    /* Convert a tracker status into a numerical score */
+    function statusScore(status) {
+      if (status === "Completed") return 1;
+      if (status === "In Progress") return 0.5;
+      return 0;
+    }
+    
+    /* ------------------------------------------------------------
+       QUESTION PRACTICE PROGRESS
+       ------------------------------------------------------------ */
+    
+    function getPracticeProgress(sub) {
+      if (!sub || !sub.chapters || sub.chapters.length === 0) return 0;
+    
+      let score = 0;
+    
+      sub.chapters.forEach((chapter, idx) => {
+        const key = `practice_${sub.id}_${idx}`;
+        const status = ForgeState.questionPracticeStates[key] || "Pending";
+    
+        score += statusScore(status);
+      });
+    
+      return Math.round((score / sub.chapters.length) * 100);
+    }
+    
+    /* ------------------------------------------------------------
+       REVISION PROGRESS
+       ------------------------------------------------------------ */
+    
+    function getRevisionChapterProgress(subId, chapterIndex) {
+      const key = `revision_${subId}_${chapterIndex}`;
+    
+      const revision = ForgeState.revisionStates[key] || {
+        revision1: "Pending",
+        revision2: "Pending",
+        revision3: "Pending"
+      };
+    
+      let completed = 0;
+    
+      if (revision.revision1 === "Completed") completed++;
+      if (revision.revision2 === "Completed") completed++;
+      if (revision.revision3 === "Completed") completed++;
+    
+      return Math.round((completed / 3) * 100);
+    }
+    
+    function getRevisionProgress(sub) {
+      if (!sub || !sub.chapters || sub.chapters.length === 0) return 0;
+    
+      let totalRevisionUnits = sub.chapters.length * 3;
+      let completedRevisionUnits = 0;
+    
+      sub.chapters.forEach((chapter, idx) => {
+        const key = `revision_${sub.id}_${idx}`;
+    
+        const revision = ForgeState.revisionStates[key] || {
+          revision1: "Pending",
+          revision2: "Pending",
+          revision3: "Pending"
+        };
+    
+        if (revision.revision1 === "Completed") completedRevisionUnits++;
+        if (revision.revision2 === "Completed") completedRevisionUnits++;
+        if (revision.revision3 === "Completed") completedRevisionUnits++;
+      });
+    
+      return totalRevisionUnits > 0
+        ? Math.round((completedRevisionUnits / totalRevisionUnits) * 100)
+        : 0;
+    }
+    
+    /* ------------------------------------------------------------
+       DERIVED SUBJECT STATUS
+       ------------------------------------------------------------ */
+    
+    function progressToStatus(pct) {
+      if (pct >= 100) return "Completed";
+      if (pct > 0) return "In Progress";
+      return "Pending";
+    }
+    
+    function getLectureProgress(sub) {
+      if (!sub || !sub.chapters || sub.chapters.length === 0) return 0;
+    
+      let score = 0;
+    
+      sub.chapters.forEach((chapter, idx) => {
+        score += statusScore(
+          ForgeState.chapterStates[`${sub.id}_${idx}`] || "Pending"
+        );
+      });
+    
+      return Math.round((score / sub.chapters.length) * 100);
+    }
+    
+    function syncDerivedSubjectStatuses() {
       SYLLABUS_DATA.forEach(sub => {
         const state = ForgeState.subjectStates[sub.id];
-        const categories = [state.lecturesStatus, state.notesStatus, state.pyqStatus, state.revisionStatus, state.mockStatus];
-        categories.forEach(st => {
-          totalItems += 1;
-          if (st === 'Completed') completedItems += 1;
-          else if (st === 'In Progress') completedItems += 0.5;
-        });
-
-        // Add chapters
-        sub.chapters.forEach((ch, idx) => {
-          totalItems += 1;
-          const chSt = ForgeState.chapterStates[`${sub.id}_${idx}`];
-          if (chSt === 'Completed') completedItems += 1;
-          else if (chSt === 'In Progress') completedItems += 0.5;
+    
+        if (!state) return;
+    
+        state.lecturesStatus = progressToStatus(getLectureProgress(sub));
+        state.pyqStatus = progressToStatus(getPracticeProgress(sub));
+        state.revisionStatus = progressToStatus(getRevisionProgress(sub));
+      });
+    }
+    
+    /* ------------------------------------------------------------
+       CENTRAL SYNC
+       ------------------------------------------------------------ */
+    
+    function syncCalculations() {
+    
+      // Make the subject-level status fields reflect
+      // the actual chapter trackers.
+      syncDerivedSubjectStatuses();
+    
+      let totalUnits = 0;
+      let completedUnits = 0;
+    
+      SYLLABUS_DATA.forEach(sub => {
+    
+        const state = ForgeState.subjectStates[sub.id] || {};
+    
+        // Notes and Mock remain subject-level trackers.
+        totalUnits += 1;
+        completedUnits += statusScore(state.notesStatus);
+    
+        totalUnits += 1;
+        completedUnits += statusScore(state.mockStatus);
+    
+        // Every chapter contributes three equal execution units:
+        //
+        // 1. Lecture
+        // 2. Question Practice
+        // 3. Revision
+        //
+        sub.chapters.forEach((chapter, idx) => {
+    
+          // Lecture
+          totalUnits += 1;
+          completedUnits += statusScore(
+            ForgeState.chapterStates[`${sub.id}_${idx}`] || "Pending"
+          );
+    
+          // Question Practice
+          totalUnits += 1;
+          completedUnits += statusScore(
+            ForgeState.questionPracticeStates[
+              `practice_${sub.id}_${idx}`
+            ] || "Pending"
+          );
+    
+          // Revision
+          totalUnits += 1;
+          completedUnits +=
+            getRevisionChapterProgress(sub.id, idx) / 100;
         });
       });
-
-      const overallPct = totalItems > 0 ? ((completedItems / totalItems) * 100).toFixed(1) : "0.0";
-      
-      // Update DOM elements for overall progress
-      const progressTxt = document.getElementById("overall-progress-text");
-      const progressBar = document.getElementById("overall-progress-bar");
-      if (progressTxt) progressTxt.innerText = `${overallPct}%`;
-      if (progressBar) progressBar.style.width = `${overallPct}%`;
-
-      // 2. Readiness Score Calculation
-      let readinessScore = Math.min(100, Math.round(parseFloat(overallPct) * 1.1 + (ForgeState.mocks.length * 3)));
-      const readinessValEl = document.getElementById("readiness-score-val");
-      const readinessGaugeEl = document.getElementById("readiness-gauge");
-      if (readinessValEl) readinessValEl.innerText = readinessScore;
-      if (readinessGaugeEl) readinessGaugeEl.style.setProperty("--score-pct", readinessScore);
-
-      // 3. Detect current subject & focus
+    
+      const overallPct =
+        totalUnits > 0
+          ? ((completedUnits / totalUnits) * 100).toFixed(1)
+          : "0.0";
+    
+      // ------------------------------------------------------------
+      // Dashboard Overall Progress
+      // ------------------------------------------------------------
+    
+      const progressTxt =
+        document.getElementById("overall-progress-text");
+    
+      const progressBar =
+        document.getElementById("overall-progress-bar");
+    
+      if (progressTxt) {
+        progressTxt.innerText = `${overallPct}%`;
+      }
+    
+      if (progressBar) {
+        progressBar.style.width = `${overallPct}%`;
+      }
+    
+      // ------------------------------------------------------------
+      // Readiness Score
+      // ------------------------------------------------------------
+    
+      const readinessScore = Math.min(
+        100,
+        Math.round(
+          parseFloat(overallPct) * 1.1 +
+          (ForgeState.mocks.length * 3)
+        )
+      );
+    
+      const readinessValEl =
+        document.getElementById("readiness-score-val");
+    
+      const readinessGaugeEl =
+        document.getElementById("readiness-gauge");
+    
+      if (readinessValEl) {
+        readinessValEl.innerText = readinessScore;
+      }
+    
+      if (readinessGaugeEl) {
+        readinessGaugeEl.style.setProperty(
+          "--score-pct",
+          readinessScore
+        );
+      }
+    
+      // ------------------------------------------------------------
+      // Current Study Focus
+      // ------------------------------------------------------------
+    
       let currentSubName = "Strength of Materials";
-      let currentChapterName = "Torsion in Circular Shafts";
-      let currentPhaseTitle = "Phase 1: Momentum and SOM Completion";
-
-      for (let sub of SYLLABUS_DATA) {
+      let currentChapterName = "Introduction and Properties of Materials";
+    
+      for (const sub of SYLLABUS_DATA) {
+    
         for (let i = 0; i < sub.chapters.length; i++) {
-          const st = ForgeState.chapterStates[`${sub.id}_${i}`];
-          if (st !== 'Completed') {
+    
+          const lectureStatus =
+            ForgeState.chapterStates[`${sub.id}_${i}`] || "Pending";
+    
+          const practiceStatus =
+            ForgeState.questionPracticeStates[
+              `practice_${sub.id}_${i}`
+            ] || "Pending";
+    
+          const revisionPct =
+            getRevisionChapterProgress(sub.id, i);
+    
+          if (
+            lectureStatus !== "Completed" ||
+            practiceStatus !== "Completed" ||
+            revisionPct < 100
+          ) {
             currentSubName = sub.name;
             currentChapterName = sub.chapters[i];
             break;
           }
         }
+    
         if (currentSubName === sub.name) break;
       }
-
-      const dashSub = document.getElementById("dash-curr-subject");
-      const dashCh = document.getElementById("dash-curr-chapter");
-      if (dashSub) dashSub.innerText = currentSubName;
-      if (dashCh) dashCh.innerText = `Current Chapter: ${currentChapterName}`;
-
-      // Update completed subjects pending cards
+    
+      const dashSub =
+        document.getElementById("dash-curr-subject");
+    
+      const dashCh =
+        document.getElementById("dash-curr-chapter");
+    
+      if (dashSub) {
+        dashSub.innerText = currentSubName;
+      }
+    
+      if (dashCh) {
+        dashCh.innerText =
+          `Current Chapter: ${currentChapterName}`;
+      }
+    
+      // Keep dashboard's completed-subject section synced.
       renderCompletedSubjectsPendingCards();
     }
-
-    /* Render Pending PYQs / Mocks / Revisions ONLY for completed subjects */
-    function renderCompletedSubjectsPendingCards() {
-      const container = document.getElementById("completed-subjects-pending-grid");
-      if (!container) return;
-
-      const completedSubs = SYLLABUS_DATA.filter(sub => {
-        const st = ForgeState.subjectStates[sub.id];
-        return st.lecturesStatus === 'Completed' && st.notesStatus === 'Completed';
-      });
-
-      if (completedSubs.length === 0) {
-        container.innerHTML = `
-          <div style="text-align: center; color: var(--text-muted); grid-column: span 3; padding: 1rem;">
-            No completed subjects yet. Finish lectures and notes for a subject to activate post-completion tracking.
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = completedSubs.map(sub => {
-        const st = ForgeState.subjectStates[sub.id];
-        return `
-          <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); padding: 1rem; border-radius: 12px;">
-            <div style="font-weight: 700; font-size: 0.9rem; margin-bottom: 0.5rem;">${sub.name}</div>
-            <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.8rem;">
-              <div class="flex-between"><span>PYQs:</span> ${getGlowBadgeHTML(st.pyqStatus)}</div>
-              <div class="flex-between"><span>Revision:</span> ${getGlowBadgeHTML(st.revisionStatus)}</div>
-              <div class="flex-between"><span>Subject Mock:</span> ${getGlowBadgeHTML(st.mockStatus)}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    /* Glow Badge Helper */
-    function getGlowBadgeHTML(status) {
-      if (status === 'Completed') return `<span class="glow-badge glow-badge-completed">Completed</span>`;
-      if (status === 'In Progress') return `<span class="glow-badge glow-badge-progress">In Progress</span>`;
-      return `<span class="glow-badge glow-badge-pending">Pending</span>`;
-    }
-
     /* --------------------------------------------------------------------------
        4. NAVIGATION & TAB SWITCHING
        -------------------------------------------------------------------------- */
@@ -1519,60 +1868,207 @@
     /* --------------------------------------------------------------------------
        6. ROADMAP VIEW RENDERER
        -------------------------------------------------------------------------- */
+    
     function renderRoadmap() {
-      const container = document.getElementById("roadmap-phases-container");
+    
+      const container =
+        document.getElementById(
+          "roadmap-phases-container"
+        );
+    
       if (!container) return;
-
-      container.innerHTML = ROADMAP_PHASES.map(phase => {
-        // Calculate Phase Progress
-        let total = 0;
-        let completed = 0;
-        phase.subjectIds.forEach(subId => {
-          const sub = SYLLABUS_DATA.find(s => s.id === subId);
-          if (sub) {
-            sub.chapters.forEach((ch, idx) => {
-              total += 1;
-              const st = ForgeState.chapterStates[`${subId}_${idx}`];
-              if (st === 'Completed') completed += 1;
-              else if (st === 'In Progress') completed += 0.5;
+    
+      container.innerHTML =
+        ROADMAP_PHASES.map(phase => {
+    
+          let totalChapterUnits = 0;
+          let completedChapterUnits = 0;
+    
+          phase.subjectIds.forEach(subId => {
+    
+            const sub =
+              SYLLABUS_DATA.find(
+                s => s.id === subId
+              );
+    
+            if (!sub) return;
+    
+            sub.chapters.forEach((chapter, idx) => {
+    
+              /*
+               * Every chapter has three equal execution components:
+               *
+               * 1. Lecture
+               * 2. Question Practice
+               * 3. Revision
+               */
+    
+              totalChapterUnits += 3;
+    
+              // Lecture
+              completedChapterUnits += statusScore(
+                ForgeState.chapterStates[
+                  `${subId}_${idx}`
+                ] || "Pending"
+              );
+    
+              // Question Practice
+              completedChapterUnits += statusScore(
+                ForgeState.questionPracticeStates[
+                  `practice_${subId}_${idx}`
+                ] || "Pending"
+              );
+    
+              // Revision
+              completedChapterUnits +=
+                getRevisionChapterProgress(
+                  subId,
+                  idx
+                ) / 100;
+    
             });
-          }
-        });
-        const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
-        const statusBadge = pct === 100 ? getGlowBadgeHTML('Completed') : pct > 0 ? getGlowBadgeHTML('In Progress') : getGlowBadgeHTML('Pending');
-
-        return `
-          <div class="glass-card">
-            <div class="flex-between" style="margin-bottom: 0.75rem;">
-              <div>
-                <span style="font-size: 0.75rem; color: var(--accent-gold); font-family: var(--font-mono); font-weight: 600;">${phase.dates}</span>
-                <h2 style="font-size: 1.15rem; margin-top: 0.1rem;">${phase.title}</h2>
+    
+          });
+    
+          const pct =
+            totalChapterUnits > 0
+              ? Math.round(
+                  (completedChapterUnits /
+                    totalChapterUnits) * 100
+                )
+              : 0;
+    
+          const statusBadge =
+            pct === 100
+              ? getGlowBadgeHTML("Completed")
+              : pct > 0
+                ? getGlowBadgeHTML("In Progress")
+                : getGlowBadgeHTML("Pending");
+    
+          return `
+    
+            <div class="glass-card">
+    
+              <div
+                class="flex-between"
+                style="margin-bottom:0.75rem;"
+              >
+    
+                <div>
+    
+                  <span
+                    style="
+                      font-size:0.75rem;
+                      color:var(--accent-gold);
+                      font-family:var(--font-mono);
+                      font-weight:600;
+                    "
+                  >
+                    ${phase.dates}
+                  </span>
+    
+                  <h2
+                    style="
+                      font-size:1.15rem;
+                      margin-top:0.1rem;
+                    "
+                  >
+                    ${phase.title}
+                  </h2>
+    
+                </div>
+    
+                ${statusBadge}
+    
               </div>
-              ${statusBadge}
-            </div>
-            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">${phase.description}</p>
-            
-            <div style="margin-bottom: 1rem;">
-              <div class="flex-between" style="font-size: 0.8rem; margin-bottom: 0.35rem;">
-                <span style="color: var(--text-muted);">Phase Completion</span>
-                <span style="font-family: var(--font-mono); font-weight: 600;">${pct}%</span>
+    
+              <p
+                style="
+                  font-size:0.85rem;
+                  color:var(--text-secondary);
+                  margin-bottom:1rem;
+                "
+              >
+                ${phase.description}
+              </p>
+    
+              <div style="margin-bottom:1rem;">
+    
+                <div
+                  class="flex-between"
+                  style="
+                    font-size:0.8rem;
+                    margin-bottom:0.35rem;
+                  "
+                >
+    
+                  <span
+                    style="color:var(--text-muted);"
+                  >
+                    Phase Completion
+                  </span>
+    
+                  <span
+                    style="
+                      font-family:var(--font-mono);
+                      font-weight:600;
+                    "
+                  >
+                    ${pct}%
+                  </span>
+    
+                </div>
+    
+                <div class="progress-bar-container">
+    
+                  <div
+                    class="progress-bar-fill"
+                    style="width:${pct}%;"
+                  ></div>
+    
+                </div>
+    
               </div>
-              <div class="progress-bar-container">
-                <div class="progress-bar-fill" style="width: ${pct}%;"></div>
+    
+              <div
+                style="
+                  display:flex;
+                  flex-wrap:wrap;
+                  gap:0.5rem;
+                "
+              >
+    
+                ${phase.subjectIds.map(sId => {
+    
+                  const s =
+                    SYLLABUS_DATA.find(
+                      x => x.id === sId
+                    );
+    
+                  return `
+                    <span
+                      style="
+                        background:rgba(0,0,0,0.4);
+                        border:1px solid var(--border-color);
+                        padding:0.3rem 0.6rem;
+                        border-radius:6px;
+                        font-size:0.78rem;
+                      "
+                    >
+                      ${s ? s.name : sId}
+                    </span>
+                  `;
+    
+                }).join("")}
+    
               </div>
+    
             </div>
-
-            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-              ${phase.subjectIds.map(sId => {
-                const s = SYLLABUS_DATA.find(x => x.id === sId);
-                return `<span style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.78rem;">${s ? s.name : sId}</span>`;
-              }).join('')}
-            </div>
-          </div>
-        `;
-      }).join('');
+    
+          `;
+    
+        }).join("");
     }
-
     /* --------------------------------------------------------------------------
        7. SYLLABUS PROGRESS TRACKER RENDERER
        -------------------------------------------------------------------------- */
@@ -1615,11 +2111,36 @@
 
             <!-- Categories Dropdown Controls Grid -->
             <div class="grid-4" style="gap: 0.75rem;">
-              ${renderCategoryDropdown(sub.id, 'Lectures', 'lecturesStatus', state.lecturesStatus)}
-              ${renderCategoryDropdown(sub.id, 'Notes', 'notesStatus', state.notesStatus)}
-              ${renderCategoryDropdown(sub.id, 'PYQs', 'pyqStatus', state.pyqStatus)}
-              ${renderCategoryDropdown(sub.id, 'Revision', 'revisionStatus', state.revisionStatus)}
-              ${renderCategoryDropdown(sub.id, 'Subject Mock', 'mockStatus', state.mockStatus)}
+              ${renderCategoryDropdown(
+                sub.id,
+                'Lectures',
+                'lecturesStatus',
+                state.lecturesStatus
+              )}
+              
+              ${renderCategoryDropdown(
+                sub.id,
+                'Notes',
+                'notesStatus',
+                state.notesStatus
+              )}
+              
+              ${renderDerivedProgressCategory(
+                'PYQs',
+                getPracticeProgress(sub)
+              )}
+              
+              ${renderDerivedProgressCategory(
+                'Revision',
+                getRevisionProgress(sub)
+              )}
+              
+              ${renderCategoryDropdown(
+                sub.id,
+                'Subject Mock',
+                'mockStatus',
+                state.mockStatus
+              )}
             </div>
           </div>
         `;
@@ -1647,6 +2168,58 @@
               </div>
             </div>
           </div>
+        </div>
+      `;
+    }
+
+    function renderDerivedProgressCategory(label, pct) {
+
+      const status = progressToStatus(pct);
+    
+      return `
+        <div>
+    
+          <label
+            style="
+              font-size:0.72rem;
+              color:var(--text-muted);
+              display:block;
+              margin-bottom:0.25rem;
+            "
+          >
+            ${label}
+          </label>
+    
+          <div
+            style="
+              background:rgba(0,0,0,0.4);
+              border:1px solid var(--border-color);
+              border-radius:10px;
+              padding:0.6rem 0.9rem;
+              min-height:42px;
+              display:flex;
+              align-items:center;
+              justify-content:space-between;
+              gap:0.5rem;
+            "
+          >
+    
+            <span>
+              ${getGlowBadgeHTML(status)}
+            </span>
+    
+            <span
+              style="
+                font-family:var(--font-mono);
+                font-size:0.75rem;
+                color:var(--text-muted);
+              "
+            >
+              ${pct}%
+            </span>
+    
+          </div>
+    
         </div>
       `;
     }
@@ -1812,194 +2385,908 @@
     // Question Practice Renderer //
 
     
+    /* --------------------------------------------------------------------------
+       QUESTION PRACTICE TRACKER
+       -------------------------------------------------------------------------- */
+    
     function renderQuestionPracticeTracker() {
-      const container = document.getElementById("practice-accordion-list");
+    
+      const container =
+        document.getElementById("practice-accordion-list");
+    
       if (!container) return;
+    
       container.innerHTML = SYLLABUS_DATA.map(sub => {
-
-          // Calculate subject progress
-          let totalChapters = sub.chapters.length;
-          let completedChapters = 0;
-
-          sub.chapters.forEach((chapter, index) => {
-            if (
-              ForgeState.questionPracticeStates[`practice_${sub.id}_${index}`] === "Completed"
-            ) {
-            completedChapters++;
-            }
-          });
-
-          const progress = Math.round((completedChapters / totalChapters) * 100);
-
-          return `
-            <div class="subject-accordion" id="practice-accordion-${sub.id}">
-
-              <div class="subject-header" onclick="togglePracticeAccordion('${sub.id}')">
-                <div style="display:flex;align-items:center;gap:1rem;">
-                  <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="6 9 12 15 18 9"/>
-                  </svg>
-
-                  <h3 style="font-size:1rem;">
-                    ${sub.name}
-                  </h3>
-                </div>
-
-                <div style="display:flex;align-items:center;gap:1rem;">
-                  <div class="progress-bar-container" style="width:120px;">
-                    <div class="progress-bar-fill" style="width:${progress}%"></div>
-                  </div>
-
-                  <span style="font-family:var(--font-mono);font-weight:600;font-size:0.88rem;">
-                    ${progress}%
-                  </span>
-                </div>
+    
+        const progress = getPracticeProgress(sub);
+    
+        return `
+          <div
+            class="subject-accordion"
+            id="practice-accordion-${sub.id}"
+          >
+    
+            <div
+              class="subject-header"
+              onclick="togglePracticeAccordion('${sub.id}')"
+            >
+    
+              <div style="display:flex;align-items:center;gap:1rem;">
+    
+                <svg
+                  class="dropdown-arrow"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+    
+                <h3 style="font-size:1rem;">
+                  ${sub.name}
+                </h3>
+    
               </div>
-
-              <div class="subject-body">
-
-                  ${sub.chapters.map((chapter, index) => {
-
-                    const key = `practice_${sub.id}_${index}`;
-                    const status = ForgeState.questionPracticeStates[key] || "Pending";
-
-                    return `
-                      <div class="chapter-row">
-
-                        <span style="font-size:0.88rem;font-weight:500;">
-                          ${chapter}
-                        </span>
-
-                        <div style="width:160px;">
-
-                          <div class="custom-dropdown-container" id="practice-dropdown-${key}">
-
-                            <button
-                              class="custom-dropdown-btn"
-                              onclick="toggleCustomDropdown(event, 'practice-dropdown-${key}')">
-
-                              <span>
-                                ${getGlowBadgeHTML(status)}
-                              </span>
-
-                              <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <polyline points="6 9 12 15 18 9"/>
-                              </svg>
-
-                            </button>
-
-                            <div class="dropdown-menu-list">
-
-                              <div
-                                class="dropdown-item"
-                                onclick="updatePracticeStatus(event, '${key}', 'Pending')">
- 
-                                <span class="glow-badge glow-badge-pending">
-                                  Pending
-                                </span>
-
-                              </div>
-
-                              <div
-                                class="dropdown-item"
-                                onclick="updatePracticeStatus(event, '${key}', 'In Progress')">
-
-                                <span class="glow-badge glow-badge-progress">
-                                  In Progress
-                                </span>
-
-                              </div>
-
-                              <div
-                                class="dropdown-item"
-                                onclick="updatePracticeStatus(event, '${key}', 'Completed')">
-
-                                <span class="glow-badge glow-badge-completed">
-                                  Completed
-                                </span>
-
-                              </div>
-
-                            </div>
-
-                          </div>
-
-                        </div>
-
-                      </div>
-                    `;
-
-                  }).join("")}
-
+    
+              <div style="display:flex;align-items:center;gap:1rem;">
+    
+                <div
+                  class="progress-bar-container"
+                  style="width:120px;"
+                >
+                  <div
+                    class="progress-bar-fill"
+                    style="width:${progress}%"
+                  ></div>
+                </div>
+    
+                <span
+                  style="
+                    font-family:var(--font-mono);
+                    font-weight:600;
+                    font-size:0.88rem;
+                  "
+                >
+                  ${progress}%
+                </span>
+    
               </div>
-
+    
             </div>
-          `;
-
+    
+            <div class="subject-body">
+    
+              ${sub.chapters.map((chapter, index) => {
+    
+                const key =
+                  `practice_${sub.id}_${index}`;
+    
+                const status =
+                  ForgeState.questionPracticeStates[key] ||
+                  "Pending";
+    
+                return `
+                  <div class="chapter-row">
+    
+                    <span
+                      style="
+                        font-size:0.88rem;
+                        font-weight:500;
+                      "
+                    >
+                      ${chapter}
+                    </span>
+    
+                    <div style="width:160px;">
+    
+                      <div
+                        class="custom-dropdown-container"
+                        id="practice-dropdown-${key}"
+                      >
+    
+                        <button
+                          class="custom-dropdown-btn"
+                          onclick="
+                            toggleCustomDropdown(
+                              event,
+                              'practice-dropdown-${key}'
+                            )
+                          "
+                        >
+    
+                          <span>
+                            ${getGlowBadgeHTML(status)}
+                          </span>
+    
+                          <svg
+                            class="dropdown-arrow"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                          >
+                            <polyline points="6 9 12 15 18 9"/>
+                          </svg>
+    
+                        </button>
+    
+                        <div class="dropdown-menu-list">
+    
+                          <div
+                            class="dropdown-item"
+                            onclick="
+                              updatePracticeStatus(
+                                event,
+                                '${key}',
+                                'Pending'
+                              )
+                            "
+                          >
+                            <span class="glow-badge glow-badge-pending">
+                              Pending
+                            </span>
+                          </div>
+    
+                          <div
+                            class="dropdown-item"
+                            onclick="
+                              updatePracticeStatus(
+                                event,
+                                '${key}',
+                                'In Progress'
+                              )
+                            "
+                          >
+                            <span class="glow-badge glow-badge-progress">
+                              In Progress
+                            </span>
+                          </div>
+    
+                          <div
+                            class="dropdown-item"
+                            onclick="
+                              updatePracticeStatus(
+                                event,
+                                '${key}',
+                                'Completed'
+                              )
+                            "
+                          >
+                            <span class="glow-badge glow-badge-completed">
+                              Completed
+                            </span>
+                          </div>
+    
+                        </div>
+    
+                      </div>
+    
+                    </div>
+    
+                  </div>
+                `;
+    
+              }).join("")}
+    
+            </div>
+    
+          </div>
+        `;
+    
       }).join("");
     }
-
+    
+    
     function updatePracticeStatus(event, key, status) {
+    
       event.preventDefault();
       event.stopPropagation();
+    
+      // Safety guard — prevents the old undefined-state problem.
+      if (
+        !ForgeState.questionPracticeStates ||
+        typeof ForgeState.questionPracticeStates !== "object"
+      ) {
+        ForgeState.questionPracticeStates = {};
+      }
+    
       ForgeState.questionPracticeStates[key] = status;
+    
       saveAppState();
-      const subjectId = key.split("_")[1];
+    
+      const parts = key.split("_");
+      const subjectId = parts[1];
+    
       requestAnimationFrame(() => {
+    
         renderQuestionPracticeTracker();
+    
         document
           .getElementById(`practice-accordion-${subjectId}`)
           ?.classList.add("open");
-      });  
-
+    
+      });
     }
 
     /* --------------------------------------------------------------------------
-       9. REVISION QUEUE RENDERER
+       9. REVISION TRACKER
        -------------------------------------------------------------------------- */
+    
+    function toggleRevisionSubject(subId) {
+    
+      const el =
+        document.getElementById(
+          `revision-accordion-${subId}`
+        );
+    
+      if (el) {
+        el.classList.toggle("open");
+      }
+    }
+    
+    
+    function toggleRevisionChapter(subId, chapterIndex) {
+    
+      const el =
+        document.getElementById(
+          `revision-chapter-${subId}-${chapterIndex}`
+        );
+    
+      if (el) {
+        el.classList.toggle("open");
+      }
+    }
+    
+    
     function renderRevisionQueue() {
-      const container = document.getElementById("revision-queue-list");
-      const summaryContainer = document.getElementById("revision-stats-summary");
+    
+      const container =
+        document.getElementById("revision-accordion-list");
+    
+      const summaryContainer =
+        document.getElementById("revision-stats-summary");
+    
       if (!container) return;
-
-      // Collect completed chapters
-      let completedChapters = [];
+    
+      // ------------------------------------------------------------
+      // Global revision statistics
+      // ------------------------------------------------------------
+    
+      let totalChapters = 0;
+      let totalRevisionUnits = 0;
+      let completedRevisionUnits = 0;
+      let fullyRevisedChapters = 0;
+    
       SYLLABUS_DATA.forEach(sub => {
-        sub.chapters.forEach((chName, idx) => {
-          if (ForgeState.chapterStates[`${sub.id}_${idx}`] === 'Completed') {
-            completedChapters.push({ subName: sub.name, chapterName: chName });
+    
+        sub.chapters.forEach((chapter, idx) => {
+    
+          totalChapters++;
+          totalRevisionUnits += 3;
+    
+          const key =
+            `revision_${sub.id}_${idx}`;
+    
+          const revision =
+            ForgeState.revisionStates[key] || {
+              revision1: "Pending",
+              revision2: "Pending",
+              revision3: "Pending"
+            };
+    
+          let completed = 0;
+    
+          if (revision.revision1 === "Completed") {
+            completedRevisionUnits++;
+            completed++;
           }
+    
+          if (revision.revision2 === "Completed") {
+            completedRevisionUnits++;
+            completed++;
+          }
+    
+          if (revision.revision3 === "Completed") {
+            completedRevisionUnits++;
+            completed++;
+          }
+    
+          if (completed === 3) {
+            fullyRevisedChapters++;
+          }
+    
         });
+    
       });
-
+    
+      const revisionPct =
+        totalRevisionUnits > 0
+          ? Math.round(
+              (completedRevisionUnits / totalRevisionUnits) * 100
+            )
+          : 0;
+    
       if (summaryContainer) {
+    
         summaryContainer.innerHTML = `
-          <div><div style="font-size: 0.75rem; color: var(--text-muted);">Eligible Chapters</div><div style="font-size: 1.4rem; font-weight: 700;">${completedChapters.length}</div></div>
-          <div><div style="font-size: 0.75rem; color: var(--text-muted);">Due Today</div><div style="font-size: 1.4rem; font-weight: 700; color: var(--accent-gold);">${Math.min(3, completedChapters.length)}</div></div>
-          <div><div style="font-size: 0.75rem; color: var(--text-muted);">Overdue</div><div style="font-size: 1.4rem; font-weight: 700; color: #f43f5e;">0</div></div>
-          <div><div style="font-size: 0.75rem; color: var(--text-muted);">Completed Revisions</div><div style="font-size: 1.4rem; font-weight: 700; color: #34d399;">0</div></div>
-        `;
-      }
-
-      if (completedChapters.length === 0) {
-        container.innerHTML = `
-          <div class="glass-card" style="grid-column: span 2; text-align: center; color: var(--text-muted); padding: 2rem;">
-            No chapters ready for revision yet. Complete your first chapter in Lecture Tracker to build your queue.
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = completedChapters.map((item, i) => `
-        <div class="glass-card flex-between">
+    
           <div>
-            <span class="glow-badge glow-badge-progress" style="margin-bottom: 0.35rem;">Due Today</span>
-            <h3 style="font-size: 0.95rem; margin-top: 0.2rem;">${item.chapterName}</h3>
-            <p style="font-size: 0.8rem; color: var(--text-secondary);">${item.subName}</p>
+            <div
+              style="
+                font-size:0.75rem;
+                color:var(--text-muted);
+              "
+            >
+              Total Chapters
+            </div>
+    
+            <div
+              style="
+                font-size:1.4rem;
+                font-weight:700;
+              "
+            >
+              ${totalChapters}
+            </div>
           </div>
-          <button class="btn-secondary" onclick="this.innerText='Revised ✔'; this.disabled=true;">Mark Revised</button>
-        </div>
-      `).join('');
+    
+          <div>
+            <div
+              style="
+                font-size:0.75rem;
+                color:var(--text-muted);
+              "
+            >
+              Completed Revisions
+            </div>
+    
+            <div
+              style="
+                font-size:1.4rem;
+                font-weight:700;
+                color:#34d399;
+              "
+            >
+              ${completedRevisionUnits}/${totalRevisionUnits}
+            </div>
+          </div>
+    
+          <div>
+            <div
+              style="
+                font-size:0.75rem;
+                color:var(--text-muted);
+              "
+            >
+              Revision Progress
+            </div>
+    
+            <div
+              style="
+                font-size:1.4rem;
+                font-weight:700;
+                color:var(--accent-gold);
+              "
+            >
+              ${revisionPct}%
+            </div>
+          </div>
+    
+          <div>
+            <div
+              style="
+                font-size:0.75rem;
+                color:var(--text-muted);
+              "
+            >
+              Fully Revised Chapters
+            </div>
+    
+            <div
+              style="
+                font-size:1.4rem;
+                font-weight:700;
+              "
+            >
+              ${fullyRevisedChapters}
+            </div>
+          </div>
+    
+        `;
+      }
+    
+      // ------------------------------------------------------------
+      // Subject → Chapter → Revision hierarchy
+      // ------------------------------------------------------------
+    
+      container.innerHTML = SYLLABUS_DATA.map(sub => {
+    
+        const subjectProgress =
+          getRevisionProgress(sub);
+    
+        return `
+    
+          <div
+            class="subject-accordion"
+            id="revision-accordion-${sub.id}"
+          >
+    
+            <!-- SUBJECT HEADER -->
+    
+            <div
+              class="subject-header"
+              onclick="toggleRevisionSubject('${sub.id}')"
+            >
+    
+              <div
+                style="
+                  display:flex;
+                  align-items:center;
+                  gap:1rem;
+                "
+              >
+    
+                <svg
+                  class="dropdown-arrow"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+    
+                <h3 style="font-size:1rem;">
+                  ${sub.name}
+                </h3>
+    
+              </div>
+    
+              <div
+                style="
+                  display:flex;
+                  align-items:center;
+                  gap:1rem;
+                "
+              >
+    
+                <div
+                  class="progress-bar-container"
+                  style="width:120px;"
+                >
+                  <div
+                    class="progress-bar-fill"
+                    style="width:${subjectProgress}%"
+                  ></div>
+                </div>
+    
+                <span
+                  style="
+                    font-family:var(--font-mono);
+                    font-weight:600;
+                    font-size:0.88rem;
+                  "
+                >
+                  ${subjectProgress}%
+                </span>
+    
+              </div>
+    
+            </div>
+    
+    
+            <!-- CHAPTER LIST -->
+    
+            <div class="subject-body">
+    
+              ${sub.chapters.map((chapter, idx) => {
+    
+                const revisionKey =
+                  `revision_${sub.id}_${idx}`;
+    
+                const revision =
+                  ForgeState.revisionStates[revisionKey] || {
+                    revision1: "Pending",
+                    revision2: "Pending",
+                    revision3: "Pending"
+                  };
+    
+                const chapterProgress =
+                  getRevisionChapterProgress(
+                    sub.id,
+                    idx
+                  );
+    
+                return `
+    
+                  <div
+                    class="revision-chapter-row"
+                    id="revision-chapter-${sub.id}-${idx}"
+                  >
+    
+                    <!-- CHAPTER HEADER -->
+    
+                    <div
+                      class="revision-chapter-header"
+                      onclick="
+                        toggleRevisionChapter(
+                          '${sub.id}',
+                          ${idx}
+                        )
+                      "
+                    >
+    
+                      <div class="revision-chapter-title">
+    
+                        <svg
+                          class="dropdown-arrow"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="2"
+                        >
+                          <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+    
+                        <span>
+                          ${chapter}
+                        </span>
+    
+                      </div>
+    
+    
+                      <div class="revision-chapter-progress">
+    
+                        <div class="progress-bar-container">
+    
+                          <div
+                            class="progress-bar-fill"
+                            style="width:${chapterProgress}%"
+                          ></div>
+    
+                        </div>
+    
+                        <span
+                          style="
+                            font-family:var(--font-mono);
+                            font-size:0.78rem;
+                            font-weight:600;
+                          "
+                        >
+                          ${chapterProgress}%
+                        </span>
+    
+                      </div>
+    
+                    </div>
+    
+    
+                    <!-- REVISION CONTROLS -->
+    
+                    <div class="revision-chapter-body">
+    
+                      <div class="revision-controls-grid">
+    
+                        <!-- REVISION 1 -->
+    
+                        <div class="revision-control-card">
+    
+                          <span class="revision-control-label">
+                            Revision 1
+                          </span>
+    
+                          <div
+                            class="custom-dropdown-container"
+                            id="revision-dropdown-${sub.id}-${idx}-1"
+                          >
+    
+                            <button
+                              class="custom-dropdown-btn"
+                              onclick="
+                                toggleCustomDropdown(
+                                  event,
+                                  'revision-dropdown-${sub.id}-${idx}-1'
+                                )
+                              "
+                            >
+    
+                              <span>
+                                ${getGlowBadgeHTML(
+                                  revision.revision1
+                                )}
+                              </span>
+    
+                              <svg
+                                class="dropdown-arrow"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                              >
+                                <polyline points="6 9 12 15 18 9"/>
+                              </svg>
+    
+                            </button>
+    
+                            <div class="dropdown-menu-list">
+    
+                              <div
+                                class="dropdown-item"
+                                onclick="
+                                  updateRevisionStatus(
+                                    event,
+                                    '${revisionKey}',
+                                    1,
+                                    'Pending'
+                                  )
+                                "
+                              >
+                                <span class="glow-badge glow-badge-pending">
+                                  Pending
+                                </span>
+                              </div>
+    
+                              <div
+                                class="dropdown-item"
+                                onclick="
+                                  updateRevisionStatus(
+                                    event,
+                                    '${revisionKey}',
+                                    1,
+                                    'Completed'
+                                  )
+                                "
+                              >
+                                <span class="glow-badge glow-badge-completed">
+                                  Completed
+                                </span>
+                              </div>
+    
+                            </div>
+    
+                          </div>
+    
+                        </div>
+    
+    
+                        <!-- REVISION 2 -->
+    
+                        <div class="revision-control-card">
+    
+                          <span class="revision-control-label">
+                            Revision 2
+                          </span>
+    
+                          <div
+                            class="custom-dropdown-container"
+                            id="revision-dropdown-${sub.id}-${idx}-2"
+                          >
+    
+                            <button
+                              class="custom-dropdown-btn"
+                              onclick="
+                                toggleCustomDropdown(
+                                  event,
+                                  'revision-dropdown-${sub.id}-${idx}-2'
+                                )
+                              "
+                            >
+    
+                              <span>
+                                ${getGlowBadgeHTML(
+                                  revision.revision2
+                                )}
+                              </span>
+    
+                              <svg
+                                class="dropdown-arrow"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                              >
+                                <polyline points="6 9 12 15 18 9"/>
+                              </svg>
+    
+                            </button>
+    
+                            <div class="dropdown-menu-list">
+    
+                              <div
+                                class="dropdown-item"
+                                onclick="
+                                  updateRevisionStatus(
+                                    event,
+                                    '${revisionKey}',
+                                    2,
+                                    'Pending'
+                                  )
+                                "
+                              >
+                                <span class="glow-badge glow-badge-pending">
+                                  Pending
+                                </span>
+                              </div>
+    
+                              <div
+                                class="dropdown-item"
+                                onclick="
+                                  updateRevisionStatus(
+                                    event,
+                                    '${revisionKey}',
+                                    2,
+                                    'Completed'
+                                  )
+                                "
+                              >
+                                <span class="glow-badge glow-badge-completed">
+                                  Completed
+                                </span>
+                              </div>
+    
+                            </div>
+    
+                          </div>
+    
+                        </div>
+    
+    
+                        <!-- REVISION 3 -->
+    
+                        <div class="revision-control-card">
+    
+                          <span class="revision-control-label">
+                            Revision 3
+                          </span>
+    
+                          <div
+                            class="custom-dropdown-container"
+                            id="revision-dropdown-${sub.id}-${idx}-3"
+                          >
+    
+                            <button
+                              class="custom-dropdown-btn"
+                              onclick="
+                                toggleCustomDropdown(
+                                  event,
+                                  'revision-dropdown-${sub.id}-${idx}-3'
+                                )
+                              "
+                            >
+    
+                              <span>
+                                ${getGlowBadgeHTML(
+                                  revision.revision3
+                                )}
+                              </span>
+    
+                              <svg
+                                class="dropdown-arrow"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                              >
+                                <polyline points="6 9 12 15 18 9"/>
+                              </svg>
+    
+                            </button>
+    
+                            <div class="dropdown-menu-list">
+    
+                              <div
+                                class="dropdown-item"
+                                onclick="
+                                  updateRevisionStatus(
+                                    event,
+                                    '${revisionKey}',
+                                    3,
+                                    'Pending'
+                                  )
+                                "
+                              >
+                                <span class="glow-badge glow-badge-pending">
+                                  Pending
+                                </span>
+                              </div>
+    
+                              <div
+                                class="dropdown-item"
+                                onclick="
+                                  updateRevisionStatus(
+                                    event,
+                                    '${revisionKey}',
+                                    3,
+                                    'Completed'
+                                  )
+                                "
+                              >
+                                <span class="glow-badge glow-badge-completed">
+                                  Completed
+                                </span>
+                              </div>
+    
+                            </div>
+    
+                          </div>
+    
+                        </div>
+    
+                      </div>
+    
+                    </div>
+    
+                  </div>
+    
+                `;
+    
+              }).join("")}
+    
+            </div>
+    
+          </div>
+    
+        `;
+    
+      }).join("");
+    }
+    
+    
+    /* ------------------------------------------------------------
+       UPDATE REVISION STATUS
+       ------------------------------------------------------------ */
+    
+    function updateRevisionStatus(
+      event,
+      key,
+      revisionNumber,
+      status
+    ) {
+    
+      event.preventDefault();
+      event.stopPropagation();
+    
+      if (
+        !ForgeState.revisionStates ||
+        typeof ForgeState.revisionStates !== "object"
+      ) {
+        ForgeState.revisionStates = {};
+      }
+    
+      if (!ForgeState.revisionStates[key]) {
+        ForgeState.revisionStates[key] = {
+          revision1: "Pending",
+          revision2: "Pending",
+          revision3: "Pending"
+        };
+      }
+    
+      ForgeState.revisionStates[key][
+        `revision${revisionNumber}`
+      ] = status;
+    
+      saveAppState();
+    
+      const parts = key.split("_");
+      const subjectId = parts[1];
+      const chapterIndex = parts[2];
+    
+      requestAnimationFrame(() => {
+    
+        renderRevisionQueue();
+    
+        document
+          .getElementById(`revision-accordion-${subjectId}`)
+          ?.classList.add("open");
+    
+        document
+          .getElementById(
+            `revision-chapter-${subjectId}-${chapterIndex}`
+          )
+          ?.classList.add("open");
+    
+      });
     }
 
     /* --------------------------------------------------------------------------
