@@ -2257,6 +2257,50 @@
     
     }
 
+    function updateRevisionSummary(){
+
+        SYLLABUS_DATA.forEach(sub=>{
+    
+            let total=sub.chapters.length*3;
+            let completed=0;
+    
+            sub.chapters.forEach((c,index)=>{
+    
+                for(let r=1;r<=3;r++){
+    
+                    if(
+                        ForgeState.revisionStates[
+                            `revision_${r}_${sub.id}_${index}`
+                        ]==="Completed"
+                    ){
+                        completed++;
+                    }
+    
+                }
+    
+            });
+    
+            const progress=Math.round((completed/total)*100);
+    
+            const accordion=document.getElementById(
+                `revision-accordion-${sub.id}`
+            );
+    
+            if(!accordion) return;
+    
+            const bar=
+                accordion.querySelector(".progress-bar-fill");
+    
+            const text=
+                accordion.querySelector(".subject-header span:last-child");
+    
+            if(bar) bar.style.width=progress+"%";
+            if(text) text.textContent=progress+"%";
+    
+        });
+    
+    }
+    
     function toggleRevisionChapter(subjectId,index){
 
         const accordion=document.getElementById(
@@ -2298,24 +2342,17 @@
     
         saveAppState();
     
-        const subjectId=key.split("_")[2];
-        const chapterIndex=key.split("_")[3];
-    
-        renderRevisionQueue();
-    
-        document
-            .getElementById(`revision-accordion-${subjectId}`)
-            ?.classList.add("open");
-    
-        document
-            .getElementById(`chapter-${subjectId}-${chapterIndex}`)
-            ?.classList.add("open");
-    
         const dropdown=document.getElementById(
             `revision-dropdown-${key}`
         );
     
-        dropdown?.classList.add("open");
+        if(!dropdown) return;
+    
+        dropdown.querySelector("button span").innerHTML =
+            getGlowBadgeHTML(status);
+    
+        // update progress bars only
+        updateRevisionSummary();
     
     }
     /* --------------------------------------------------------------------------
