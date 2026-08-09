@@ -780,13 +780,13 @@
         <path d="M9 11l3 3L22 4"/>
         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
         </svg>
-        <span class="nav-text">Question Practice</span>
+        <span class="nav-text">Practice Tracker</span>
         </button>
       </li>
       <li class="nav-item">
         <button onclick="switchTab('revision')">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-          <span class="nav-text">Revision Queue</span>
+          <span class="nav-text">Revision Tracker</span>
         </button>
       </li>
       <li class="nav-item">
@@ -930,7 +930,7 @@
       <div class="section-header">
         <div>
           <h1>Syllabus Progress Tracker</h1>
-          <p class="subtitle">Detailed subject-wise status breakdown (Sorted by Priority & ROI).</p>
+          <p class="subtitle">Detailed subject-wise status breakdown.</p>
         </div>
         <input type="text" id="syllabus-search" class="form-control" style="width: 260px;" placeholder="Filter subjects..." oninput="renderSyllabusTracker()">
       </div>
@@ -957,9 +957,9 @@
     <section id="view-practice" class="app-section">
       <div class="section-header">
         <div>
-          <h1>Question Practice Tracker</h1>
+          <h1>PYQs and Question Practice Tracker</h1>
           <p class="subtitle">
-          Track chapter-wise question solving progress.
+          Track chapter-wise PYQs and question solving progress.
           </p>
         </div>
       </div>
@@ -972,7 +972,7 @@
       <div class="section-header">
         <div>
           <h1>Revision Tracker</h1>
-          <p class="subtitle">Track three structured revisions for every chapter.</p>
+          <p class="subtitle">Track via 3-Layered Revision Structure for every chapter.</p>
         </div>
       </div>
     
@@ -1008,7 +1008,7 @@
       <div class="section-header">
         <div>
           <h1>Mock Test Evaluation</h1>
-          <p class="subtitle">Performance trends & subject-wise analysis analytics.</p>
+          <p class="subtitle">Performance trends & Subject-wise Analysis Analytics.</p>
         </div>
         <button class="btn-primary" onclick="openNewMockModal()">+ Log Mock Attempt</button>
       </div>
@@ -2249,7 +2249,7 @@
               )}
               
               ${renderDerivedProgressCategory(
-                'PYQs',
+                'Practice Questions and PYQs',
                 getPracticeProgress(sub)
               )}
               
