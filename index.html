@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   
   <style>
     /* ==========================================================================
@@ -2165,52 +2166,221 @@
     /* --------------------------------------------------------------------------
        12. AI STUDY COACH
        -------------------------------------------------------------------------- */
-    function renderAICoach() {
-      const analysisEl = document.getElementById("ai-context-analysis-text");
-      const planEl = document.getElementById("ai-recommended-plan-text");
+    let chatHistory = [];
+    
 
-      if (analysisEl) {
-        analysisEl.innerHTML = `
-          Based on your current roadmap execution, <strong>Strength of Materials</strong> is your primary target subject. 
-          Your current overall completion stands at <strong>${document.getElementById("overall-progress-text").innerText}</strong>.
-        `;
-      }
+    function buildForgeContext() {
+        const completedSubjects = [];
+        const pendingSubjects = [];
+        SYLLABUS_DATA.forEach(sub => {
+            const state = ForgeState.subjectStates[sub.id];
+            if (state.lecturesStatus === "Completed")
+                completedSubjects.push(sub.name);
+            else
+                pendingSubjects.push(sub.name);
+        });
+        const completedChapters = [];
+        SYLLABUS_DATA.forEach(sub=>{
+            sub.chapters.forEach((chapter,index)=>{
+              if(
+                  ForgeState.chapterStates[
+                      `${sub.id}_${index}`
+                  ]==="Completed"
+              ){
+                  completedChapters.push(
+                      `${sub.name} → ${chapter}`
+                  );
+              }
+            });
+        });
 
-      if (planEl) {
-        planEl.innerHTML = `
-          • Focus on completing remaining chapters in Strength of Materials.<br>
-          • Schedule a 45-minute revision session for completed topics.<br>
-          • Maintain momentum by logging at least one focus session today.
+        return `
+            CURRENT PROGRESS
+            
+            Overall Progress:
+            ${document.getElementById("overall-progress-text").innerText}
+
+            Readiness Score:
+            ${document.getElementById("readiness-score-val").innerText}
+
+            Current Subject:
+            ${document.getElementById("dash-curr-subject").innerText}
+
+            Current Chapter:
+            ${document.getElementById("dash-curr-chapter").innerText}
+
+            Completed Subjects:
+            ${completedSubjects.join(", ")}
+
+            Pending Subjects:
+            ${pendingSubjects.join(", ")}
+
+            Completed Chapters:
+            ${completedChapters.join("\n")}
+
+            Mistakes Logged:
+            ${ForgeState.mistakes.length}
+
+            Mocks Taken:
+            ${ForgeState.mocks.length}
+
+            Journal Entries:
+            ${ForgeState.journals.length}
+
+            Quick Notes:
+            ${ForgeState.quickNotes}
         `;
-      }
     }
 
-    function sendAIChatMessage() {
-      const input = document.getElementById("ai-chat-input");
-      const box = document.getElementById("ai-chat-box");
-      const query = input.value.trim();
-      if (!query) return;
+    async function sendAIChatMessage() {
+        const input = document.getElementById("ai-chat-input");
+        const chatBox = document.getElementById("ai-chat-box");
+        const prompt = input.value.trim();
+        if (!prompt) return;
+        chatBox.innerHTML += `
+        <div style="
+          align-self:flex-end;
+          background:#a855f7;
+          color:white;
+          padding:12px;
+          border-radius:12px;
+          max-width:80%;
+          margin-top:10px;">
+          ${prompt}
+        </div>`;
+        input.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
+        const thinking = document.createElement("div");
+        thinking.innerHTML = `
+        <div style="
+          background:#222;
+          padding:12px;
+          border-radius:12px;
+          max-width:80%;
+          margin-top:10px;">
+          Thinking...
+        </div>`;
 
-      // Append User message
-      box.innerHTML += `
-        <div style="background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.3); padding: 0.85rem 1rem; border-radius: 12px; align-self: flex-end; max-width: 80%;">
-          ${query}
-        </div>
-      `;
+        chatBox.appendChild(thinking);
 
-      input.value = "";
+        chatBox.scrollTop = chatBox.scrollHeight;
 
-      // Generate AI response based on real state data
-      setTimeout(() => {
-        box.innerHTML += `
-          <div style="background: rgba(255,255,255,0.04); padding: 0.85rem 1rem; border-radius: 12px; max-width: 80%;">
-            Based on your active preparation metrics: Priority subject is Strength of Materials. Continue step-by-step chapter tracking. Consistency over intensity guarantees high GATE rank!
-          </div>
-        `;
-        box.scrollTop = box.scrollHeight;
-      }, 500);
+        try {
+
+          const response = await fetch(
+            "https://api.openai.com/v1/chat/completions",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json",
+
+                    "Authorization":
+                        "Bearer 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"
+                },
+
+                body: JSON.stringify({
+
+                    model: "gpt-5.5",
+
+                    messages: [
+
+                        {
+                            role:"system",
+                            content:`
+                            You are FORGE AI.
+                            You are NOT ChatGPT.
+                            You are an elite GATE Mechanical Engineering mentor.
+                            Your only objective is helping the student secure AIR under 100.
+                            You should:
+                              • Explain concepts deeply.
+                              • Never give vague answers.
+                              • Teach like a professor.
+                              • Recommend the next chapter.
+                              • Track weak areas.
+                              • Detect procrastination.
+                              • Suggest revision.
+                              • Suggest PYQs.
+                              • Suggest mock tests.
+                              • Give motivation only when necessary.
+                              • Always use the student's current preparation data.
+                            Whenever answering,
+                            first analyze the student's preparation,
+                            then answer accordingly.
+                            `
+                        },
+
+                        {
+                            role:"user",
+                            content:
+                            buildForgeContext()
+                            +
+                            `
+                            Student Question:
+                            ${prompt}
+                            `
+                        }
+
+                        chatHistory.push({
+                            role:"user",
+                            content:
+                            buildForgeContext()
+                            +
+                            `
+                            Student Question:
+                            ${prompt}
+                            `
+                            });
+                                                
+                        const messages = [
+                        {
+                          role:"system",
+                          content:systemPrompt
+                        },
+                        ...chatHistory
+                        ]; 
+
+                        chatHistory.push({
+                          role:"assistant",
+                          content:data.choices[0].message.content
+                        });
+                    ],
+
+                    temperature: 0.7
+
+                })
+
+            });
+
+            const data = await response.json();
+            thinking.remove();
+            chatBox.innerHTML += `
+            <div style="
+              background:#333;
+              padding:12px;
+              border-radius:12px;
+              max-width:80%;
+              margin-top:10px;
+              white-space:pre-wrap;">
+              ${data.choices[0].message.content}
+            </div>`;
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+        } catch (err) {
+
+            thinking.remove();
+            chatBox.innerHTML += `
+            <div style="
+              background:#ff4444;
+              color:white;
+              padding:12px;
+              boder-radius:12px;
+              margin-top:10px;">
+              Error connecting to OpenAI.
+            </div>`;
+        }
     }
-
     /* --------------------------------------------------------------------------
        13. DAILY JOURNAL
        -------------------------------------------------------------------------- */
