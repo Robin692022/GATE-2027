@@ -861,22 +861,20 @@
       </div>
     </section>
 
-    <!-- 5. REVISION QUEUE VIEW -->
+    <!-- 5. REVISION TRACKER VIEW -->
     <section id="view-revision" class="app-section">
-      <div class="section-header">
-        <div>
-          <h1>Automated Revision Queue</h1>
-          <p class="subtitle">Completed chapters automatically enter this priority list.</p>
+        <div class="section-header">
+            <div>
+                <h1>Automated Revision Queue</h1>
+                <p class="subtitle">
+                    Completed chapters automatically enter this priority list.
+                </p>
+            </div>
         </div>
-      </div>
-      <div class="glass-card" style="margin-bottom: 1.5rem;">
-        <div class="grid-4" id="revision-stats-summary">
-          <!-- Rendered via JS -->
+    
+        <div id="revision-queue-list">
+            <!-- Rendered via JS -->
         </div>
-      </div>
-      <div id="revision-queue-list" class="grid-2">
-        <!-- Rendered via JS -->
-      </div>
     </section>
 
     <!-- 6. MISTAKE REGISTER VIEW -->
@@ -2024,21 +2022,29 @@
     function renderRevisionQueue() {
 
         const container = document.getElementById("revision-queue-list");
-        if(!container) return;
+        if (!container) return;
     
-        container.innerHTML = SYLLABUS_DATA.map(sub=>{
+        container.className = "";
+        container.style.display = "flex";
+        container.style.flexDirection = "column";
+        container.style.gap = "1rem";
+    
+        container.innerHTML = SYLLABUS_DATA.map(sub => {
     
             let total = sub.chapters.length * 3;
             let completed = 0;
     
-            sub.chapters.forEach((chapter,index)=>{
+            sub.chapters.forEach((ch,index)=>{
     
-                for(let rev=1; rev<=3; rev++){
+                for(let r=1;r<=3;r++){
     
-                    const key=`revision_${sub.id}_${index}_${rev}`;
-    
-                    if(ForgeState.revisionStates?.[key]==="Completed")
+                    if(
+                        ForgeState.revisionStates[
+                            `revision_${r}_${sub.id}_${index}`
+                        ]==="Completed"
+                    ){
                         completed++;
+                    }
     
                 }
     
@@ -2046,9 +2052,10 @@
     
             const progress=Math.round((completed/total)*100);
     
-            return`
+            return `
     
-            <div class="subject-accordion" id="revision-accordion-${sub.id}">
+            <div class="subject-accordion"
+                 id="revision-accordion-${sub.id}">
     
                 <div class="subject-header"
                      onclick="toggleRevisionAccordion('${sub.id}')">
@@ -2065,9 +2072,7 @@
     
                         </svg>
     
-                        <h3 style="font-size:1rem;">
-                            ${sub.name}
-                        </h3>
+                        <h3>${sub.name}</h3>
     
                     </div>
     
@@ -2077,20 +2082,12 @@
                              style="width:120px;">
     
                             <div class="progress-bar-fill"
-                                 style="width:${progress}%">
-    
+                                 style="width:${progress}%;">
                             </div>
     
                         </div>
     
-                        <span
-                        style="font-family:var(--font-mono);
-                               font-weight:600;
-                               font-size:.88rem;">
-    
-                            ${progress}%
-    
-                        </span>
+                        <span>${progress}%</span>
     
                     </div>
     
@@ -2098,124 +2095,123 @@
     
                 <div class="subject-body">
     
-                ${sub.chapters.map((chapter,index)=>{
+                    ${sub.chapters.map((chapter,index)=>`
     
-                    return`
+                        <div class="subject-accordion"
+                             id="chapter-${sub.id}-${index}">
     
-                    <div class="glass-card"
-                         style="margin-bottom:12px;">
+                            <div class="subject-header"
+                                 style="padding:.9rem 1rem;background:rgba(255,255,255,.03);"
+                                 onclick="toggleRevisionChapter('${sub.id}',${index})">
     
-                        <div
-                        style="font-weight:700;
-                               margin-bottom:15px;">
+                                <div style="display:flex;align-items:center;gap:.8rem;">
     
-                            ${chapter}
+                                    <svg class="dropdown-arrow"
+                                         viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="currentColor"
+                                         stroke-width="2">
     
-                        </div>
+                                        <polyline points="6 9 12 15 18 9"/>
     
-                        ${[1,2,3].map(rev=>{
+                                    </svg>
     
-                            const key=`revision_${sub.id}_${index}_${rev}`;
-    
-                            const status=
-                            ForgeState.revisionStates?.[key] ||
-                            "Pending";
-    
-                            return`
-    
-                            <div class="chapter-row"
-                                 style="margin-bottom:10px;">
-    
-                                <span>
-    
-                                    Revision ${rev}
-    
-                                </span>
-    
-                                <div style="width:170px;">
-    
-                                    <div
-                                    class="custom-dropdown-container"
-                                    id="revision-dropdown-${key}">
-    
-                                        <button
-                                        class="custom-dropdown-btn"
-    
-                                        onclick="toggleCustomDropdown(
-                                        event,
-                                        'revision-dropdown-${key}')">
-    
-                                            <span>
-    
-                                            ${getGlowBadgeHTML(status)}
-    
-                                            </span>
-    
-                                            <svg
-                                            class="dropdown-arrow"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2">
-    
-                                            <polyline
-                                            points="6 9 12 15 18 9"/>
-    
-                                            </svg>
-    
-                                        </button>
-    
-                                        <div class="dropdown-menu-list">
-    
-                                            <div
-                                            class="dropdown-item"
-    
-                                            onclick="updateRevisionStatus(
-                                            event,
-                                            '${key}',
-                                            'Pending')">
-    
-                                                <span class="glow-badge glow-badge-pending">
-    
-                                                Pending
-    
-                                                </span>
-    
-                                            </div>
-    
-                                            <div
-                                            class="dropdown-item"
-    
-                                            onclick="updateRevisionStatus(
-                                            event,
-                                            '${key}',
-                                            'Completed')">
-    
-                                                <span class="glow-badge glow-badge-completed">
-    
-                                                Completed
-    
-                                                </span>
-    
-                                            </div>
-    
-                                        </div>
-    
-                                    </div>
+                                    <span>${chapter}</span>
     
                                 </div>
     
                             </div>
     
-                            `;
+                            <div class="subject-body">
     
-                        }).join("")}
+                                <div style="
+                                    display:grid;
+                                    grid-template-columns:repeat(3,1fr);
+                                    gap:12px;
+                                    padding:10px 0;
+                                ">
     
-                    </div>
+                                    ${[1,2,3].map(rev=>{
     
-                    `;
+                                        const key=`revision_${rev}_${sub.id}_${index}`;
+                                        const status=
+                                        ForgeState.revisionStates[key] ||
+                                        "Pending";
     
-                }).join("")}
+                                        return `
+    
+                                        <div>
+    
+                                            <div style="
+                                                font-size:.78rem;
+                                                margin-bottom:6px;
+                                                color:var(--text-muted);
+                                            ">
+                                                Revision ${rev}
+                                            </div>
+    
+                                            <div class="custom-dropdown-container"
+                                                 id="revision-dropdown-${key}">
+    
+                                                <button
+                                                class="custom-dropdown-btn"
+                                                onclick="toggleCustomDropdown(event,'revision-dropdown-${key}')">
+    
+                                                    <span>
+    
+                                                        ${getGlowBadgeHTML(status)}
+    
+                                                    </span>
+    
+                                                    <svg class="dropdown-arrow"
+                                                         viewBox="0 0 24 24"
+                                                         fill="none"
+                                                         stroke="currentColor"
+                                                         stroke-width="2">
+    
+                                                        <polyline points="6 9 12 15 18 9"/>
+    
+                                                    </svg>
+    
+                                                </button>
+    
+                                                <div class="dropdown-menu-list">
+    
+                                                    <div class="dropdown-item"
+                                                    onclick="updateRevisionStatus(event,'${key}','Pending')">
+    
+                                                        <span class="glow-badge glow-badge-pending">
+                                                            Pending
+                                                        </span>
+    
+                                                    </div>
+    
+                                                    <div class="dropdown-item"
+                                                    onclick="updateRevisionStatus(event,'${key}','Completed')">
+    
+                                                        <span class="glow-badge glow-badge-completed">
+                                                            Completed
+                                                        </span>
+    
+                                                    </div>
+    
+                                                </div>
+    
+                                            </div>
+    
+                                        </div>
+    
+                                        `;
+    
+                                    }).join("")}
+    
+                                </div>
+    
+                            </div>
+    
+                        </div>
+    
+                    `).join("")}
     
                 </div>
     
@@ -2224,6 +2220,14 @@
             `;
     
         }).join("");
+    
+    }
+
+    function toggleRevisionChapter(subjectId,index){
+
+        document
+            .getElementById(`chapter-${subjectId}-${index}`)
+            ?.classList.toggle("open");
     
     }
 
