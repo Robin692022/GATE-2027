@@ -348,83 +348,79 @@
       margin: 0;
     }
 
-    /* Dropdown Menus */
-    .custom-dropdown-container {
-      position: relative;
-      display: inline-block;
-      width: 100%;
+    .custom-dropdown-container{
+        position:relative;
+        width:100%;
     }
-    .custom-dropdown-btn {
-      width: 100%;
-      background: rgba(12, 12, 16, 0.8);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      padding: 0.6rem 0.9rem;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      font-size: 0.85rem;
-      font-weight: 500;
-      transition: border-color var(--transition-fast);
+    
+    .custom-dropdown-btn{
+    
+        width:100%;
+    
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+    
+        padding:.65rem .9rem;
+    
+        background:#111116;
+    
+        border:1px solid var(--border-color);
+    
+        border-radius:10px;
+    
+        color:white;
+    
+        cursor:pointer;
     }
-    .custom-dropdown-btn:hover {
-      border-color: var(--border-glow);
+    
+    .custom-dropdown-container.open{
+    
+        z-index:999999;
+    
     }
-    .dropdown-arrow {
-      width: 14px;
-      height: 14px;
-      transition: transform var(--transition-fast);
-      stroke: var(--text-secondary);
+    
+    .dropdown-menu-list{
+    
+        position:absolute;
+    
+        top:calc(100% + 6px);
+    
+        left:0;
+        right:0;
+    
+        background:#15151b;
+    
+        border:1px solid rgba(255,255,255,.08);
+    
+        border-radius:12px;
+    
+        display:none;
+    
+        overflow:hidden;
+    
+        box-shadow:0 20px 50px rgba(0,0,0,.7);
+    
     }
-    .custom-dropdown-container.open .dropdown-arrow {
-      transform: rotate(180deg);
+    
+    .custom-dropdown-container.open .dropdown-menu-list{
+    
+        display:block;
+    
     }
-
-    .dropdown-menu-list {
-      position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      right: 0;
-
-      background: #121217;
-
-      border: 1px solid var(--border-glow);
-      border-radius: 12px;
-
-      padding: 0.4rem;
-
-      display: none;
-      flex-direction: column;
-      gap: 0.2rem;
-
-      z-index: 99999;
-
-      box-shadow: 0 18px 45px rgba(0,0,0,.7);
-
-      animation: dropDownAnim .18s ease forwards;
+    
+    .dropdown-item{
+    
+        padding:.75rem .9rem;
+    
+        cursor:pointer;
+    
     }
-    .custom-dropdown-container.open .dropdown-menu-list {
-      display: flex;
-    }
-    @keyframes dropDownAnim {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .dropdown-item {
-      padding: 0.5rem 0.75rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.82rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: background var(--transition-fast);
-    }
-    .dropdown-item:hover {
-      background: rgba(255, 255, 255, 0.08);
+    
+    .dropdown-item:hover{
+    
+        background:rgba(255,255,255,.06);
+    
     }
 
     /* Standard Button Styles */
@@ -1299,6 +1295,8 @@
       quickNotes: "",
       journalMoodToday: "Good"
     };
+    let openRevisionSubject=null;
+    let openRevisionChapter=null;
 
     function initAppState() {
       const saved = localStorage.getItem("FORGE_GATE_STATE_2027");
@@ -1354,9 +1352,15 @@
       saveAppState();
     }
 
-    function saveAppState() {
-      localStorage.setItem("FORGE_GATE_STATE_2027", JSON.stringify(ForgeState));
-      syncCalculations();
+    function saveAppState(){
+
+        localStorage.setItem(
+            "FORGE_GATE_STATE_2027",
+            JSON.stringify(ForgeState)
+        );
+    
+        syncCalculations();
+    
     }
 
     /* --------------------------------------------------------------------------
@@ -1705,7 +1709,7 @@
         <div>
           <label style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-bottom: 0.25rem;">${label}</label>
           <div class="custom-dropdown-container" id="dropdown-${subId}-${key}">
-            <button class="custom-dropdown-btn" onclick="toggleCustomDropdown(event, 'dropdown-${subId}-${key}')">
+            <button class="custom-dropdown-btn" onclick="toggleDropdown(event, 'dropdown-${subId}-${key}')">
               <span>${getGlowBadgeHTML(currentVal)}</span>
               <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
             </button>
@@ -1725,85 +1729,26 @@
       `;
     }
 
-    /* Custom Dropdown Toggle */
-    function toggleCustomDropdown(e,containerId){
+    
+    
+    function updateCategoryStatus(e,subId,key,newVal,containerId){
 
         e.preventDefault();
         e.stopPropagation();
     
-        document
-            .querySelectorAll(".custom-dropdown-container")
-            .forEach(drop=>{
-                if(drop.id!==containerId)
-                    drop.classList.remove("open");
-            });
+        ForgeState.subjectStates[subId][key]=newVal;
     
-        document
-            .querySelectorAll(".glass-card")
-            .forEach(card=>card.style.zIndex=1);
-        
-        document
-            .querySelectorAll(".subject-accordion")
-            .forEach(acc=>acc.style.zIndex=1);
+        saveAppState();
+        refreshForgeUI();
     
-        const container=document.getElementById(containerId);
+        const dropdown=document.getElementById(containerId);
     
-        container.classList.toggle("open");
-    
-        if(container.classList.contains("open")){
-
-              let parent=container.parentElement;
-          
-              while(parent){
-          
-                  if(parent.classList?.contains("glass-card")){
-                      parent.style.zIndex=99999;
-                  }
-          
-                  if(parent.classList?.contains("subject-accordion")){
-                      parent.style.zIndex=99999;
-                  }
-          
-                  parent=parent.parentElement;
-              }
-          
-        }      
+        dropdown.querySelector("button span").innerHTML=
+            getGlowBadgeHTML(newVal);
     
     }
     
-    function updateCategoryStatus(e, subId, key, newVal, containerId) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      ForgeState.subjectStates[subId][key] = newVal;
-      saveAppState();
-
-      document.getElementById(containerId)?.classList.remove("open");
-
-      requestAnimationFrame(() => {
-        renderSyllabusTracker();
-      });
-    }
-
-    // Close dropdowns on outside click
-    document.addEventListener("click",function(e){
-
-        if(e.target.closest(".custom-dropdown-container")) return;
     
-        document
-            .querySelectorAll(".custom-dropdown-container")
-            .forEach(drop=>drop.classList.remove("open"));
-    
-        document
-            .querySelectorAll(".glass-card")
-            .forEach(card=>card.style.zIndex=1);
-        
-        document
-            .querySelectorAll(".subject-accordion")
-            .forEach(acc=>acc.style.zIndex=1);
-    
-    });
-
     /* --------------------------------------------------------------------------
        8. LECTURE PROGRESS TRACKER RENDERER (NO LECTURE COUNTERS)
        -------------------------------------------------------------------------- */
@@ -1844,7 +1789,7 @@
                     <span style="font-size: 0.88rem; font-weight: 500;">${chName}</span>
                     <div style="width: 160px;">
                       <div class="custom-dropdown-container" id="dropdown-ch-${key}">
-                        <button class="custom-dropdown-btn" onclick="toggleCustomDropdown(event, 'dropdown-ch-${key}')">
+                        <button class="custom-dropdown-btn" onclick="toggleDropdown(event, 'dropdown-ch-${key}')">
                           <span>${getGlowBadgeHTML(chStatus)}</span>
                           <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
                         </button>
@@ -1883,24 +1828,21 @@
     }
     
     
-    function updateChapterStatus(e, key, status) {
-      e.preventDefault();
-      e.stopPropagation();
-  
-      ForgeState.chapterStates[key] = status;
-      saveAppState();
+    function updateChapterStatus(event,key,status){
 
-      const subjectId = key.split("_")[0];
-
-      requestAnimationFrame(() => {
-          renderLectureTracker();
-
-          // Keep only the accordion open
-          const accordion = document.getElementById(`accordion-${subjectId}`);
-          if (accordion) {
-              accordion.classList.add("open");
-          }
-      });
+        event.preventDefault();
+        event.stopPropagation();
+    
+        ForgeState.chapterStates[key]=status;
+    
+        saveAppState();
+        refreshForgeUI();
+    
+        const dropdown=document.getElementById(`dropdown-ch-${key}`);
+    
+        dropdown.querySelector("button span").innerHTML=
+            getGlowBadgeHTML(status);
+    
     }
 
 
@@ -1972,7 +1914,7 @@
 
                             <button
                               class="custom-dropdown-btn"
-                              onclick="toggleCustomDropdown(event, 'practice-dropdown-${key}')">
+                              onclick="toggleDropdown(event, 'practice-dropdown-${key}')">
 
                               <span>
                                 ${getGlowBadgeHTML(status)}
@@ -2035,19 +1977,21 @@
       }).join("");
     }
 
-    function updatePracticeStatus(event, key, status) {
-      event.preventDefault();
-      event.stopPropagation();
-      ForgeState.questionPracticeStates[key] = status;
-      saveAppState();
-      const subjectId = key.split("_")[1];
-      requestAnimationFrame(() => {
-        renderQuestionPracticeTracker();
-        document
-          .getElementById(`practice-accordion-${subjectId}`)
-          ?.classList.add("open");
-      });  
+    function updatePracticeStatus(event,key,status){
 
+        event.preventDefault();
+        event.stopPropagation();
+    
+        ForgeState.questionPracticeStates[key]=status;
+    
+        saveAppState();
+        refreshForgeUI();
+    
+        const dropdown=document.getElementById(`practice-dropdown-${key}`);
+    
+        dropdown.querySelector("button span").innerHTML=
+            getGlowBadgeHTML(status);
+    
     }
 
     /* --------------------------------------------------------------------------
@@ -2189,7 +2133,7 @@
     
                                                 <button
                                                 class="custom-dropdown-btn"
-                                                onclick="toggleCustomDropdown(event,'revision-dropdown-${key}')">
+                                                onclick="toggleDropdown(event,'revision-dropdown-${key}')">
     
                                                     <span>
     
@@ -2254,6 +2198,22 @@
             `;
     
         }).join("");
+
+        if(openRevisionSubject){
+
+            document
+            .getElementById(`revision-accordion-${openRevisionSubject}`)
+            ?.classList.add("open");
+        
+        }
+        
+        if(openRevisionChapter){
+        
+            document
+            .getElementById(openRevisionChapter)
+            ?.classList.add("open");
+        
+        }
     
     }
 
@@ -2303,33 +2263,31 @@
     
     function toggleRevisionChapter(subjectId,index){
 
-        const accordion=document.getElementById(
-            `chapter-${subjectId}-${index}`
-        );
+        const id=`chapter-${subjectId}-${index}`;
     
-        if(!accordion) return;
+        const chapter=document.getElementById(id);
     
-        const opening=!accordion.classList.contains("open");
+        chapter.classList.toggle("open");
     
-        document
-            .querySelectorAll(`#revision-accordion-${subjectId} > .subject-body > .subject-accordion`)
-            .forEach(a=>{
-                a.classList.remove("open");
-                a.style.zIndex=1;
-            });
-    
-        if(opening){
-            accordion.classList.add("open");
-            accordion.style.zIndex=9999;
-        }
+        openRevisionChapter=
+            chapter.classList.contains("open")
+            ? id
+            : null;
     
     }
 
     function toggleRevisionAccordion(subjectId){
 
-        document
-        .getElementById(`revision-accordion-${subjectId}`)
-        ?.classList.toggle("open");
+        const accordion=document.getElementById(
+            `revision-accordion-${subjectId}`
+        );
+    
+        accordion.classList.toggle("open");
+    
+        openRevisionSubject=
+            accordion.classList.contains("open")
+            ? subjectId
+            : null;
     
     }
 
@@ -2341,18 +2299,12 @@
         ForgeState.revisionStates[key]=status;
     
         saveAppState();
+        refreshForgeUI();
     
-        const dropdown=document.getElementById(
-            `revision-dropdown-${key}`
-        );
+        const dropdown=document.getElementById(`revision-dropdown-${key}`);
     
-        if(!dropdown) return;
-    
-        dropdown.querySelector("button span").innerHTML =
+        dropdown.querySelector("button span").innerHTML=
             getGlowBadgeHTML(status);
-    
-        // update progress bars only
-        updateRevisionSummary();
     
     }
     /* --------------------------------------------------------------------------
@@ -2599,6 +2551,74 @@
     /* --------------------------------------------------------------------------
        15. INITIALIZATION ON PAGE LOAD
        -------------------------------------------------------------------------- */
+    let activeDropdown = null;
+
+    function toggleDropdown(event,id){
+    
+        event.stopPropagation();
+    
+        const dropdown=document.getElementById(id);
+    
+        if(activeDropdown && activeDropdown!==dropdown){
+            activeDropdown.classList.remove("open");
+        }
+    
+        dropdown.classList.toggle("open");
+    
+        activeDropdown=dropdown.classList.contains("open")
+            ? dropdown
+            : null;
+    }
+    
+    function closeDropdown(id){
+        document.getElementById(id)?.classList.remove("open");
+    
+        if(activeDropdown?.id===id)
+            activeDropdown=null;
+    }
+    
+    document.addEventListener("click",()=>{
+    
+        if(activeDropdown){
+    
+            activeDropdown.classList.remove("open");
+            activeDropdown=null;
+    
+        }
+    
+    });  
+    
+    function refreshForgeUI(){
+
+        syncCalculations();
+    
+        const active=document.querySelector(".app-section.active");
+    
+        if(!active) return;
+    
+        if(active.id==="view-roadmap"){
+            renderRoadmap();
+        }
+    
+        else if(active.id==="view-syllabus"){
+            renderSyllabusTracker();
+        }
+    
+        else if(active.id==="view-lectures"){
+            renderLectureTracker();
+        }
+    
+        else if(active.id==="view-practice"){
+            renderQuestionPracticeTracker();
+        }
+    
+        else if(active.id==="view-revision"){
+            renderRevisionQueue();
+        }
+    
+    }
+
+    
     window.addEventListener("DOMContentLoaded", () => {
       initAppState();
       initCountdown();
