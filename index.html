@@ -113,23 +113,26 @@
     }
 
     /* Glass Cards */
-    .glass-card {
-      background: var(--bg-surface);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border-color);
-      border-radius: 16px;
-      padding: 1.5rem;
-      position: relative;
-
-      z-index: 1;              /* ADD */
-      isolation: isolate;      /* ADD */
-
-      transition: border-color var(--transition-fast),
-                  box-shadow var(--transition-normal);
-
-      overflow: visible;
+        .glass-card{
+        background:var(--bg-surface);
+        backdrop-filter:blur(16px);
+        -webkit-backdrop-filter:blur(16px);
+    
+        border:1px solid var(--border-color);
+        border-radius:16px;
+        padding:1.5rem;
+    
+        position:relative;
+        z-index:1;
+        isolation:isolate;
+    
+        overflow:visible;
+    
+        transition:
+            border-color var(--transition-fast),
+            box-shadow var(--transition-normal);
     }
+    
     .glass-card:hover {
       border-color: var(--border-glow);
     }
@@ -1736,6 +1739,10 @@
             });
     
         document
+            .querySelectorAll(".glass-card")
+            .forEach(card=>card.style.zIndex=1);
+        
+        document
             .querySelectorAll(".subject-accordion")
             .forEach(acc=>acc.style.zIndex=1);
     
@@ -1744,19 +1751,23 @@
         container.classList.toggle("open");
     
         if(container.classList.contains("open")){
-    
-            let parent=container.parentElement;
-    
-            while(parent){
-    
-                if(parent.classList?.contains("subject-accordion")){
-                    parent.style.zIndex=99999;
-                }
-    
-                parent=parent.parentElement;
-            }
-    
-        }
+
+              let parent=container.parentElement;
+          
+              while(parent){
+          
+                  if(parent.classList?.contains("glass-card")){
+                      parent.style.zIndex=99999;
+                  }
+          
+                  if(parent.classList?.contains("subject-accordion")){
+                      parent.style.zIndex=99999;
+                  }
+          
+                  parent=parent.parentElement;
+              }
+          
+        }      
     
     }
     
@@ -1783,6 +1794,10 @@
             .querySelectorAll(".custom-dropdown-container")
             .forEach(drop=>drop.classList.remove("open"));
     
+        document
+            .querySelectorAll(".glass-card")
+            .forEach(card=>card.style.zIndex=1);
+        
         document
             .querySelectorAll(".subject-accordion")
             .forEach(acc=>acc.style.zIndex=1);
@@ -2279,24 +2294,28 @@
         event.preventDefault();
         event.stopPropagation();
     
-        if(!ForgeState.revisionStates)
-            ForgeState.revisionStates={};
-    
         ForgeState.revisionStates[key]=status;
     
         saveAppState();
     
-        const subjectId=key.split("_")[1];
+        const subjectId=key.split("_")[2];
+        const chapterIndex=key.split("_")[3];
     
-        requestAnimationFrame(()=>{
+        renderRevisionQueue();
     
-            renderRevisionQueue();
-    
-            document
+        document
             .getElementById(`revision-accordion-${subjectId}`)
             ?.classList.add("open");
     
-        });
+        document
+            .getElementById(`chapter-${subjectId}-${chapterIndex}`)
+            ?.classList.add("open");
+    
+        const dropdown=document.getElementById(
+            `revision-dropdown-${key}`
+        );
+    
+        dropdown?.classList.add("open");
     
     }
     /* --------------------------------------------------------------------------
