@@ -531,10 +531,13 @@
     }
 
     /* Lecture Tracker Accordion */
-    .subject-accordion {
-      margin-bottom: 1rem;
-      border-radius: 14px;
-      overflow: visible; /* Prevents menu clipping */
+    .subject-accordion{
+        margin-bottom:1rem;
+        border-radius:14px;
+    
+        overflow:visible;
+        position:relative;
+        z-index:1;
     }
     .subject-header {
       padding: 1.25rem;
@@ -550,23 +553,30 @@
     .subject-header:hover {
       background: rgba(30, 30, 40, 0.8);
     }
-    .subject-body {
-      display: none;
-      padding: 1rem 0.5rem;
-      flex-direction: column;
-      gap: 0.6rem;
+    .subject-body{
+        display:none;
+        padding:1rem 0.5rem;
+        flex-direction:column;
+        gap:.6rem;
+    
+        overflow:visible;
+        position:relative;
     }
     .subject-accordion.open .subject-body {
       display: flex;
     }
-    .chapter-row {
-      background: rgba(14, 14, 18, 0.8);
-      border: 1px solid var(--border-color);
-      border-radius: 10px;
-      padding: 0.85rem 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .chapter-row{
+        background: rgba(14,14,18,.8);
+        border:1px solid var(--border-color);
+        border-radius:10px;
+        padding:.85rem 1rem;
+    
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+    
+        overflow:visible;
+        position:relative;
     }
 
     /* Input Controls */
@@ -1713,35 +1723,43 @@
     }
 
     /* Custom Dropdown Toggle */
-    function toggleCustomDropdown(e, containerId) {
+    function toggleCustomDropdown(e,containerId){
+
         e.preventDefault();
         e.stopPropagation();
-
-        // Reset every card
-        document.querySelectorAll(".glass-card").forEach(card => {
-            card.style.zIndex = 1;
-        });
-
-        // Close every dropdown
-        document.querySelectorAll(".custom-dropdown-container").forEach(drop => {
-          if (drop.id !== containerId)
-            drop.classList.remove("open");
-        });
-
-        const container = document.getElementById(containerId);
-
-        // Bring this card above others
-        const card = container.closest(".glass-card");
-        if (card) card.style.zIndex = 999;
-
+    
+        document
+            .querySelectorAll(".custom-dropdown-container")
+            .forEach(drop=>{
+                if(drop.id!==containerId)
+                    drop.classList.remove("open");
+            });
+    
+        document
+            .querySelectorAll(".subject-accordion")
+            .forEach(acc=>acc.style.zIndex=1);
+    
+        const container=document.getElementById(containerId);
+    
         container.classList.toggle("open");
-
-        // Reset z-index after closing
-        if (!container.classList.contains("open") && card) {
-            card.style.zIndex = 1;
+    
+        if(container.classList.contains("open")){
+    
+            let parent=container.parentElement;
+    
+            while(parent){
+    
+                if(parent.classList?.contains("subject-accordion")){
+                    parent.style.zIndex=99999;
+                }
+    
+                parent=parent.parentElement;
+            }
+    
         }
+    
     }
-
+    
     function updateCategoryStatus(e, subId, key, newVal, containerId) {
       e.preventDefault();
       e.stopPropagation();
@@ -1757,17 +1775,18 @@
     }
 
     // Close dropdowns on outside click
-    document.addEventListener("click", function(e){
+    document.addEventListener("click",function(e){
 
-        if(!e.target.closest(".custom-dropdown-container")){
-
-          document.querySelectorAll(".custom-dropdown-container")
-              .forEach(drop=>drop.classList.remove("open"));
-
-          document.querySelectorAll(".glass-card")
-              .forEach(card=>card.style.zIndex=1);
-        }
-
+        if(e.target.closest(".custom-dropdown-container")) return;
+    
+        document
+            .querySelectorAll(".custom-dropdown-container")
+            .forEach(drop=>drop.classList.remove("open"));
+    
+        document
+            .querySelectorAll(".subject-accordion")
+            .forEach(acc=>acc.style.zIndex=1);
+    
     });
 
     /* --------------------------------------------------------------------------
@@ -2225,9 +2244,25 @@
 
     function toggleRevisionChapter(subjectId,index){
 
+        const accordion=document.getElementById(
+            `chapter-${subjectId}-${index}`
+        );
+    
+        if(!accordion) return;
+    
+        const opening=!accordion.classList.contains("open");
+    
         document
-            .getElementById(`chapter-${subjectId}-${index}`)
-            ?.classList.toggle("open");
+            .querySelectorAll(`#revision-accordion-${subjectId} > .subject-body > .subject-accordion`)
+            .forEach(a=>{
+                a.classList.remove("open");
+                a.style.zIndex=1;
+            });
+    
+        if(opening){
+            accordion.classList.add("open");
+            accordion.style.zIndex=9999;
+        }
     
     }
 
