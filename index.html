@@ -1425,6 +1425,18 @@
       if (!ForgeState.chapterStates || typeof ForgeState.chapterStates !== "object") {
         ForgeState.chapterStates = {};
       }
+
+      // ------------------------------------------------------------
+      // Lecture Activity Tracking
+      // Used ONLY for determining Current Focus.
+      // Stores the last time each lecture chapter was actively used.
+      // ------------------------------------------------------------
+      if (
+        !ForgeState.lectureActivity ||
+        typeof ForgeState.lectureActivity !== "object"
+      ) {
+        ForgeState.lectureActivity = {};
+      }
     
       if (
         !ForgeState.questionPracticeStates ||
@@ -1745,37 +1757,66 @@
       // ------------------------------------------------------------
       // Current Study Focus
       // ------------------------------------------------------------
-    
-      let currentSubName = "Strength of Materials";
-      let currentChapterName = "Introduction and Properties of Materials";
-    
-      for (const sub of SYLLABUS_DATA) {
-    
-        for (let i = 0; i < sub.chapters.length; i++) {
-    
-          const lectureStatus =
-            ForgeState.chapterStates[`${sub.id}_${i}`] || "Pending";
-    
-          const practiceStatus =
-            ForgeState.questionPracticeStates[
-              `practice_${sub.id}_${i}`
-            ] || "Pending";
-    
-          const revisionPct =
-            getRevisionChapterProgress(sub.id, i);
-    
-          if (
-            lectureStatus !== "Completed" ||
-            practiceStatus !== "Completed" ||
-            revisionPct < 100
-          ) {
-            currentSubName = sub.name;
-            currentChapterName = sub.chapters[i];
-            break;
+      // IMPORTANT:
+      // Current Focus is driven ONLY by Lecture Tracker.
+      //
+      // Practice Tracker does NOT affect this.
+      // Revision Tracker does NOT affect this.
+      //
+      // Logic:
+      // 1. Look at lecture activity timestamps.
+      // 2. Ignore completed lecture chapters.
+      // 3. Pick the most recently active chapter.
+      // ------------------------------------------------------------
+      
+      let currentSubName = "No Subject Active";
+      let currentChapterName =
+        "Start your first chapter in Lecture Tracker.";
+      
+      let latestActivity = 0;
+      let latestSub = null;
+      let latestChapter = null;
+      
+      if (
+        ForgeState.lectureActivity &&
+        typeof ForgeState.lectureActivity === "object"
+      ) {
+      
+        for (const sub of SYLLABUS_DATA) {
+      
+          for (let i = 0; i < sub.chapters.length; i++) {
+      
+            const key = `${sub.id}_${i}`;
+      
+            const lectureStatus =
+              ForgeState.chapterStates[key] || "Pending";
+      
+            const activityTime =
+              Number(ForgeState.lectureActivity[key] || 0);
+      
+            // Completed lectures are no longer candidates.
+            if (lectureStatus === "Completed") {
+              continue;
+            }
+      
+            // Only consider chapters that have actually
+            // been interacted with in Lecture Tracker.
+            if (activityTime > latestActivity) {
+      
+              latestActivity = activityTime;
+              latestSub = sub;
+              latestChapter = sub.chapters[i];
+            }
           }
         }
-    
-        if (currentSubName === sub.name) break;
+      }
+      
+      // If we found an actively studied lecture chapter,
+      // use it as Current Focus.
+      if (latestSub && latestChapter) {
+      
+        currentSubName = latestSub.name;
+        currentChapterName = latestChapter;
       }
     
       const dashSub =
@@ -2441,7 +2482,11 @@
                 const key = `${sub.id}_${idx}`;
                 const chStatus = ForgeState.chapterStates[key] || 'Pending';
                 return `
-                  <div class="chapter-row">
+                  <div
+                    class="chapter-row"
+                    onclick="activateLectureChapter(event, '${key}')"
+                    style="cursor: pointer;"
+                  >
                     <span style="font-size: 0.88rem; font-weight: 500;">${chName}</span>
                     <div style="width: 160px;">
                       <div class="custom-dropdown-container" id="dropdown-ch-${key}">
@@ -2482,25 +2527,87 @@
         el.classList.toggle("open");
       }
     }
+
+    /* ------------------------------------------------------------
+       LECTURE CURRENT FOCUS ACTIVATION
+       ------------------------------------------------------------ */
     
+    function activateLectureChapter(e, key) {
+    
+      // Ignore clicks coming from the status dropdown.
+      // The dropdown has its own logic.
+      if (e.target.closest(".custom-dropdown-container")) {
+        return;
+      }
+    
+      if (!ForgeState.lectureActivity ||
+          typeof ForgeState.lectureActivity !== "object") {
+        ForgeState.lectureActivity = {};
+      }
+    
+      const currentStatus =
+        ForgeState.chapterStates[key] || "Pending";
+    
+      // Automatically move a newly opened Pending lecture
+      // into In Progress.
+      if (currentStatus === "Pending") {
+        ForgeState.chapterStates[key] = "In Progress";
+      }
+    
+      // This is the key piece:
+      // record the most recent lecture activity.
+      ForgeState.lectureActivity[key] = Date.now();
+    
+      saveAppState();
+    
+      // Re-render the Lecture Tracker so the new status
+      // is immediately visible.
+      requestAnimationFrame(() => {
+        renderLectureTracker();
+    
+        const subjectId = key.split("_")[0];
+    
+        const accordion =
+          document.getElementById(`accordion-${subjectId}`);
+    
+        if (accordion) {
+          accordion.classList.add("open");
+        }
+      });
+    }
     
     function updateChapterStatus(e, key, status) {
       e.preventDefault();
       e.stopPropagation();
-  
+    
+      // ------------------------------------------------------------
+      // Lecture Tracker is the ONLY source for Current Focus.
+      // Every status change updates the chapter's activity timestamp.
+      // ------------------------------------------------------------
+      if (!ForgeState.lectureActivity ||
+          typeof ForgeState.lectureActivity !== "object") {
+        ForgeState.lectureActivity = {};
+      }
+    
       ForgeState.chapterStates[key] = status;
+    
+      // Record latest lecture interaction
+      ForgeState.lectureActivity[key] = Date.now();
+    
       saveAppState();
-
+    
       const subjectId = key.split("_")[0];
-
+    
       requestAnimationFrame(() => {
-          renderLectureTracker();
-
-          // Keep only the accordion open
-          const accordion = document.getElementById(`accordion-${subjectId}`);
-          if (accordion) {
-              accordion.classList.add("open");
-          }
+        renderLectureTracker();
+    
+        // Keep the subject accordion open
+        const accordion =
+          document.getElementById(`accordion-${subjectId}`);
+    
+        if (accordion) {
+          accordion.classList.add("open");
+        }
       });
     }
 
