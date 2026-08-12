@@ -1392,6 +1392,8 @@
       chapterStates: {},
       questionPracticeStates: {},
       revisionStates: {},
+      lectureActivity: {},
+      currentLectureKey: null,
       mistakes: [],
       mocks: [],
       journals: [],
@@ -1436,6 +1438,17 @@
         typeof ForgeState.lectureActivity !== "object"
       ) {
         ForgeState.lectureActivity = {};
+      }
+
+      // ------------------------------------------------------------
+      // Current Lecture Focus
+      // Stores the chapter currently being studied.
+      // ------------------------------------------------------------
+      if (
+        !ForgeState.currentLectureKey ||
+        typeof ForgeState.currentLectureKey !== "string"
+      ) {
+        ForgeState.currentLectureKey = null;
       }
     
       if (
@@ -1757,30 +1770,62 @@
       // ------------------------------------------------------------
       // Current Study Focus
       // ------------------------------------------------------------
-      // IMPORTANT:
       // Current Focus is driven ONLY by Lecture Tracker.
       //
-      // Practice Tracker does NOT affect this.
-      // Revision Tracker does NOT affect this.
+      // Priority:
+      // 1. Explicitly active lecture chapter.
+      // 2. Most recently active non-completed lecture chapter.
+      // 3. First non-completed lecture chapter as final fallback.
       //
-      // Logic:
-      // 1. Look at lecture activity timestamps.
-      // 2. Ignore completed lecture chapters.
-      // 3. Pick the most recently active chapter.
+      // Practice Tracker and Revision Tracker NEVER affect this.
       // ------------------------------------------------------------
       
       let currentSubName = "No Subject Active";
       let currentChapterName =
         "Start your first chapter in Lecture Tracker.";
       
-      let latestActivity = 0;
-      let latestSub = null;
-      let latestChapter = null;
+      let activeSub = null;
+      let activeChapter = null;
       
-      if (
-        ForgeState.lectureActivity &&
-        typeof ForgeState.lectureActivity === "object"
-      ) {
+      // ------------------------------------------------------------
+      // 1. Use the explicitly active lecture chapter.
+      // ------------------------------------------------------------
+      
+      if (ForgeState.currentLectureKey) {
+      
+        const parts =
+          ForgeState.currentLectureKey.split("_");
+      
+        const subjectId = parts[0];
+        const chapterIndex = parseInt(parts[1], 10);
+      
+        const subject =
+          SYLLABUS_DATA.find(
+            sub => sub.id === subjectId
+          );
+      
+        if (
+          subject &&
+          subject.chapters[chapterIndex] &&
+          ForgeState.chapterStates[
+            ForgeState.currentLectureKey
+          ] !== "Completed"
+        ) {
+      
+          activeSub = subject;
+          activeChapter =
+            subject.chapters[chapterIndex];
+        }
+      }
+      
+      // ------------------------------------------------------------
+      // 2. If no valid active chapter exists,
+      //    find the most recently active non-completed lecture.
+      // ------------------------------------------------------------
+      
+      if (!activeSub) {
+      
+        let latestActivity = 0;
       
         for (const sub of SYLLABUS_DATA) {
       
@@ -1788,35 +1833,83 @@
       
             const key = `${sub.id}_${i}`;
       
-            const lectureStatus =
+            const status =
               ForgeState.chapterStates[key] || "Pending";
       
-            const activityTime =
-              Number(ForgeState.lectureActivity[key] || 0);
+            const activity =
+              Number(
+                ForgeState.lectureActivity?.[key] || 0
+              );
       
-            // Completed lectures are no longer candidates.
-            if (lectureStatus === "Completed") {
-              continue;
-            }
+            if (
+              status !== "Completed" &&
+              activity > latestActivity
+            ) {
       
-            // Only consider chapters that have actually
-            // been interacted with in Lecture Tracker.
-            if (activityTime > latestActivity) {
+              latestActivity = activity;
+              activeSub = sub;
+              activeChapter = sub.chapters[i];
       
-              latestActivity = activityTime;
-              latestSub = sub;
-              latestChapter = sub.chapters[i];
+              ForgeState.currentLectureKey = key;
             }
           }
         }
       }
       
-      // If we found an actively studied lecture chapter,
-      // use it as Current Focus.
-      if (latestSub && latestChapter) {
+      // ------------------------------------------------------------
+      // 3. Final fallback:
+      //    first non-completed lecture chapter.
+      // ------------------------------------------------------------
       
-        currentSubName = latestSub.name;
-        currentChapterName = latestChapter;
+      if (!activeSub) {
+      
+        for (const sub of SYLLABUS_DATA) {
+      
+          for (let i = 0; i < sub.chapters.length; i++) {
+      
+            const key = `${sub.id}_${i}`;
+      
+            const status =
+              ForgeState.chapterStates[key] || "Pending";
+      
+            if (status !== "Completed") {
+      
+              activeSub = sub;
+              activeChapter = sub.chapters[i];
+      
+              ForgeState.currentLectureKey = key;
+      
+              break;
+            }
+          }
+      
+          if (activeSub) break;
+        }
+      }
+      
+      // ------------------------------------------------------------
+      // Update dashboard.
+      // ------------------------------------------------------------
+      
+      if (activeSub && activeChapter) {
+      
+        currentSubName = activeSub.name;
+        currentChapterName = activeChapter;
+      }
+      
+      const dashSub =
+        document.getElementById("dash-curr-subject");
+      
+      const dashCh =
+        document.getElementById("dash-curr-chapter");
+      
+      if (dashSub) {
+        dashSub.innerText = currentSubName;
+      }
+      
+      if (dashCh) {
+        dashCh.innerText =
+          `Current Chapter: ${currentChapterName}`;
       }
     
       const dashSub =
@@ -2533,36 +2626,38 @@
        ------------------------------------------------------------ */
     
     function activateLectureChapter(e, key) {
-    
+
       // Ignore clicks coming from the status dropdown.
-      // The dropdown has its own logic.
       if (e.target.closest(".custom-dropdown-container")) {
         return;
       }
     
-      if (!ForgeState.lectureActivity ||
-          typeof ForgeState.lectureActivity !== "object") {
+      if (
+        !ForgeState.lectureActivity ||
+        typeof ForgeState.lectureActivity !== "object"
+      ) {
         ForgeState.lectureActivity = {};
       }
     
       const currentStatus =
         ForgeState.chapterStates[key] || "Pending";
     
-      // Automatically move a newly opened Pending lecture
-      // into In Progress.
+      // If a Pending chapter is opened, automatically
+      // move it into In Progress.
       if (currentStatus === "Pending") {
         ForgeState.chapterStates[key] = "In Progress";
       }
     
-      // This is the key piece:
-      // record the most recent lecture activity.
+      // This chapter is now the active lecture.
+      ForgeState.currentLectureKey = key;
+    
+      // Record latest activity.
       ForgeState.lectureActivity[key] = Date.now();
     
       saveAppState();
     
-      // Re-render the Lecture Tracker so the new status
-      // is immediately visible.
       requestAnimationFrame(() => {
+    
         renderLectureTracker();
     
         const subjectId = key.split("_")[0];
@@ -2577,33 +2672,140 @@
     }
     
     function updateChapterStatus(e, key, status) {
+
       e.preventDefault();
       e.stopPropagation();
     
-      // ------------------------------------------------------------
-      // Lecture Tracker is the ONLY source for Current Focus.
-      // Every status change updates the chapter's activity timestamp.
-      // ------------------------------------------------------------
-      if (!ForgeState.lectureActivity ||
-          typeof ForgeState.lectureActivity !== "object") {
+      if (
+        !ForgeState.lectureActivity ||
+        typeof ForgeState.lectureActivity !== "object"
+      ) {
         ForgeState.lectureActivity = {};
       }
     
+      // Update the selected chapter status.
       ForgeState.chapterStates[key] = status;
     
-      // Record latest lecture interaction
+      // Record lecture activity.
       ForgeState.lectureActivity[key] = Date.now();
+    
+      // ------------------------------------------------------------
+      // COMPLETION → AUTOMATICALLY ADVANCE TO NEXT CHAPTER
+      // ------------------------------------------------------------
+      if (status === "Completed") {
+    
+        const parts = key.split("_");
+        const subjectId = parts[0];
+        const chapterIndex = parseInt(parts[1], 10);
+    
+        const subject =
+          SYLLABUS_DATA.find(sub => sub.id === subjectId);
+    
+        let nextKey = null;
+    
+        // First priority:
+        // Find the next non-completed chapter in the SAME subject.
+        if (subject) {
+    
+          for (
+            let i = chapterIndex + 1;
+            i < subject.chapters.length;
+            i++
+          ) {
+    
+            const candidateKey = `${subject.id}_${i}`;
+    
+            const candidateStatus =
+              ForgeState.chapterStates[candidateKey] || "Pending";
+    
+            if (candidateStatus !== "Completed") {
+              nextKey = candidateKey;
+              break;
+            }
+          }
+        }
+    
+        // ----------------------------------------------------------
+        // If the subject is exhausted, move to the next subject
+        // with an unfinished lecture chapter.
+        // ----------------------------------------------------------
+        if (!nextKey) {
+    
+          const currentSubjectIndex =
+            SYLLABUS_DATA.findIndex(
+              sub => sub.id === subjectId
+            );
+    
+          for (
+            let s = currentSubjectIndex + 1;
+            s < SYLLABUS_DATA.length;
+            s++
+          ) {
+    
+            const nextSubject = SYLLABUS_DATA[s];
+    
+            for (
+              let i = 0;
+              i < nextSubject.chapters.length;
+              i++
+            ) {
+    
+              const candidateKey =
+                `${nextSubject.id}_${i}`;
+    
+              const candidateStatus =
+                ForgeState.chapterStates[candidateKey] || "Pending";
+    
+              if (candidateStatus !== "Completed") {
+                nextKey = candidateKey;
+                break;
+              }
+            }
+    
+            if (nextKey) break;
+          }
+        }
+    
+        // ----------------------------------------------------------
+        // Activate the next lecture.
+        // ----------------------------------------------------------
+        if (nextKey) {
+    
+          ForgeState.currentLectureKey = nextKey;
+    
+          // The next chapter is now the active chapter.
+          ForgeState.chapterStates[nextKey] = "In Progress";
+    
+          // Give it a fresh activity timestamp.
+          ForgeState.lectureActivity[nextKey] = Date.now();
+    
+        } else {
+    
+          // Everything is completed.
+          ForgeState.currentLectureKey = null;
+        }
+    
+      } else {
+    
+        // Pending / In Progress manually selected:
+        // this chapter becomes the current focus.
+        ForgeState.currentLectureKey = key;
+      }
     
       saveAppState();
     
-      const subjectId = key.split("_")[0];
-    
       requestAnimationFrame(() => {
+    
         renderLectureTracker();
     
-        // Keep the subject accordion open
+        // Keep the relevant accordion open.
+        const activeKey = ForgeState.currentLectureKey || key;
+        const activeSubjectId = activeKey.split("_")[0];
+    
         const accordion =
-          document.getElementById(`accordion-${subjectId}`);
+          document.getElementById(
+            `accordion-${activeSubjectId}`
+          );
     
         if (accordion) {
           accordion.classList.add("open");
